@@ -576,6 +576,13 @@ def _snapshot():
     return snapshot()
 
 
+def client_ip(request: Request) -> str:
+    """Behind Fly's proxy request.client is the proxy; Fly sets Fly-Client-IP (not spoofable by the client, it is overwritten
+    at the edge). X-Forwarded-For's first hop is the fallback for other proxies; direct connections use the socket."""
+    h = request.headers
+    return (h.get("fly-client-ip") or (h.get("x-forwarded-for") or "").split(",")[0].strip() or (request.client.host if request.client else "unknown"))
+
+
 @router.get("/investigate/samples")
 def samples():
     return {"questions": SAMPLE_QUESTIONS, "live": bool(os.environ.get("ANTHROPIC_API_KEY")) and os.environ.get("CIVICLENS_INVESTIGATOR", "on") == "on",
@@ -596,7 +603,7 @@ def investigate(req: AskRequest, request: Request):
     if not os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("CIVICLENS_INVESTIGATOR", "on") != "on":
         return {"status": "unavailable", "reason": "live AI investigation is disabled on this deployment; cached sample answers only",
                 "cached": False, "mode": "disabled"}
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     now = time.time()
     blocked = _get_ledger().check(ip, now)
     if blocked:

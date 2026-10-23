@@ -296,3 +296,13 @@ def test_numbers_with_no_facts_at_all_trigger_regeneration(snap):
     ]
     answer, v, tr = ask(snap, scope, "who got the most?", client=FakeClient(turns))
     assert tr.regenerated and v["ungrounded_prose"] == ["$250.0 million"] and v["prose_sentences_removed"] == 1
+
+
+def test_client_ip_prefers_fly_header_then_forwarded_for():
+    from starlette.requests import Request
+    def req(headers, host="10.0.0.1"):
+        scope = {"type": "http", "method": "POST", "path": "/", "headers": [(k.lower().encode(), v.encode()) for k, v in headers.items()], "client": (host, 1)}
+        return Request(scope)
+    assert inv.client_ip(req({"fly-client-ip": "203.0.113.9", "x-forwarded-for": "198.51.100.1, 10.0.0.1"})) == "203.0.113.9"
+    assert inv.client_ip(req({"x-forwarded-for": "198.51.100.1, 10.0.0.1"})) == "198.51.100.1"
+    assert inv.client_ip(req({})) == "10.0.0.1"

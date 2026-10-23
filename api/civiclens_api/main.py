@@ -61,6 +61,9 @@ async def timing(request: Request, call_next):
     resp = await call_next(request)
     resp.headers["X-Response-Time-ms"] = str(int((time.perf_counter() - t0) * 1000))
     resp.headers["X-Snapshot-Version"] = _snapshot.version if _snapshot else "none"
+    resp.headers["X-Content-Type-Options"] = "nosniff"
+    resp.headers["Referrer-Policy"] = "no-referrer"
+    resp.headers["Cache-Control"] = "public, max-age=300" if request.method == "GET" and request.url.path.startswith("/v1/") and "investigate" not in request.url.path else "no-store"
     return resp
 
 
