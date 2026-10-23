@@ -1,45 +1,95 @@
 {
  "stamp": {
-  "github_run_id": "40000440021",
-  "commit": "612e7aee7576",
-  "utc": "2026-10-23T18:07:55+00:00",
+  "github_run_id": "40005551673",
+  "commit": "5a45d15236f0",
+  "utc": "2026-10-23T18:47:55+00:00",
   "catalog": "workspace",
-  "ingest_run_id": "39997561946"
+  "ingest_run_id": "39997561946",
+  "serverless_environment_client": "3"
  },
  "job_id": 862977884764769,
- "run_id": 498821750520803,
- "run_page_url": "https://dbc-b531337f-7f65.cloud.databricks.com/?o=7474654994685709#job/862977884764769/run/498821750520803",
+ "run_id": 577799826358384,
+ "run_page_url": "https://dbc-b531337f-7f65.cloud.databricks.com/?o=7474654994685709#job/862977884764769/run/577799826358384",
  "state": {
-  "life_cycle_state": "INTERNAL_ERROR",
-  "result_state": "FAILED",
-  "state_message": "Task bronze failed with message: Cannot launch the cluster. Cause: Invalid platform channel Client-1. INVALID_PARAMETER_VALUE: INVALID_PARAMETER_VALUE: Workspace doesn't support Client-1 channel for REPL. (requestId=27c777da-fb54-4746-9222-052fd435248f). This caused all downstream tasks to get skipped.",
+  "life_cycle_state": "TERMINATED",
+  "result_state": "SUCCESS",
+  "state_message": "",
   "user_cancelled_or_timedout": false
  },
  "tasks": [
   {
    "task_key": "bronze",
    "state": {
-    "life_cycle_state": "INTERNAL_ERROR",
-    "result_state": "FAILED",
-    "state_message": "Cannot launch the cluster. Cause: Invalid platform channel Client-1. INVALID_PARAMETER_VALUE: INVALID_PARAMETER_VALUE: Workspace doesn't support Client-1 channel for REPL. (requestId=27c777da-fb54-4746-9222-052fd435248f)",
+    "life_cycle_state": "TERMINATED",
+    "result_state": "SUCCESS",
+    "state_message": "",
     "user_cancelled_or_timedout": false
    },
    "notebook_output": {},
-   "error": "Run failed with error message\n Cannot launch the cluster. Cause: Invalid platform channel Client-1. INVALID_PARAMETER_VALUE: INVALID_PARAMETER_VALUE: Workspace doesn't support Client-1 channel for REPL. (requestId=27c777da-fb54-4746-9222-052fd435248f)"
+   "error": null
   },
   {
    "task_key": "silver_gold_anomalies",
    "state": {
-    "life_cycle_state": "SKIPPED",
-    "result_state": "UPSTREAM_FAILED",
-    "state_message": "An upstream task failed.",
+    "life_cycle_state": "TERMINATED",
+    "result_state": "SUCCESS",
+    "state_message": "",
     "user_cancelled_or_timedout": false
    },
-   "notebook_output": null,
-   "error": "Run result unavailable: The task was skipped because not all its dependencies were executed and succeeded."
+   "notebook_output": {
+    "result": "{\"bronze\": 109883, \"silver\": 109883, \"rejects\": 0, \"silver_sum\": 109830250044.05, \"gold_award_sum\": 109830250044.05, \"flagged_large\": 157, \"scored_large\": 45044, \"gold_equals_silver\": true, \"catalog\": \"workspace\"}",
+    "truncated": false
+   },
+   "error": null
   }
  ],
- "databricks_dq": {},
- "vs_duckdb": {},
- "pass": false
+ "databricks_dq": {
+  "bronze": 109883,
+  "silver": 109883,
+  "rejects": 0,
+  "silver_sum": 109830250044.05,
+  "gold_award_sum": 109830250044.05,
+  "flagged_large": 157,
+  "scored_large": 45044,
+  "gold_equals_silver": true,
+  "catalog": "workspace"
+ },
+ "vs_duckdb": {
+  "bronze": {
+   "databricks": 109883,
+   "duckdb": 109883,
+   "match": true
+  },
+  "silver": {
+   "databricks": 109883,
+   "duckdb": 109883,
+   "match": true
+  },
+  "rejects": {
+   "databricks": 0,
+   "duckdb": 0,
+   "match": true
+  },
+  "silver_sum": {
+   "databricks": 109830250044.05,
+   "duckdb": 109830250044.05,
+   "match": true
+  },
+  "gold_award_sum": {
+   "databricks": 109830250044.05,
+   "duckdb": 109830250044.05,
+   "match": true
+  },
+  "flagged_large": {
+   "databricks": 157,
+   "duckdb": 157,
+   "match": true
+  },
+  "scored_large": {
+   "databricks": 45044,
+   "duckdb": 45044,
+   "match": true
+  }
+ },
+ "pass": true
 }
