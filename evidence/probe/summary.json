@@ -1,0 +1,2648 @@
+{
+ "run_utc": "2026-10-23T02:22:23+00:00",
+ "ok": true,
+ "endpoints": {
+  "last_updated": {
+   "status": "ok"
+  },
+  "toptier_agencies": {
+   "status": "ok",
+   "response_keys": [
+    "abbreviation",
+    "active_fq",
+    "active_fy",
+    "agency_id",
+    "agency_name",
+    "agency_slug",
+    "budget_authority_amount",
+    "congressional_justification_url",
+    "current_total_budget_authority_amount",
+    "obligated_amount",
+    "outlay_amount",
+    "percentage_of_total_budget_authority",
+    "toptier_code"
+   ]
+  },
+  "download_count": {
+   "status": "ok",
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ]
+  },
+  "spending_by_award": {
+   "status": "ok",
+   "response_keys": [
+    "limit",
+    "messages",
+    "page_metadata",
+    "results",
+    "spending_level"
+   ],
+   "first_result_keys": [
+    "Award Amount",
+    "Award ID",
+    "Awarding Agency",
+    "Awarding Sub Agency",
+    "Contract Award Type",
+    "Description",
+    "End Date",
+    "Last Modified Date",
+    "NAICS",
+    "PSC",
+    "Recipient Name",
+    "Recipient UEI",
+    "Start Date",
+    "Total Outlays",
+    "agency_slug",
+    "awarding_agency_id",
+    "generated_internal_id",
+    "internal_id",
+    "recipient_id"
+   ],
+   "page_metadata": {
+    "page": 1,
+    "hasNext": true,
+    "last_record_unique_id": 347645769,
+    "last_record_sort_value": "20446905381"
+   }
+  },
+  "spending_by_award_count": {
+   "status": "ok",
+   "response_keys": [
+    "messages",
+    "results",
+    "spending_level"
+   ]
+  },
+  "award_and_transactions": {
+   "status": "ok"
+  },
+  "download_transactions": {
+   "status": "ok"
+  }
+ },
+ "counts": {
+  "036:2022": {
+   "calculated_transaction_count": 5197,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 5197,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "036:2023": {
+   "calculated_transaction_count": 4269,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 4269,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "036:2024": {
+   "calculated_transaction_count": 3973,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 3973,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "036:2025": {
+   "calculated_transaction_count": 3919,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 3919,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "036:2026": {
+   "calculated_transaction_count": 4387,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 4387,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "070:2022": {
+   "calculated_transaction_count": 8020,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 8020,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "070:2023": {
+   "calculated_transaction_count": 6654,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 6654,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "070:2024": {
+   "calculated_transaction_count": 5502,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 5502,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "070:2025": {
+   "calculated_transaction_count": 5040,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 5040,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "070:2026": {
+   "calculated_transaction_count": 4447,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 4447,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "075:2022": {
+   "calculated_transaction_count": 5944,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 5944,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "075:2023": {
+   "calculated_transaction_count": 5465,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 5465,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "075:2024": {
+   "calculated_transaction_count": 4841,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 4841,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "075:2025": {
+   "calculated_transaction_count": 4310,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 4310,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "075:2026": {
+   "calculated_transaction_count": 3742,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 3742,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "020:2022": {
+   "calculated_transaction_count": 3822,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 3822,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "020:2023": {
+   "calculated_transaction_count": 3309,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 3309,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "020:2024": {
+   "calculated_transaction_count": 3375,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 3375,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "020:2025": {
+   "calculated_transaction_count": 4022,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 4022,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "020:2026": {
+   "calculated_transaction_count": 2862,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 2862,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "013:2022": {
+   "calculated_transaction_count": 3898,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 3898,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "013:2023": {
+   "calculated_transaction_count": 3463,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 3463,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "013:2024": {
+   "calculated_transaction_count": 2907,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 2907,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "013:2025": {
+   "calculated_transaction_count": 2638,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 2638,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "013:2026": {
+   "calculated_transaction_count": 2152,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 2152,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "028:2022": {
+   "calculated_transaction_count": 438,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 438,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "028:2023": {
+   "calculated_transaction_count": 378,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 378,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "028:2024": {
+   "calculated_transaction_count": 369,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 369,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "028:2025": {
+   "calculated_transaction_count": 313,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 313,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  },
+  "028:2026": {
+   "calculated_transaction_count": 235,
+   "maximum_transaction_limit": 500000,
+   "transaction_rows_gt_limit": false,
+   "calculated_count": 235,
+   "spending_level": "transactions",
+   "maximum_limit": 500000,
+   "rows_gt_limit": false,
+   "messages": [
+    "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+    "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+    "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+   ]
+  }
+ },
+ "notes": [],
+ "last_updated": "10/22/2026",
+ "calls": [
+  {
+   "method": "GET",
+   "url": "https://api.usaspending.gov/api/v2/awards/last_updated/",
+   "request": null,
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 403,
+   "response_keys": [
+    "last_updated"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:23+00:00"
+  },
+  {
+   "method": "GET",
+   "url": "https://api.usaspending.gov/api/v2/references/toptier_agencies/",
+   "request": null,
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 185,
+   "response_keys": [
+    "results"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:23+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Veterans Affairs"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 792,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:23+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2022-10-01",
+       "end_date": "2023-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Veterans Affairs"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 401,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:24+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2023-10-01",
+       "end_date": "2024-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Veterans Affairs"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 348,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:24+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2024-10-01",
+       "end_date": "2025-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Veterans Affairs"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 307,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:25+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2025-10-01",
+       "end_date": "2026-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Veterans Affairs"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 284,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:25+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Homeland Security"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 201,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:25+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2022-10-01",
+       "end_date": "2023-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Homeland Security"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 319,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:26+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2023-10-01",
+       "end_date": "2024-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Homeland Security"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 234,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:26+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2024-10-01",
+       "end_date": "2025-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Homeland Security"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 276,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:26+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2025-10-01",
+       "end_date": "2026-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Homeland Security"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 608,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:26+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Health and Human Services"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 785,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:27+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2022-10-01",
+       "end_date": "2023-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Health and Human Services"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 881,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:28+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2023-10-01",
+       "end_date": "2024-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Health and Human Services"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 212,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:29+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2024-10-01",
+       "end_date": "2025-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Health and Human Services"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 240,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:29+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2025-10-01",
+       "end_date": "2026-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Health and Human Services"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 233,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:29+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of the Treasury"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 271,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:29+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2022-10-01",
+       "end_date": "2023-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of the Treasury"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 247,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:30+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2023-10-01",
+       "end_date": "2024-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of the Treasury"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 156,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:30+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2024-10-01",
+       "end_date": "2025-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of the Treasury"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 376,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:30+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2025-10-01",
+       "end_date": "2026-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of the Treasury"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 333,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:30+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Commerce"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 244,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:31+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2022-10-01",
+       "end_date": "2023-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Commerce"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 569,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:31+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2023-10-01",
+       "end_date": "2024-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Commerce"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 434,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:32+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2024-10-01",
+       "end_date": "2025-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Commerce"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 490,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:32+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2025-10-01",
+       "end_date": "2026-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Commerce"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 207,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:33+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Social Security Administration"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 388,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:33+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2022-10-01",
+       "end_date": "2023-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Social Security Administration"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 178,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:33+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2023-10-01",
+       "end_date": "2024-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Social Security Administration"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 196,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:33+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2024-10-01",
+       "end_date": "2025-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Social Security Administration"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 159,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:34+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2025-10-01",
+       "end_date": "2026-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Social Security Administration"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 194,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:34+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Veterans Affairs"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "fields": [
+     "Award ID",
+     "Recipient Name",
+     "Recipient UEI",
+     "Award Amount",
+     "Total Outlays",
+     "Description",
+     "Start Date",
+     "End Date",
+     "Awarding Agency",
+     "Awarding Sub Agency",
+     "Contract Award Type",
+     "NAICS",
+     "PSC",
+     "Last Modified Date",
+     "generated_internal_id",
+     "recipient_id"
+    ],
+    "page": 1,
+    "limit": 5,
+    "sort": "Award Amount",
+    "order": "desc",
+    "subawards": false
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 724,
+   "response_keys": [
+    "limit",
+    "messages",
+    "page_metadata",
+    "results",
+    "spending_level"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:34+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Veterans Affairs"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "fields": [
+     "Award ID",
+     "Recipient Name",
+     "Recipient UEI",
+     "Award Amount",
+     "Total Outlays",
+     "Description",
+     "Start Date",
+     "End Date",
+     "Awarding Agency",
+     "Awarding Sub Agency",
+     "Contract Award Type",
+     "NAICS",
+     "PSC",
+     "Last Modified Date",
+     "generated_internal_id",
+     "recipient_id"
+    ],
+    "page": 2,
+    "limit": 5,
+    "sort": "Award Amount",
+    "order": "desc",
+    "subawards": false,
+    "last_record_unique_id": 347645769,
+    "last_record_sort_value": "20446905381"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 750,
+   "response_keys": [
+    "limit",
+    "messages",
+    "page_metadata",
+    "results",
+    "spending_level"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:35+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/search/spending_by_award_count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Veterans Affairs"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    }
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 617,
+   "response_keys": [
+    "messages",
+    "results",
+    "spending_level"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:35+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/search/spending_by_award/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Veterans Affairs"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "fields": [
+     "Award ID",
+     "Recipient Name",
+     "Recipient UEI",
+     "Award Amount",
+     "Total Outlays",
+     "Description",
+     "Start Date",
+     "End Date",
+     "Awarding Agency",
+     "Awarding Sub Agency",
+     "Contract Award Type",
+     "NAICS",
+     "PSC",
+     "Last Modified Date",
+     "generated_internal_id",
+     "recipient_id"
+    ],
+    "page": 1,
+    "limit": 1,
+    "sort": "Award Amount",
+    "order": "desc",
+    "subawards": false
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 1034,
+   "response_keys": [
+    "limit",
+    "messages",
+    "page_metadata",
+    "results",
+    "spending_level"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:36+00:00"
+  },
+  {
+   "method": "GET",
+   "url": "https://api.usaspending.gov/api/v2/awards/CONT_AWD_VA11818F2526_3600_NNG15SC25B_8000/",
+   "request": null,
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 192,
+   "response_keys": [
+    "account_obligations_by_defc",
+    "account_outlays_by_defc",
+    "awarding_agency",
+    "base_and_all_options",
+    "base_exercised_options",
+    "category",
+    "date_signed",
+    "description",
+    "executive_details",
+    "funding_agency",
+    "generated_unique_award_id",
+    "id",
+    "latest_transaction_contract_data",
+    "naics_hierarchy",
+    "parent_award",
+    "period_of_performance",
+    "piid",
+    "place_of_performance",
+    "psc_hierarchy",
+    "recipient",
+    "subaward_count",
+    "total_account_obligation",
+    "total_account_outlay",
+    "total_obligation",
+    "total_outlay",
+    "total_subaward_amount",
+    "type",
+    "type_description"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:37+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/transactions/",
+   "request": {
+    "award_id": "CONT_AWD_VA11818F2526_3600_NNG15SC25B_8000",
+    "page": 1,
+    "limit": 100,
+    "sort": "action_date",
+    "order": "asc"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 171,
+   "response_keys": [
+    "page_metadata",
+    "results"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:37+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/transactions/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2025-10-01",
+       "end_date": "2026-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Social Security Administration"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "file_format": "csv"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 451,
+   "response_keys": [
+    "download_request",
+    "file_name",
+    "file_url",
+    "status_url"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:37+00:00"
+  },
+  {
+   "method": "GET",
+   "url": "https://api.usaspending.gov/api/v2/download/status/",
+   "request": {
+    "file_name": "PrimeTransactionsAndSubawards_2026-10-23_H02M22S38213658.zip"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 119,
+   "response_keys": [
+    "file_name",
+    "file_url",
+    "message",
+    "seconds_elapsed",
+    "status",
+    "total_columns",
+    "total_rows",
+    "total_size"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:38+00:00"
+  },
+  {
+   "method": "GET",
+   "url": "https://api.usaspending.gov/api/v2/download/status/",
+   "request": {
+    "file_name": "PrimeTransactionsAndSubawards_2026-10-23_H02M22S38213658.zip"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 381,
+   "response_keys": [
+    "file_name",
+    "file_url",
+    "message",
+    "seconds_elapsed",
+    "status",
+    "total_columns",
+    "total_rows",
+    "total_size"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:22:53+00:00"
+  },
+  {
+   "method": "GET",
+   "url": "https://api.usaspending.gov/api/v2/download/status/",
+   "request": {
+    "file_name": "PrimeTransactionsAndSubawards_2026-10-23_H02M22S38213658.zip"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 383,
+   "response_keys": [
+    "file_name",
+    "file_url",
+    "message",
+    "seconds_elapsed",
+    "status",
+    "total_columns",
+    "total_rows",
+    "total_size"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T02:23:08+00:00"
+  }
+ ]
+}

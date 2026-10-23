@@ -1,0 +1,72 @@
+{
+ "request": {
+  "filters": {
+   "time_period": [
+    {
+     "start_date": "2025-10-01",
+     "end_date": "2026-09-30",
+     "date_type": "action_date"
+    }
+   ],
+   "award_type_codes": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ],
+   "agencies": [
+    {
+     "type": "awarding",
+     "tier": "toptier",
+     "name": "Social Security Administration"
+    }
+   ],
+   "psc_codes": {
+    "require": [
+     [
+      "Service",
+      "D"
+     ],
+     [
+      "Product",
+      "70"
+     ]
+    ]
+   }
+  },
+  "file_format": "csv"
+ },
+ "submit_response_keys": [
+  "download_request",
+  "file_name",
+  "file_url",
+  "status_url"
+ ],
+ "submit_response": {
+  "status_url": "https://api.usaspending.gov/api/v2/download/status?file_name=PrimeTransactionsAndSubawards_2026-10-23_H02M22S38213658.zip",
+  "file_name": "PrimeTransactionsAndSubawards_2026-10-23_H02M22S38213658.zip",
+  "file_url": "https://files.usaspending.gov/generated_downloads/PrimeTransactionsAndSubawards_2026-10-23_H02M22S38213658.zip"
+ },
+ "status_response_keys": [
+  "file_name",
+  "file_url",
+  "message",
+  "seconds_elapsed",
+  "status",
+  "total_columns",
+  "total_rows",
+  "total_size"
+ ],
+ "status_response": {
+  "status": "finished",
+  "message": null,
+  "file_name": "PrimeTransactionsAndSubawards_2026-10-23_H02M22S38213658.zip",
+  "file_url": "https://files.usaspending.gov/generated_downloads/PrimeTransactionsAndSubawards_2026-10-23_H02M22S38213658.zip",
+  "total_size": 89.153,
+  "total_columns": 415,
+  "total_rows": 272,
+  "seconds_elapsed": "19.480038"
+ },
+ "summary": "028 FY2026: status=finished total_rows=272 size=89.153 seconds_elapsed=19.480038",
+ "status": "ok"
+}

@@ -1,0 +1,27 @@
+{
+ "response_keys": [
+  "abbreviation",
+  "active_fq",
+  "active_fy",
+  "agency_id",
+  "agency_name",
+  "agency_slug",
+  "budget_authority_amount",
+  "congressional_justification_url",
+  "current_total_budget_authority_amount",
+  "obligated_amount",
+  "outlay_amount",
+  "percentage_of_total_budget_authority",
+  "toptier_code"
+ ],
+ "resolved": {
+  "Department of Veterans Affairs": "036",
+  "Department of Homeland Security": "070",
+  "Department of Health and Human Services": "075",
+  "Department of the Treasury": "020",
+  "Department of Commerce": "013",
+  "Social Security Administration": "028"
+ },
+ "summary": "111 toptier agencies; all 6 MVP names resolve",
+ "status": "ok"
+}

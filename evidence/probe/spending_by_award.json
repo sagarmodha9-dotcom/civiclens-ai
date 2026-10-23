@@ -1,0 +1,129 @@
+{
+ "request": {
+  "filters": {
+   "time_period": [
+    {
+     "start_date": "2021-10-01",
+     "end_date": "2022-09-30",
+     "date_type": "action_date"
+    }
+   ],
+   "award_type_codes": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ],
+   "agencies": [
+    {
+     "type": "awarding",
+     "tier": "toptier",
+     "name": "Department of Veterans Affairs"
+    }
+   ],
+   "psc_codes": {
+    "require": [
+     [
+      "Service",
+      "D"
+     ],
+     [
+      "Product",
+      "70"
+     ]
+    ]
+   }
+  },
+  "fields": [
+   "Award ID",
+   "Recipient Name",
+   "Recipient UEI",
+   "Award Amount",
+   "Total Outlays",
+   "Description",
+   "Start Date",
+   "End Date",
+   "Awarding Agency",
+   "Awarding Sub Agency",
+   "Contract Award Type",
+   "NAICS",
+   "PSC",
+   "Last Modified Date",
+   "generated_internal_id",
+   "recipient_id"
+  ],
+  "page": 1,
+  "limit": 5
+ },
+ "response_keys": [
+  "limit",
+  "messages",
+  "page_metadata",
+  "results",
+  "spending_level"
+ ],
+ "page_metadata": {
+  "page": 1,
+  "hasNext": true,
+  "last_record_unique_id": 347645769,
+  "last_record_sort_value": "20446905381"
+ },
+ "first_result_keys": [
+  "Award Amount",
+  "Award ID",
+  "Awarding Agency",
+  "Awarding Sub Agency",
+  "Contract Award Type",
+  "Description",
+  "End Date",
+  "Last Modified Date",
+  "NAICS",
+  "PSC",
+  "Recipient Name",
+  "Recipient UEI",
+  "Start Date",
+  "Total Outlays",
+  "agency_slug",
+  "awarding_agency_id",
+  "generated_internal_id",
+  "internal_id",
+  "recipient_id"
+ ],
+ "first_result_redacted": {
+  "internal_id": 347651542,
+  "Award ID": "VA11818F2526",
+  "Recipient Name": "ALL POINTS LOGISTICS, LLC",
+  "Recipient UEI": "KNDAEKSMLLE4",
+  "Award Amount": 491391043.0,
+  "Total Outlays": null,
+  "Description": "IGF::OT::IGF PURCHASE OF INTERSYSTEMS CACHE' AND HEALTHSHARE",
+  "Start Date": "2017-10-01",
+  "End Date": "2022-09-30",
+  "Awarding Agency": "Department of Veterans Affairs",
+  "Awarding Sub Agency": "Department of Veterans Affairs",
+  "Contract Award Type": "DELIVERY ORDER",
+  "NAICS": {
+   "code": "541519",
+   "description": "OTHER COMPUTER RELATED SERVICES"
+  },
+  "PSC": {
+   "code": "D399",
+   "description": "IT AND TELECOM- OTHER IT AND TELECOMMUNICATIONS"
+  },
+  "Last Modified Date": "2022-04-05 11:49:01",
+  "generated_internal_id": "CONT_AWD_VA11818F2526_3600_NNG15SC25B_8000",
+  "recipient_id": "ba2921b4-1e9e-7e4d-00f1-c3a1f903a4c1-C",
+  "awarding_agency_id": 561,
+  "agency_slug": "department-of-veterans-affairs"
+ },
+ "page2_disjoint": true,
+ "sample_ids": [
+  "CONT_AWD_36C10B19F0460_3600_NNG15SD27B_8000",
+  "CONT_AWD_VA11810000049_3600_VA11811D1000_3600",
+  "CONT_AWD_VA11817F10070005_3600_VA11816D1007_3600",
+  "CONT_AWD_VA11817F2284_3600_NNG15SD22B_8000",
+  "CONT_AWD_VA11818F2526_3600_NNG15SC25B_8000"
+ ],
+ "summary": "5 rows p1, 5 rows p2, disjoint=True, hasNext=True",
+ "status": "ok"
+}

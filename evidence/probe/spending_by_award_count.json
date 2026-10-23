@@ -1,0 +1,59 @@
+{
+ "request": {
+  "filters": {
+   "time_period": [
+    {
+     "start_date": "2021-10-01",
+     "end_date": "2022-09-30",
+     "date_type": "action_date"
+    }
+   ],
+   "award_type_codes": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ],
+   "agencies": [
+    {
+     "type": "awarding",
+     "tier": "toptier",
+     "name": "Department of Veterans Affairs"
+    }
+   ],
+   "psc_codes": {
+    "require": [
+     [
+      "Service",
+      "D"
+     ],
+     [
+      "Product",
+      "70"
+     ]
+    ]
+   }
+  }
+ },
+ "response": {
+  "results": {
+   "contracts": 1266,
+   "direct_payments": 0,
+   "grants": 0,
+   "idvs": 0,
+   "loans": 0,
+   "other": 0
+  },
+  "spending_level": "awards",
+  "messages": [
+   "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. "
+  ]
+ },
+ "response_keys": [
+  "messages",
+  "results",
+  "spending_level"
+ ],
+ "summary": "award counts by type: {'contracts': 1266, 'direct_payments': 0, 'grants': 0, 'idvs': 0, 'loans': 0, 'other': 0}",
+ "status": "ok"
+}
