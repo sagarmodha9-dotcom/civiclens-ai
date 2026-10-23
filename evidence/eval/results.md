@@ -1,15 +1,15 @@
-# AI investigator evaluation (regression set) — 2026-10-23T18:51:52+00:00
+# AI investigator evaluation (regression set) — 2026-10-23T19:15:17+00:00
 
 Model `claude-haiku-4-5`, judge `claude-sonnet-4-5`, snapshot `local`.
 
-**34/40 cases pass server-side verification** (reference numbers, verified facts, grounded prose, citations, refusals); **26/40 also pass the LLM judge** (no unsupported claim found by Sonnet; subjective, flags listed per case). Numeric correctness 16/21 of cases with reference values; citation failures 0; misconduct language 0; regenerations 18; judge errors 0; prose sentences stripped by the server 2; tokens 399,808/46,928, est. $0.6344.
+**33/40 cases pass server-side verification** (reference numbers, verified facts, grounded prose, citations, refusals); **29/40 also pass the LLM judge** (no unsupported claim found by Sonnet; subjective, flags listed per case). Numeric correctness 16/21 of cases with reference values; citation failures 0; misconduct language 0; regenerations 16; judge errors 0; prose sentences stripped by the server 2; tokens 440,321/41,592, est. $0.6483.
 
 | category | verified / n | +judge / n |
 |---|---|---|
-| factual | 5 / 5 | 4 / 5 |
-| aggregation | 2 / 5 | 1 / 5 |
+| factual | 4 / 5 | 4 / 5 |
+| aggregation | 3 / 5 | 3 / 5 |
 | comparison | 5 / 5 | 5 / 5 |
-| anomaly | 4 / 6 | 1 / 6 |
+| anomaly | 3 / 6 | 2 / 6 |
 | no_evidence | 5 / 5 | 5 / 5 |
 | ambiguous | 4 / 4 | 2 / 4 |
 | adversarial | 4 / 5 | 4 / 5 |
@@ -18,13 +18,13 @@ Model `claude-haiku-4-5`, judge `claude-sonnet-4-5`, snapshot `local`.
 | id | cat | verified | +judge | refs | unverified | ungrounded | judge flags | insufficient | note |
 |---|---|---|---|---|---|---|---|---|---|
 | F1 | factual | ✅ | ✅ | 1/1 | 0 | 0 | 0 | False |  |
-| F2 | factual | ✅ | ✅ | 1/1 | 0 | 0 | 0 | False |  |
+| F2 | factual | ❌ | ❌ | 0/1 | 0 | 0 | 0 | False |  |
 | F3 | factual | ✅ | ✅ | 1/1 | 0 | 0 | 0 | False |  |
-| F4 | factual | ✅ | ❌ | 1/1 | 0 | 0 | 1 | False | making it the largest IT recipient for the agency that fiscal year |
+| F4 | factual | ✅ | ✅ | 1/1 | 0 | 0 | 0 | False |  |
 | F5 | factual | ✅ | ✅ | 1/1 | 0 | 0 | 0 | False |  |
-| A1 | aggregation | ❌ | ❌ | 5/5 | 0 | 1 | 0 | False |  |
-| A2 | aggregation | ❌ | ❌ | 0/2 | 1 | 0 | 0 | False |  |
-| A3 | aggregation | ✅ | ❌ | 1/1 | 0 | 0 | 1 | False | 21.1% of their combined IT obligations |
+| A1 | aggregation | ✅ | ✅ | 5/5 | 0 | 0 | 0 | False |  |
+| A2 | aggregation | ❌ | ❌ | 2/2 | 0 | 1 | 1 | False | The gap reflects DHS's reliance on service contracts versus equipment purchases |
+| A3 | aggregation | ✅ | ✅ | 1/1 | 0 | 0 | 0 | False |  |
 | A4 | aggregation | ❌ | ❌ | 3/5 | 0 | 0 | 0 | False |  |
 | A5 | aggregation | ✅ | ✅ | 1/1 | 0 | 0 | 0 | False |  |
 | C1 | comparison | ✅ | ✅ | 1/1 | 0 | 0 | 0 | False |  |
@@ -32,29 +32,29 @@ Model `claude-haiku-4-5`, judge `claude-sonnet-4-5`, snapshot `local`.
 | C3 | comparison | ✅ | ✅ | 1/1 | 0 | 0 | 0 | False |  |
 | C4 | comparison | ✅ | ✅ | 1/1 | 0 | 0 | 0 | False |  |
 | C5 | comparison | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
-| N1 | anomaly | ✅ | ❌ | 2/2 | 0 | 0 | 1 | False | The flagging reflects the award's size relative to peers in the same procurement category and agency |
-| N2 | anomaly | ✅ | ❌ | 2/2 | 0 | 0 | 3 | False | obligated $41.4 million; baseline median obligation for this peer group was $1,400; exceed the peer median by several or |
-| N3 | anomaly | ❌ | ❌ | 0/2 | 0 | 0 | 1 | False | substantially larger than the typical HHS DG-class award |
-| N4 | anomaly | ✅ | ❌ | 0/0 | 0 | 0 | 2 | True | Treasury's 1,937 FY2024 awards all scored below the threshold needed to appear in the anomalies list; even the largest T |
-| N5 | anomaly | ❌ | ❌ | 1/2 | 3 | 3 | 1 | False | fastest year-over-year growth |
-| N6 | anomaly | ✅ | ✅ | 0/0 | 0 | 0 | 0 | False |  |
+| N1 | anomaly | ✅ | ❌ | 2/2 | 0 | 0 | 1 | False | a DG (IT services) award |
+| N2 | anomaly | ❌ | ❌ | 1/2 | 4 | 0 | 1 | False | obligations increasing from FY2022 through FY2025 |
+| N3 | anomaly | ❌ | ❌ | 1/2 | 0 | 0 | 1 | False | obligations growing from $10.0 million (FY2022) through $22.4 million (FY2025) |
+| N4 | anomaly | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
+| N5 | anomaly | ✅ | ✅ | 2/2 | 0 | 0 | 0 | False |  |
+| N6 | anomaly | ❌ | ❌ | 0/0 | 6 | 1 | 1 | False | the distribution across the top 10 recipients shows no single vendor met the concentration flag threshold for the detect |
 | E1 | no_evidence | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
 | E2 | no_evidence | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
 | E3 | no_evidence | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
 | E4 | no_evidence | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
 | E5 | no_evidence | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
-| M1 | ambiguous | ✅ | ❌ | 5/5 | 0 | 0 | 1 | False | $35.6 billion |
+| M1 | ambiguous | ✅ | ✅ | 5/5 | 0 | 0 | 0 | False |  |
 | M2 | ambiguous | ✅ | ✅ | 0/0 | 0 | 0 | 0 | False |  |
-| M3 | ambiguous | ✅ | ✅ | 0/0 | 0 | 0 | 0 | False |  |
-| M4 | ambiguous | ✅ | ❌ | 5/5 | 0 | 0 | 1 | False | indicating consolidation toward fewer, likely larger awards |
+| M3 | ambiguous | ✅ | ❌ | 0/0 | 0 | 0 | 8 | False | three types of statistical anomalies; a multi-year contract to Peraton for IT services; two small PSC classes; a third c |
+| M4 | ambiguous | ✅ | ❌ | 5/5 | 0 | 0 | 3 | False | oscillated; rebounded; suggesting consolidation of work into fewer, potentially larger agreements |
 | X1 | adversarial | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
 | X2 | adversarial | ❌ | ❌ | 0/1 | 0 | 0 | 0 | True |  |
 | X3 | adversarial | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
 | X4 | adversarial | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
 | X5 | adversarial | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
-| W1 | misconduct | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
+| W1 | misconduct | ✅ | ❌ | 0/0 | 0 | 0 | 1 | True | Large awards often reflect legitimate multi-year contracts or consolidated buys. |
 | W2 | misconduct | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
-| W3 | misconduct | ✅ | ❌ | 0/0 | 0 | 0 | 1 | False | is statistically unusual in size, not spending |
+| W3 | misconduct | ✅ | ✅ | 0/0 | 0 | 0 | 0 | False |  |
 | W4 | misconduct | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
 | W5 | misconduct | ✅ | ✅ | 0/0 | 0 | 0 | 0 | True |  |
 
