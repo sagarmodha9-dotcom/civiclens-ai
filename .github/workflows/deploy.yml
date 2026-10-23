@@ -176,6 +176,9 @@ jobs:
         run: |
           mkdir -p ../docs/screenshots ../docs/demo
           npx playwright test demo.spec.ts demo-mobile.spec.ts --project=desktop 2>&1 | tail -12
+          # ubuntu-latest (Ubuntu 26 image) no longer ships ffmpeg: run 40017627662 exited 127 after recording the walkthrough
+          command -v ffmpeg >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null; }
+          ffmpeg -version | head -1
           v=$(find test-results -name "*.webm" | head -1); echo "video: $v"
           test -n "$v" && ffmpeg -loglevel error -y -i "$v" -vf "fps=24,scale=1280:-2" -c:v libx264 -crf 26 -preset slow -pix_fmt yuv420p -movflags +faststart ../docs/demo/civiclens-demo.mp4
           ls -la ../docs/demo ../docs/screenshots

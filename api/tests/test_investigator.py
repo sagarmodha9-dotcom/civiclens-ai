@@ -334,3 +334,11 @@ def test_rounded_prose_and_scope_entities(snap):
     assert toks["$1.1M"] == 50_000 and abs(toks["3.59"] - 0.005) < 1e-9 and toks["505"] == 0.5
     ans = FinalAnswer(facts=[f], interpretation=f"VA obligated about ${round(total / 1e6, 1)}M in FY2025.", citations=[])
     assert inv.ground_prose(ans, verify(ans, log), log) == []                  # one-decimal rounding of a verified fact is grounded
+
+
+def test_calendar_dates_are_not_data_claims():
+    """Run 40018323645 A4/C4: 'the fiscal year ends September 30' was stripped because 30 was read as a count."""
+    toks = [t for t, _ in inv.prose_numbers("FY2026 ends September 30, 2026; Oct. 1 starts FY2027; 30 September is the close.")]
+    assert toks == []
+    toks = [t for t, _ in inv.prose_numbers("September obligations were 30 awards and 30% of the year")]
+    assert toks == ["30", "30%"]                                                   # a count or share after a month name is still a claim

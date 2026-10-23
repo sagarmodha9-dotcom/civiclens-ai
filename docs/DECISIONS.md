@@ -31,3 +31,11 @@ cannot merge wholesale-replaced `results.json/md` against the previous holdout c
 `eval-<set>` so regression and holdout run in parallel without cancelling each other, and the commit step treats
 `evidence/eval[/holdout]` as owned by the run — on a race it resets to `origin/main`, re-applies its own files only
 (never the other set's folder) and retries with backoff. No scoring or references changed.
+
+## Prose grounding: the day in a calendar date is not a data claim (2026-10-23)
+
+Regression run 40018323645 failed A4 and C4 only because "the fiscal year ends September 30" was read as the number 30,
+untraceable to any tool result, and the sentence was stripped. Decision: a 1–2 digit integer immediately attached to a month
+name ("September 30", "Oct. 1", "30 September") is exempt from grounding; a count or percentage after a month name
+("September obligations were 30 awards", "30%") is still checked (`test_calendar_dates_are_not_data_claims`). C1's stripped
+"39%" was a share the model computed without declaring it as a fact — that strip is correct and the case stays failed.

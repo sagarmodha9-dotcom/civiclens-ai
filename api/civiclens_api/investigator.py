@@ -356,6 +356,17 @@ def _derivable(value: float, basis: list[float]) -> bool:
 _PROSE_NUM = re.compile(r"(?<![\w.])\$?\s?(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?\s*(billion|million|thousand|bn|m|k|%|percent|x|times)?(?!\w)", re.I)
 _MAG = {"billion": 1e9, "bn": 1e9, "million": 1e6, "m": 1e6, "thousand": 1e3, "k": 1e3}
 _PROSE_IGNORE = {2022.0, 2023.0, 2024.0, 2025.0, 2026.0}          # fiscal years named in scope
+# Calendar dates are not data claims: "ends September 30", "Oct. 1, 2025", "30 September". Only the day number is exempt.
+_DATE_DAY = re.compile(r"\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})(?:st|nd|rd|th)?\b"
+                       r"|\b(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\b", re.I)
+
+
+def _date_day_spans(text: str) -> list[tuple[int, int]]:
+    spans = []
+    for m in _DATE_DAY.finditer(text or ""):
+        g = 1 if m.group(1) else 2
+        spans.append((m.start(g), m.end(g)))
+    return spans
 _STATS_PHRASES = re.compile(r"(standard deviations?|percentile|sigma|confidence interval|p-value)", re.I)   # never returned by a tool
 
 
@@ -368,8 +379,11 @@ def prose_numbers_with_tolerance(text: str) -> list[tuple[str, float, float]]:
     """(token, value, half-unit of the last displayed digit): "$1.1M" is 1.1e6 ± 5e4, "3.59" is ± 0.005, "505" is ± 0.5.
     A rounded figure is grounded when a tool number lies inside that window — the rounding rule, not a looser tolerance."""
     out = []
+    dates = _date_day_spans(text)
     for m in _PROSE_NUM.finditer(text or ""):
         whole, frac, suf = m.group(1), m.group(2) or "", (m.group(3) or "").lower()
+        if not frac and suf == "" and any(a <= m.start(1) and m.end(1) <= b for a, b in dates):
+            continue                                                               # the day in a calendar date
         v = float(whole.replace(",", "") + frac)
         unit = 10.0 ** (-(len(frac) - 1)) if frac else 1.0
         if suf in _MAG:
