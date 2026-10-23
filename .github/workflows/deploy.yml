@@ -47,7 +47,8 @@ jobs:
         run: |
           flyctl apps list | grep -q "^$FLY_APP" || flyctl apps create "$FLY_APP" --org personal
           flyctl volumes list -a "$FLY_APP" | grep -q civiclens_ledger || flyctl volumes create civiclens_ledger -a "$FLY_APP" --region "$FLY_REGION" --size 1 --yes
-          flyctl secrets set -a "$FLY_APP" --stage ANTHROPIC_API_KEY="${{ secrets.ANTHROPIC_API_KEY }}" >/dev/null
+          # flyctl exits non-zero when a secret is unchanged ("No change detected"); that is not a failure (runs 40011977050, 40012220409)
+          out=$(flyctl secrets set -a "$FLY_APP" --stage ANTHROPIC_API_KEY="${{ secrets.ANTHROPIC_API_KEY }}" 2>&1) || { echo "$out" | grep -qi "no change" || { echo "$out"; exit 1; }; }
       - name: Deploy API (image built with the pinned snapshot)
         env: { FLY_API_TOKEN: "${{ secrets.FLY_API_TOKEN }}" }
         run: |
@@ -106,7 +107,9 @@ jobs:
       - name: Point API CORS at the site
         if: ${{ !inputs.skip_web }}
         env: { FLY_API_TOKEN: "${{ secrets.FLY_API_TOKEN }}" }
-        run: flyctl secrets set -a "$FLY_APP" CIVICLENS_CORS="${{ steps.web.outputs.url }}"     # the public alias only (civiclens-ai.vercel.app belongs to an unrelated project)
+        run: |
+          # the public alias only (civiclens-ai.vercel.app belongs to an unrelated project); "no change" is fine
+          out=$(flyctl secrets set -a "$FLY_APP" CIVICLENS_CORS="${{ steps.web.outputs.url }}" 2>&1) || { echo "$out" | grep -qi "no change" || { echo "$out"; exit 1; }; }
       - name: Live API access-control smoke (CORS allowlist, validation, read-only surface, headers)
         if: ${{ !inputs.skip_web }}
         id: apisec
@@ -162,7 +165,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p ../docs/screenshots ../docs/demo
-          npx playwright test demo.spec.ts --project=desktop 2>&1 | tail -8
+          npx playwright test demo.spec.ts demo-mobile.spec.ts --project=desktop 2>&1 | tail -12
           v=$(find test-results -name "*.webm" | head -1); echo "video: $v"
           test -n "$v" && ffmpeg -loglevel error -y -i "$v" -vf "fps=24,scale=1280:-2" -c:v libx264 -crf 26 -preset slow -pix_fmt yuv420p -movflags +faststart ../docs/demo/civiclens-demo.mp4
           ls -la ../docs/demo ../docs/screenshots
@@ -200,7 +203,8 @@ jobs:
           pathlib.Path("evidence/deploy/report.md").write_text("\n".join(md) + "\n"); print("\n".join(md))
           EOF
           git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/deploy docs/demo docs/screenshots 2>/dev/null; git commit -m "evidence: deployment run ${{ github.run_id }} (+demo, screenshots)" || echo "nothing to commit"
+          git add evidence/deploy; git add docs/demo docs/screenshots 2>/dev/null || true
+          git commit -m "evidence: deployment run ${{ github.run_id }} (+demo, screenshots)" || echo "nothing to commit"
           pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
           test "$pushed" = 1 || { echo "::error::evidence push failed"; exit 1; }
           python3 -c "import json,sys; sys.exit(0 if json.load(open('evidence/deploy/report.json'))['pass'] else 1)"
