@@ -26,17 +26,25 @@ jobs:
       - run: pip install -e "ingest"
       - name: Restore previous raw data (so idempotency can skip unchanged cells)
         uses: actions/cache/restore@v4
-        with: { path: data/raw, key: raw-${{ github.run_id }}, restore-keys: raw- }
+        with:
+          path: data/raw
+          key: raw-${{ github.run_id }}
+          restore-keys: raw-
       - name: Pull all cells
         id: pull
         run: python -m civiclens_ingest.pull_all --out data/raw --report evidence/ingest --only "${{ inputs.only }}" --fys "${{ inputs.fys }}"
         continue-on-error: true
       - uses: actions/cache/save@v4
         if: always()
-        with: { path: data/raw, key: raw-${{ github.run_id }} }
+        with:
+          path: data/raw
+          key: raw-${{ github.run_id }}
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: raw-usaspending-${{ github.run_id }}, path: data/raw, retention-days: 14 }
+        with:
+          name: raw-usaspending-${{ github.run_id }}
+          path: data/raw
+          retention-days: 14
       - name: Commit manifests + report
         if: always()
         run: |

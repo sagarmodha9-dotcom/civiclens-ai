@@ -26,7 +26,12 @@ jobs:
       - name: Download raw artifact
         if: inputs.raw_artifact_run_id != ''
         uses: actions/download-artifact@v4
-        with: { pattern: raw-usaspending-*, path: data/raw, merge-multiple: true, run-id: ${{ inputs.raw_artifact_run_id }}, github-token: ${{ github.token }} }
+        with:
+          pattern: raw-usaspending-*
+          path: data/raw
+          merge-multiple: true
+          run-id: ${{ inputs.raw_artifact_run_id }}
+          github-token: ${{ github.token }}
       - name: Upload raw cells to the Volume (Files API, one PUT per file)
         if: inputs.raw_artifact_run_id != ''
         run: |
