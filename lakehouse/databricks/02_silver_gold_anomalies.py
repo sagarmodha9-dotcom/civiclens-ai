@@ -6,19 +6,12 @@
 # MAGIC DQ numbers here with the DuckDB snapshot's `_meta`.
 
 # COMMAND ----------
-import json, re, sys
-from pathlib import Path
-repo_root = Path(dbutils.notebook.entry_point.getDbutils().notebook().getContext().notebookPath().get()).parents[2]
-sys.path.insert(0, f"/Workspace{repo_root}/lakehouse")
-import time
-for attempt in range(1, 6):      # Workspace Files can return a transient EIO on first read from serverless (run 39996200492)
-    try:
-        from civiclens_lakehouse.pipeline import PARAMS, REQUIRED_COLUMNS, INGEST_COLUMNS, render
-        break
-    except OSError as e:
-        print(f"import attempt {attempt} failed: {e}"); time.sleep(5 * attempt)
-        if attempt == 5:
-            raise
+import json, re
+# civiclens_lakehouse is installed from the wheel attached to this job's serverless environment (see job.json / lakehouse.yml);
+# nothing is read from the Workspace filesystem.
+from civiclens_lakehouse.pipeline import PARAMS, REQUIRED_COLUMNS, INGEST_COLUMNS, render
+import civiclens_lakehouse, importlib.metadata as _md
+print("civiclens_lakehouse", _md.version("civiclens-lakehouse"), "from", civiclens_lakehouse.__file__)
 
 dbutils.widgets.text("catalog", "workspace")
 CATALOG = dbutils.widgets.get("catalog") or "workspace"   # Free Edition: see 01_bronze.py

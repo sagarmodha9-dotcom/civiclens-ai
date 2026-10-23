@@ -143,3 +143,67 @@ def test_http_endpoint_disabled_without_key_and_samples_listed(client, monkeypat
     assert r["status"] == "unavailable" and r["mode"] == "disabled"
     assert client.post("/v1/investigate", json={"question": "hi"}).status_code == 422
     assert client.post("/v1/investigate", json={"question": "Which recipients received the most?", "agency": "999"}).status_code == 422
+
+
+# ------------------------------------------------------------------ prose grounding (eval 2026-10-23: 14/40, numbers smuggled into prose)
+def test_numbers_in_prose_must_trace_to_facts_or_cited_rows(snap):
+    scope = Scope("036", 2025)
+    rows = run_tool(snap, scope, "aggregate_spend", {"group_by": "recipient", "limit": 5})
+    log = [{"id": "tu_1", "name": "aggregate_spend", "args": {"group_by": "recipient", "limit": 5}, "scope": scope.__dict__, "result": rows}]
+    giant = next(r for r in rows if r["recipient_name"] == "GIANT CORP")
+    val = float(giant["obligations"])
+    fact = inv.Fact(claim="GIANT CORP obligations", value=val, unit="USD", tool_call_id="tu_1", measure="obligations",
+                    entities=[giant["recipient_uei"]], fiscal_years=[2025])
+    rounded = f"${val/1e6:.1f} million"
+    ok = FinalAnswer(facts=[fact], interpretation=f"GIANT CORP received {rounded} in FY2025 across three agencies.", citations=[])
+    v = verify(ok, log)
+    assert inv.ground_prose(ok, v, log) == []                                   # rounded prose, fiscal year, small counting word: fine
+    smuggled = ok.model_copy(update={"interpretation": f"GIANT CORP received {rounded}, which is 6.6 times the peer median and about 1.5 standard deviations up; 60% share."})
+    bad = inv.ground_prose(smuggled, v, log)
+    assert "6.6 times" in bad and "60%" in bad and any("standard deviation" in b for b in bad)
+    stripped, n = inv.strip_ungrounded(smuggled.interpretation, bad)
+    assert n == 1 and stripped == ""                                          # the only sentence carried untraceable numbers
+
+
+def test_share_of_two_verified_facts_is_accepted_as_derived(snap):
+    scope = Scope("036", 2025)
+    rows = run_tool(snap, scope, "aggregate_spend", {"group_by": "recipient", "limit": 5})
+    tot = run_tool(snap, scope, "aggregate_spend", {"group_by": "fiscal_year", "limit": 5})
+    log = [{"id": "tu_1", "name": "aggregate_spend", "args": {"group_by": "recipient", "limit": 5}, "scope": scope.__dict__, "result": rows},
+           {"id": "tu_2", "name": "aggregate_spend", "args": {"group_by": "fiscal_year", "limit": 5}, "scope": scope.__dict__, "result": tot}]
+    giant = next(r for r in rows if r["recipient_name"] == "GIANT CORP"); total = float(tot[0]["obligations"]); gv = float(giant["obligations"])
+    share = round(gv / total * 100, 1)
+    ans = FinalAnswer(facts=[
+        inv.Fact(claim="GIANT", value=gv, unit="USD", tool_call_id="tu_1", measure="obligations", entities=[giant["recipient_uei"]], fiscal_years=[2025]),
+        inv.Fact(claim="total", value=total, unit="USD", tool_call_id="tu_2", measure="obligations", entities=[], fiscal_years=[2025]),
+        inv.Fact(claim="share", value=share, unit="percent", tool_call_id="tu_1", measure="share", entities=[giant["recipient_uei"]], fiscal_years=[2025])],
+        interpretation=f"GIANT CORP's share was {share}% of the total.", citations=[])
+    v = verify(ans, log)
+    assert v["ok"] and any(f.get("derived") for f in v["verified_facts"]) and inv.ground_prose(ans, v, log) == []
+    wrong = ans.model_copy(update={"facts": ans.facts[:2] + [ans.facts[2].model_copy(update={"value": share + 7.0})]})
+    assert not verify(wrong, log)["ok"]                                        # a share that does not follow from the facts is rejected
+
+
+def test_ask_strips_ungrounded_sentences_after_one_regeneration(snap):
+    scope = Scope("036", 2025)
+    turns = [
+        [("aggregate_spend", {"group_by": "recipient", "limit": 5})],
+        [("final_answer", {"facts": [], "interpretation": "Someone got about $99.9 million. That is 7 times the median.", "citations": []})],
+        [("final_answer", {"facts": [], "interpretation": "Someone got about $99.9 million. Nothing else is known.", "citations": []})],
+    ]
+    answer, v, tr = ask(snap, scope, "who got the most?", client=FakeClient(turns))
+    assert tr.regenerated and v["ungrounded_prose"] == ["$99.9 million"]
+    assert answer.interpretation == "Nothing else is known." and "1 sentence(s) removed" in answer.limits
+
+
+def test_scrub_replacement_contains_no_banned_word():
+    assert not inv.BANNED.search("[removed: that characterisation is not supported by this data]")
+
+
+def test_budget_is_per_request_context_not_cumulative(snap, monkeypatch):
+    """Six tool calls must not be cut off before final_answer (eval N2). Each fake request reports 800 input tokens."""
+    scope = Scope("036", 2025)
+    turns = [[("aggregate_spend", {"group_by": "recipient", "limit": 5})] for _ in range(6)] + \
+            [[("final_answer", {"facts": [], "interpretation": "done after six calls", "citations": [], "insufficient_evidence": True})]]
+    answer, v, tr = ask(snap, scope, "dig deep", client=FakeClient(turns))
+    assert len(tr.tool_log) == 6 and answer.interpretation == "done after six calls"

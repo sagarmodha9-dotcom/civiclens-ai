@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install -q requests duckdb
+      - run: pip install -q requests duckdb build
       - name: Working catalog (from the preflight; Free Edition cannot create catalogs)
         id: cat
         run: |
@@ -88,10 +88,17 @@ jobs:
           requests.post(f"{host}/api/2.0/workspace/mkdirs", headers=H, json={"path": f"{repo_path}/lakehouse/civiclens_lakehouse/sql"}, timeout=60).raise_for_status()
           for nb in ("01_bronze", "02_silver_gold_anomalies"):
               put(f"{repo_path}/lakehouse/databricks/{nb}", open(f"lakehouse/databricks/{nb}.py","rb").read(), "SOURCE", "PYTHON")
-          for f in pathlib.Path("lakehouse/civiclens_lakehouse").rglob("*"):
-              if f.is_file():
-                  put(f"{repo_path}/lakehouse/{f.relative_to('lakehouse').as_posix()}", f.read_bytes(), "AUTO")
-          spec = json.loads(open("lakehouse/databricks/job.json").read().replace("${REPO_PATH}", repo_path).replace("${CATALOG}", os.environ["CATALOG"]))
+          # The shared package (SQL files + PARAMS + schema contract) is delivered as a built wheel on the Volume and attached
+          # to the serverless job as an environment dependency. Run 39996200492 showed reading .py files from the Workspace
+          # filesystem can fail with EIO on serverless; a wheel is the supported path for shared Python code.
+          import subprocess, glob
+          subprocess.run(["python3", "-m", "build", "--wheel", "--outdir", "dist", "lakehouse"], check=True, capture_output=True)
+          whl = sorted(glob.glob("dist/civiclens_lakehouse-*.whl"))[-1]
+          whl_volume = f"/Volumes/{os.environ['CATALOG']}/bronze/raw/_libs/{pathlib.Path(whl).name}"
+          with open(whl, "rb") as fh:
+              r = requests.put(f"{host}/api/2.0/fs/files{whl_volume}?overwrite=true", headers={**H, "Content-Type": "application/octet-stream"}, data=fh, timeout=300)
+          r.raise_for_status(); print("wheel on volume:", whl_volume)
+          spec = json.loads(open("lakehouse/databricks/job.json").read().replace("${REPO_PATH}", repo_path).replace("${CATALOG}", os.environ["CATALOG"]).replace("${WHEEL}", whl_volume))
           jobs = requests.get(f"{host}/api/2.1/jobs/list", headers=H, params={"name": spec["name"]}, timeout=60).json().get("jobs", [])
           if jobs:
               job_id = jobs[0]["job_id"]; requests.post(f"{host}/api/2.1/jobs/reset", headers=H, json={"job_id": job_id, "new_settings": spec}, timeout=60).raise_for_status()

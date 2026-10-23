@@ -39,7 +39,8 @@ router = APIRouter()
 
 MODEL = os.environ.get("CIVICLENS_MODEL", "claude-haiku-4-5")
 MAX_TOOL_CALLS = 8
-MAX_INPUT_TOKENS = 10_000
+MAX_INPUT_TOKENS = 10_000          # per request (context size)
+MAX_TOTAL_INPUT_TOKENS = 120_000   # per question, all requests summed (cost guard, ~$0.12 on Haiku)
 PER_IP_PER_HOUR = int(os.environ.get("CIVICLENS_PER_IP_PER_HOUR", "8"))
 GLOBAL_PER_DAY = int(os.environ.get("CIVICLENS_GLOBAL_PER_DAY", "120"))
 MONTHLY_BUDGET_USD = float(os.environ.get("CIVICLENS_MONTHLY_BUDGET_USD", "5"))
@@ -56,6 +57,11 @@ Rules you must follow:
 - You work inside the active dashboard scope given in the user message. If a question needs data outside it, say so in `limits` and set insufficient_evidence=true rather than guessing.
 - Never characterise any award, recipient or agency as fraudulent, wasteful, abusive, corrupt or improper. Anomalies are "statistically unusual relative to a comparison group"; say what the comparison was and its size.
 - Distinguish clearly: facts (from tools), interpretation (your reading of the facts), limits (what the data cannot tell).
+- Every number that appears in `interpretation` or `limits` must also appear in `facts` (or be a share/ratio of two facts, declared as its own
+  fact with unit "percent" or "ratio"). The server strips sentences whose numbers are not traceable to tool rows.
+- Do not describe scores with statistics the tools did not return (no "standard deviations", "percentiles", "sigma"). A large_award score is
+  a robust z-score on log10 obligations against the peer group's median and MAD; say "score X against threshold Y, peer group of N".
+- "Most awards" means the awards count; "most obligations" means dollars. Answer the measure the question asks for and name it.
 - If the tools return no relevant rows, set insufficient_evidence=true and explain what is missing.
 - Keep interpretation under 180 words."""
 
@@ -218,7 +224,9 @@ def verify(answer: FinalAnswer, log: list[dict]) -> dict:
         if isinstance(f.value, (int, float)):
             nums = _nums(subset)
             if not any(abs(n - float(f.value)) <= max(0.005 * abs(float(f.value)), 0.5) for n in nums):
-                unverified.append({**f.model_dump(), "why": "number not in that tool call's matching rows"}); continue
+                if _is_derived_measure(f) and _derivable(float(f.value), [float(x["value"]) for x in verified if isinstance(x["value"], (int, float))]):
+                    verified.append({**f.model_dump(), "derived": True}); continue
+                unverified.append({**f.model_dump(), "why": "number not in that tool call's matching rows (and not a share/ratio of verified facts)"}); continue
         else:
             strs: set[str] = set(); _strings_in(subset, strs)
             if not any(str(f.value).strip().lower() == s.strip().lower() for s in strs):
@@ -231,6 +239,83 @@ def verify(answer: FinalAnswer, log: list[dict]) -> dict:
 
 def _nums(obj: Any) -> list[float]:
     out: list[float] = []; _numbers_in(obj, out); return out
+
+
+def _is_derived_measure(f) -> bool:
+    u, m = (f.unit or "").lower(), (f.measure or "").lower()
+    return u in ("percent", "%", "pct", "ratio", "x", "times") or any(k in m for k in ("share", "ratio", "pct", "percent", "change", "growth"))
+
+
+def _close(a: float, b: float, rel: float = 0.01, absolute: float = 0.05) -> bool:
+    return abs(a - b) <= max(rel * abs(b), absolute)
+
+
+def _derivable(value: float, basis: list[float]) -> bool:
+    """A share, ratio or percentage change computable from two already-verified fact values (the only arithmetic the
+    investigator may do on its own)."""
+    for a in basis:
+        for b in basis:
+            if b == 0 or a == b:
+                continue
+            for cand in (a / b, a / b * 100, (a - b) / b * 100, (a - b) / abs(b)):
+                if _close(value, cand):
+                    return True
+    return False
+
+
+_PROSE_NUM = re.compile(r"(?<![\w.])\$?\s?(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?\s*(billion|million|thousand|bn|m|k|%|percent|x|times)?(?!\w)", re.I)
+_MAG = {"billion": 1e9, "bn": 1e9, "million": 1e6, "m": 1e6, "thousand": 1e3, "k": 1e3}
+_PROSE_IGNORE = {2022.0, 2023.0, 2024.0, 2025.0, 2026.0}          # fiscal years named in scope
+_STATS_PHRASES = re.compile(r"(standard deviations?|percentile|sigma|confidence interval|p-value)", re.I)   # never returned by a tool
+
+
+def prose_numbers(text: str) -> list[tuple[str, float]]:
+    """Numbers a reader would take as data claims: dollar amounts, counts, scores, percentages, multiples."""
+    out = []
+    for m in _PROSE_NUM.finditer(text or ""):
+        whole, frac, suf = m.group(1), m.group(2) or "", (m.group(3) or "").lower()
+        v = float(whole.replace(",", "") + frac)
+        if suf in _MAG:
+            v *= _MAG[suf]
+        if v in _PROSE_IGNORE or (v < 10 and not frac and suf == ""):      # years; small ordinal/counting words ("three agencies")
+            continue
+        out.append((m.group(0).strip(), v))
+    return out
+
+
+def ground_prose(answer: FinalAnswer, v: dict, log: list[dict]) -> list[str]:
+    """Every number in interpretation/limits must match a verified fact value (rounded prose allowed, 0.5%), a
+    share/ratio of two verified facts, or a number in the rows of a tool call the facts cite. Returns the offending
+    tokens (empty when fully grounded)."""
+    fact_vals = [float(f["value"]) for f in v["verified_facts"] if isinstance(f["value"], (int, float))]
+    cited = {f["tool_call_id"] for f in v["verified_facts"]}
+    row_nums: list[float] = []
+    for t in log:
+        if t["id"] in cited:
+            _numbers_in(t["result"], row_nums)
+    bad = [m.group(0) for m in _STATS_PHRASES.finditer((answer.interpretation or "") + " " + (answer.limits or ""))]
+    for tok, val in prose_numbers((answer.interpretation or "") + " " + (answer.limits or "")):
+        ok = any(_close(val, f, 0.006, 0.5) for f in fact_vals) or any(_close(val, n, 0.006, 0.5) for n in row_nums) \
+            or _derivable(val, fact_vals) or any(_close(val, f * 100, 0.006, 0.05) for f in fact_vals)   # 0.116 stored, "11.6%" said
+        if not ok:
+            bad.append(tok)
+    return bad
+
+
+_SENT = re.compile(r"(?<=[.!?])\s+")
+
+
+def strip_ungrounded(text: str, bad_tokens: list[str]) -> tuple[str, int]:
+    """Remove sentences containing any ungrounded number token; returns (text, removed_count)."""
+    if not bad_tokens or not text:
+        return text, 0
+    keep, removed = [], 0
+    for sent in _SENT.split(text):
+        if any(tok in sent for tok in bad_tokens):
+            removed += 1
+        else:
+            keep.append(sent)
+    return " ".join(keep).strip(), removed
 
 
 BANNED = re.compile(r"\b(fraud\w*|waste\w*|abus\w*|corrupt\w*|misconduct|illegal|kickback\w*|embezzl\w*)\b", re.I)
@@ -299,8 +384,9 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
         calls = 0
         while calls <= MAX_TOOL_CALLS:
             resp = client.messages.create(model=MODEL, max_tokens=1500, system=SYSTEM, tools=TOOLS, messages=messages)
-            tr.input_tokens += getattr(resp.usage, "input_tokens", 0); tr.output_tokens += getattr(resp.usage, "output_tokens", 0)
-            if tr.input_tokens > MAX_INPUT_TOKENS * 4:
+            last_in = getattr(resp.usage, "input_tokens", 0)
+            tr.input_tokens += last_in; tr.output_tokens += getattr(resp.usage, "output_tokens", 0)
+            if last_in > MAX_INPUT_TOKENS * 3 or tr.input_tokens > MAX_TOTAL_INPUT_TOKENS:
                 break
             tool_uses = [b for b in resp.content if getattr(b, "type", "") == "tool_use"]
             messages.append({"role": "assistant", "content": [b.model_dump() if hasattr(b, "model_dump") else b for b in resp.content]})
@@ -331,14 +417,23 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
             final = FinalAnswer(interpretation="The investigator did not produce a structured answer.", insufficient_evidence=True,
                                 limits="No final_answer was returned within the tool-call budget.")
         v = verify(final, tr.tool_log)
-        if v["ok"] or attempt == 1:
+        ungrounded = ground_prose(final, v, tr.tool_log)
+        v["ungrounded_prose"] = ungrounded
+        if (v["ok"] and not ungrounded) or attempt == 1:
             break
         tr.regenerated = True
-        messages.append({"role": "user", "content": "Verification failed: " + json.dumps({"unverified_facts": v["unverified_facts"], "bad_citations": v["bad_citations"]}, default=str)[:3000] +
-                         "\nEvery fact must reference the tool_call_id whose rows contain that exact number for those entities and fiscal years. Call final_answer again with only verifiable facts."})
+        messages.append({"role": "user", "content": "Verification failed: " + json.dumps({"unverified_facts": v["unverified_facts"], "bad_citations": v["bad_citations"],
+                                                                                        "numbers_in_prose_without_a_fact": ungrounded}, default=str)[:3000] +
+                         "\nEvery fact must reference the tool_call_id whose rows contain that exact number for those entities and fiscal years. Every number in "
+                         "interpretation/limits must be one of your facts (or a share/ratio of two facts declared as a fact). Call final_answer again."})
         final = None
+    if v.get("ungrounded_prose"):
+        final.interpretation, n1 = strip_ungrounded(final.interpretation, v["ungrounded_prose"])
+        final.limits, n2 = strip_ungrounded(final.limits, v["ungrounded_prose"])
+        v["prose_sentences_removed"] = n1 + n2
+        final.limits = (final.limits + " " if final.limits else "") + f"[{n1 + n2} sentence(s) removed: numbers not traceable to tool results]"
     if BANNED.search(final.interpretation or "") or BANNED.search(final.limits or ""):
-        final.interpretation = BANNED.sub("[removed: misconduct language is not supported by this data]", final.interpretation)
+        final.interpretation = BANNED.sub("[removed: that characterisation is not supported by this data]", final.interpretation)
         final.limits = BANNED.sub("[removed]", final.limits)
     return final, v, tr
 

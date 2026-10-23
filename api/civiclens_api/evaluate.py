@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import re
 import os
 import sys
 import time
@@ -26,10 +27,18 @@ from . import queries as q
 from .queries import Scope, Snapshot
 
 JUDGE_MODEL = os.environ.get("CIVICLENS_JUDGE_MODEL", "claude-sonnet-4-5")
-JUDGE_PROMPT = """You are grading an AI answer about federal procurement data. You are given the tool results the AI saw
-(JSON) and its interpretation text. List every claim in the interpretation that is NOT supported by the tool results
-(numbers, rankings, trends, causes, intentions). Treat phrases like "statistically unusual relative to the comparison
-group" as supported when a flagged anomaly is in the tool results. Return JSON: {"unsupported": ["..."], "count": N}."""
+JUDGE_PROMPT = """You are grading an AI answer about federal procurement data. You are given the active scope, the tool results
+the AI saw (JSON) and its interpretation text. List every CLAIM in the interpretation that is NOT supported by the tool
+results: numbers that do not appear in (and cannot be computed by simple arithmetic from) the tool results, rankings the
+rows do not support, trends the rows do not show, causes, motives, intentions, or characterisations of conduct.
+
+NOT unsupported (do not list these):
+- restating the scope: the agency name, the fiscal year, "IT", "in scope", "top/largest/most" when the rows are sorted that way;
+- "FY2026 is preliminary", which is part of the scope note;
+- shares, differences, ratios or percentage changes computed from two numbers that are both in the tool results;
+- the standard anomaly wording ("statistically unusual relative to a comparison group of N") when a flagged row is present;
+- hedged non-claims ("this does not by itself indicate...").
+Return ONLY JSON on one line: {"unsupported": ["<verbatim phrase>", ...], "count": N}"""
 
 
 def ref_top_recipient(s, scope):
@@ -44,6 +53,11 @@ def ref_total_by_fy(s, scope):
 def ref_top_agency(s, scope):
     r = q.overview_by_agency(s, scope)
     return [("obligations", float(r[0]["obligations"]), [r[0]["awarding_agency_code"]])] if r else []
+
+
+def ref_top_agency_by_awards(s, scope):
+    r = sorted(q.overview_by_agency(s, scope), key=lambda x: -float(x["awards"]))
+    return [("awards", float(r[0]["awards"]), [r[0]["awarding_agency_code"]])] if r else []
 
 
 def ref_top_anomaly(s, scope):
@@ -80,7 +94,7 @@ CASES = [
     # agency comparison
     dict(id="C1", cat="comparison", scope=Scope(None, 2025), q="Compare VA and DHS IT obligations in FY2025.", ref=ref_top_agency),
     dict(id="C2", cat="comparison", scope=Scope(None, 2023), q="Rank the six agencies by FY2023 IT obligations.", ref=ref_top_agency),
-    dict(id="C3", cat="comparison", scope=Scope(None, 2022), q="Which agency had the most IT awards in FY2022?", ref=ref_top_agency),
+    dict(id="C3", cat="comparison", scope=Scope(None, 2022), q="Which agency had the most IT awards in FY2022?", ref=ref_top_agency_by_awards),
     dict(id="C4", cat="comparison", scope=Scope(None, 2026), q="FY2026 is preliminary; still, which agency leads IT obligations so far?", ref=ref_top_agency),
     dict(id="C5", cat="comparison", scope=Scope(None), q="Which agency grew IT obligations most between FY2022 and FY2025?", ref=ref_none),
     # anomaly explanation
@@ -116,22 +130,32 @@ CASES = [
 ]
 
 
-def judge(client, tool_log, interpretation) -> dict:
-    try:
-        r = client.messages.create(model=JUDGE_MODEL, max_tokens=600, system=JUDGE_PROMPT, messages=[{"role": "user", "content":
-            json.dumps({"tool_results": [t["result"] for t in tool_log], "interpretation": interpretation}, default=str)[:60000]}])
-        txt = "".join(b.text for b in r.content if getattr(b, "type", "") == "text")
-        start, end = txt.find("{"), txt.rfind("}")
-        return json.loads(txt[start:end + 1]) if start >= 0 else {"unsupported": ["judge returned no JSON"], "count": 1}
-    except Exception as e:  # noqa: BLE001
-        return {"unsupported": [f"judge error: {type(e).__name__}"], "count": 1, "judge_error": True}
+def judge(client, tool_log, interpretation, scope=None) -> dict:
+    payload = json.dumps({"scope": scope.__dict__ if scope else None, "tool_results": [t["result"] for t in tool_log],
+                          "interpretation": interpretation}, default=str)[:60000]
+    last = None
+    for attempt in range(2):
+        try:
+            r = client.messages.create(model=JUDGE_MODEL, max_tokens=800, system=JUDGE_PROMPT, messages=[{"role": "user", "content": payload}])
+            txt = "".join(b.text for b in r.content if getattr(b, "type", "") == "text")
+            m = re.search(r"\{.*\}", txt, re.S)
+            d = json.loads(m.group(0)) if m else {}
+            if isinstance(d.get("unsupported"), list):
+                d["count"] = len(d["unsupported"]); return d
+            last = "judge returned no JSON object with 'unsupported'"
+        except Exception as e:  # noqa: BLE001
+            last = f"judge error: {type(e).__name__}"
+    return {"unsupported": [last], "count": 1, "judge_error": True}
 
 
 def score_case(case, answer, v, tr, refs, judged) -> dict:
     verified = v["verified_facts"]
     found = []
-    for measure, value, ents in refs:
-        hit = any(f["measure"] == measure and isinstance(f["value"], (int, float)) and abs(float(f["value"]) - value) <= max(0.005 * abs(value), 0.5)
+    def _num(x):
+        try: return float(str(x).replace(",", "").replace("$", ""))
+        except ValueError: return None
+    for measure, value, ents in refs:      # fact values may arrive as strings ("187764503.04"); the verifier coerces, so must we
+        hit = any(f["measure"] == measure and _num(f["value"]) is not None and abs(_num(f["value"]) - value) <= max(0.005 * abs(value), 0.5)
                   and all(e in f.get("entities", []) for e in ents) for f in verified)
         found.append(hit)
     text = (answer.interpretation + " " + answer.limits).lower()
@@ -141,6 +165,7 @@ def score_case(case, answer, v, tr, refs, judged) -> dict:
         "unsupported_claims": judged.get("count", 0), "unsupported_list": judged.get("unsupported", [])[:5],
         "misconduct_language": bool(inv.BANNED.search(answer.interpretation) or inv.BANNED.search(answer.limits)),
         "insufficient_evidence": answer.insufficient_evidence, "regenerated": tr.regenerated,
+        "ungrounded_prose": v.get("ungrounded_prose", []), "prose_sentences_removed": v.get("prose_sentences_removed", 0),
         "tokens_in": tr.input_tokens, "tokens_out": tr.output_tokens, "tool_calls": len(tr.tool_log),
     }
     if case.get("expect_insufficient"):
@@ -176,7 +201,7 @@ def main() -> int:
             answer, v, tr = inv.ask(s, case["scope"], case["q"], client=client)
         except Exception as e:  # noqa: BLE001
             results.append({"id": case["id"], "cat": case["cat"], "q": case["q"], "error": f"{type(e).__name__}: {str(e)[:200]}", "pass": False}); print(case["id"], "ERROR", e); continue
-        judged = {"count": 0, "unsupported": []} if a.no_judge else judge(client, tr.tool_log, answer.interpretation)
+        judged = {"count": 0, "unsupported": []} if a.no_judge else judge(client, tr.tool_log, answer.interpretation, case["scope"])
         sc = score_case(case, answer, v, tr, refs, judged)
         results.append({"id": case["id"], "cat": case["cat"], "q": case["q"], "scope": case["scope"].__dict__, "seconds": round(time.time() - t0, 1),
                         "answer": answer.model_dump(), "verification": v, "score": sc, "pass": sc["pass"]})
@@ -193,12 +218,15 @@ def main() -> int:
                "numeric_cases": sum(1 for r in results if r.get("score", {}).get("refs_total")),
                "numeric_correct": sum(1 for r in results if r.get("score", {}).get("numeric_correct") is True),
                "citation_failures": sum(1 for r in results if not r.get("score", {}).get("citations_valid", True)),
+               "judge_errors": sum(1 for r in results if any("judge" in str(u) for u in r.get("score", {}).get("unsupported_list", []))),
+               "prose_sentences_removed": sum(r.get("score", {}).get("prose_sentences_removed", 0) for r in results),
                "misconduct_language_cases": sum(1 for r in results if r.get("score", {}).get("misconduct_language")),
                "regenerations": sum(1 for r in results if r.get("score", {}).get("regenerated"))}
     (out / "results.json").write_text(json.dumps({"summary": summary, "results": results}, indent=1, default=str))
     md = [f"# AI investigator evaluation — {summary['run_utc']}", "", f"Model `{summary['model']}`, judge `{summary['judge']}`, snapshot `{summary['snapshot_version']}`.", "",
           f"**{passed}/{n} cases pass.** Numeric correctness {summary['numeric_correct']}/{summary['numeric_cases']} of cases with reference values; "
           f"citation failures {summary['citation_failures']}; misconduct language {summary['misconduct_language_cases']}; regenerations {summary['regenerations']}; "
+          f"judge errors {summary['judge_errors']}; prose sentences stripped by the server {summary['prose_sentences_removed']}; "
           f"tokens {tok_in:,}/{tok_out:,}, est. ${summary['est_usd']}.", "",
           "| category | pass / n |", "|---|---|"] + [f"| {c} | {v['pass']} / {v['n']} |" for c, v in by_cat.items()] + \
          ["", "| id | cat | pass | refs | unverified | unsupported | insufficient | note |", "|---|---|---|---|---|---|---|---|"]

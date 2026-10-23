@@ -51,20 +51,34 @@ def main() -> int:
                                  "trace": traceback.format_exc()[-1500:]})
                 print(f"  {code} FY{fy}: FAILED {type(e).__name__}: {e}", flush=True)
     c.close()
+    # Cells present on disk but not pulled this run (e.g. --only) are listed from their manifests so the report always
+    # describes the whole data set; they are marked "not pulled this run".
+    pulled = {(r["agency_code"], int(r["fiscal_year"])) for r in results}
+    for mf in sorted(Path(a.out).rglob("manifest.json")):
+        if not (mf.parent.name.startswith("fy=") and mf.parent.parent.name.startswith("agency=")):
+            continue
+        m = json.loads(mf.read_text())
+        if (m["agency_code"], int(m["fiscal_year"])) in pulled:
+            continue
+        slim = {k: v for k, v in m.items() if k not in ("calls", "api_count_response")}
+        slim["not_pulled_this_run"] = True
+        results.append(slim)
+    results.sort(key=lambda r: ([c for c, _ in AGENCIES].index(r["agency_code"]) if r["agency_code"] in [c for c, _ in AGENCIES] else 99, int(r["fiscal_year"])))
+    pulled_n = len(pulled)
     total = sum(r.get("rows_total") or 0 for r in results)
     mism = [r for r in results if r.get("count_matches") is False]
     report = {"run_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), "cells": results,
-              "failures": failures, "totals": {"cells_ok": len(results), "cells_failed": len(failures),
+              "failures": failures, "totals": {"cells_in_dataset": len(results), "cells_pulled_this_run": pulled_n, "cells_failed": len(failures),
               "prime_transactions": total, "count_mismatches": len(mism)}}
     (rep / "report.json").write_text(json.dumps(report, indent=1, default=str))
     md = [f"# Ingestion report — {report['run_utc']}", "",
-          f"Cells complete: **{len(results)}**, failed: **{len(failures)}**, prime transactions: **{total:,}**, "
+          f"Cells in data set: **{len(results)}** (pulled or re-checked this run: {pulled_n}), failed: **{len(failures)}**, prime transactions: **{total:,}**, "
           f"count mismatches: **{len(mism)}**", "",
           "| agency | FY | status | prime rows | API count | match | sub-award rows | download job (UTC) | request | extracted | API last_updated |",
           "|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in results:
         req = r.get("request") or {}
-        md.append(f"| {r['agency_name']} | {r['fiscal_year']} | {r['status']}{' (unchanged, skipped)' if r.get('skipped') else ''} | {r.get('rows_total'):,} | {r.get('api_count'):,} | "
+        md.append(f"| {r['agency_name']} | {r['fiscal_year']} | {r['status']}{' (unchanged, skipped)' if r.get('skipped') else ''}{' (not pulled this run)' if r.get('not_pulled_this_run') else ''} | {r.get('rows_total'):,} | {r.get('api_count'):,} | "
                   f"{r.get('count_matches')} | {r.get('rows_subawards')} | {r.get('download_job_created_utc') or ''}{' cached' if r.get('download_was_cached') else ''} | "
                   f"{req.get('variant', 'standard')} | {r.get('extracted_utc')} | {r.get('api_last_updated')} |")
     md += ["", "`download job` is the generation time USAspending embeds in the zip name; `cached` means the API returned an earlier job for an "
