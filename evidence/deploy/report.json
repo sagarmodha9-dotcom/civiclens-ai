@@ -1,34 +1,22 @@
 {
  "stamp": {
-  "github_run_id": "40010130351",
-  "commit": "fda5e2327580",
-  "utc": "2026-10-23T19:24:10+00:00"
+  "github_run_id": "40013076317",
+  "commit": "c4be8941ae9f",
+  "utc": "2026-10-23T19:39:15+00:00"
  },
  "snapshot_version": "v20261023-1",
- "api_url": "https://civiclens-api.fly.dev",
- "site_url": "https://civiclens-rc17m8qwa-ace-74c4.vercel.app",
- "api_smoke": "success",
- "web_deploy": "success",
- "e2e": "success",
+ "api_url": "",
+ "site_url": "",
+ "api_smoke": "skipped",
+ "web_deploy": "skipped",
+ "e2e": "skipped",
  "e2e_results": {
-  "expected": 0,
-  "unexpected": 0,
-  "skipped": 0,
-  "duration_ms": 119.4659999999999
+  "error": "[Errno 2] No such file or directory: 'e2e-results.json'"
  },
- "pass": true,
- "api_access_checks": {
-  "cors_rejects_unknown_origin": true,
-  "cors_allows_site": true,
-  "investigate_validates_input_422": true,
-  "unknown_agency_rejected_422": true,
-  "no_write_methods_405": true,
-  "published_sql_readable": true,
-  "security_headers": true,
-  "rate_limits_advertised": true
- },
- "api_access_outcome": "success",
- "demo": "failure",
+ "pass": false,
+ "api_access_checks": {},
+ "api_access_outcome": "skipped",
+ "demo": "skipped",
  "demo_video": null,
  "screenshots": [],
  "cost_note": "Fly.io shared-cpu-1x 512MB always-on + 1GB volume (approved <= $5/mo); Vercel Hobby free; Anthropic capped at $10/mo in console, app budget $5/mo."
