@@ -1,6 +1,6 @@
 {
  "manifest_version": 1,
- "run_id": "20261023T172705Z",
+ "run_id": "20261023T174455Z",
  "status": "count_mismatch",
  "source": {
   "base": "https://api.usaspending.gov",
@@ -96,7 +96,7 @@
   "2022-10-01",
   "2023-09-30"
  ],
- "extracted_utc": "20261023T172705Z",
+ "extracted_utc": "20261023T174455Z",
  "api_last_updated": "10/23/2026",
  "api_count": 3309,
  "api_count_response": {
@@ -127,7 +127,7 @@
   "name": "PrimeTransactionsAndSubawards_2026-10-23_H17M27S07711915.zip",
   "bytes": 758449,
   "sha256": "dcca171ed4b130435d216920a8dce34be5b591a89edf85f2d5e798c95848a703",
-  "attempts": 2
+  "attempts": 1
  },
  "files": [
   {
