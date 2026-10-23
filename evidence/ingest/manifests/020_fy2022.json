@@ -1,0 +1,109 @@
+{
+ "manifest_version": 1,
+ "run_id": "20261023T151210Z",
+ "status": "complete",
+ "source": {
+  "base": "https://api.usaspending.gov",
+  "endpoint": "/api/v2/download/transactions/",
+  "file_name": "PrimeTransactionsAndSubawards_2026-10-23_H15M12S11035219.zip",
+  "file_url": "https://files.usaspending.gov/generated_downloads/PrimeTransactionsAndSubawards_2026-10-23_H15M12S11035219.zip"
+ },
+ "request": {
+  "filters": {
+   "time_period": [
+    {
+     "start_date": "2021-10-01",
+     "end_date": "2022-09-30",
+     "date_type": "action_date"
+    }
+   ],
+   "award_type_codes": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ],
+   "agencies": [
+    {
+     "type": "awarding",
+     "tier": "toptier",
+     "name": "Department of the Treasury"
+    }
+   ],
+   "psc_codes": {
+    "require": [
+     [
+      "Service",
+      "D"
+     ],
+     [
+      "Product",
+      "70"
+     ]
+    ]
+   }
+  },
+  "file_format": "csv"
+ },
+ "filter_hash": "d091886b9cf0e0a5",
+ "agency_code": "020",
+ "agency_name": "Department of the Treasury",
+ "fiscal_year": 2022,
+ "window": [
+  "2021-10-01",
+  "2022-09-30"
+ ],
+ "extracted_utc": "20261023T151210Z",
+ "api_last_updated": "10/23/2026",
+ "api_count": 3822,
+ "api_count_response": {
+  "calculated_transaction_count": 3822,
+  "maximum_transaction_limit": 500000,
+  "transaction_rows_gt_limit": false,
+  "calculated_count": 3822,
+  "spending_level": "transactions",
+  "maximum_limit": 500000,
+  "rows_gt_limit": false,
+  "messages": [
+   "For searches, time period start and end dates are currently limited to an earliest date of 2007-10-01.  For data going back to 2000-10-01, use either the Custom Award Download feature on the website or one of our download or bulk_download API endpoints as listed on https://api.usaspending.gov/docs/endpoints. ",
+   "'subawards' will be deprecated in the future. Set \u2018spending_level\u2019 to \u2018subawards\u2019 instead. See documentation for more information. ",
+   "The above fields containing the transaction_* naming convention will be deprecated and replaced with fields without the transaction_*. "
+  ]
+ },
+ "download_status": {
+  "status": "finished",
+  "message": null,
+  "file_name": "PrimeTransactionsAndSubawards_2026-10-23_H15M12S11035219.zip",
+  "file_url": "https://files.usaspending.gov/generated_downloads/PrimeTransactionsAndSubawards_2026-10-23_H15M12S11035219.zip",
+  "total_size": 841.674,
+  "total_columns": 415,
+  "total_rows": 4453,
+  "seconds_elapsed": "95.204828"
+ },
+ "zip": {
+  "name": "PrimeTransactionsAndSubawards_2026-10-23_H15M12S11035219.zip",
+  "bytes": 841674,
+  "sha256": "c0ba277d5be4646a0e109d85cc3e247a72eb71146e1ec476402527dd74a74b45",
+  "attempts": 1
+ },
+ "files": [
+  {
+   "name": "Contracts_PrimeTransactions_2026-10-23_H15M12S17_1.csv",
+   "bytes": 9442581,
+   "sha256": "2500c16c13ca07baf302296203312f971520424f01ea86a7d4db6272ad711c6c",
+   "rows": 3822,
+   "kind": "prime_transactions"
+  },
+  {
+   "name": "Contracts_Subawards_2026-10-23_H15M13S06_1.csv",
+   "bytes": 1169895,
+   "sha256": "1011f6013eedbab93d16f3e9a44fb772d02156e0ce934e02f71d16568d43b012",
+   "rows": 661,
+   "kind": "subawards"
+  }
+ ],
+ "rows_total": 3822,
+ "rows_subawards": 661,
+ "download_total_rows_all_files": 4453,
+ "count_matches": true
+}
