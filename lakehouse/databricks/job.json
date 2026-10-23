@@ -1,0 +1,10 @@
+{
+  "name": "civiclens-pipeline",
+  "tasks": [
+    {"task_key": "bronze", "notebook_task": {"notebook_path": "${REPO_PATH}/lakehouse/databricks/01_bronze"}},
+    {"task_key": "silver_gold_anomalies", "depends_on": [{"task_key": "bronze"}],
+     "notebook_task": {"notebook_path": "${REPO_PATH}/lakehouse/databricks/02_silver_gold_anomalies"}}
+  ],
+  "max_concurrent_runs": 1,
+  "timeout_seconds": 3600
+}

@@ -10,11 +10,14 @@ SQL it ran and cites the award ids it used.
 
 | Area | State | Evidence |
 |---|---|---|
-| USAspending client: retries, timeouts, pagination, download polling | mock-tested | `ingest/tests/test_client.py` (15 tests) |
-| Worker: per agency × FY pull, provenance manifest, idempotent, atomic swap, count check | mock-tested | same |
-| Live endpoint validation (schemas, counts, pagination, identifiers) | runs on GitHub Actions | `evidence/probe/summary.md` once the first run lands |
+| USAspending client: retries, timeouts, pagination, download polling | mock-tested | `ingest/tests/test_client.py` (17 tests) |
+| Worker: per agency × FY pull, provenance manifest, idempotent, atomic swap, prime-only count check | mock-tested | same |
+| Live endpoint validation (schemas, counts, pagination, identifiers) | **live-validated 2026-10-23**: 7/7 endpoints, 42 calls, 0 retries; ~119k transactions in scope; found that the transaction download bundles sub-award rows (fixed in worker) | `evidence/probe/summary.md`, `evidence/probe/*.json` |
+| Full MVP pull (30 cells) with per-cell manifests | workflow written; first run pending | `evidence/ingest/report.md` |
 | Databricks unattended automation (Files + Jobs API from Actions) | proof workflow written, not yet run | `evidence/databricks/auth-proof.md` |
-| Bronze/Silver/Gold, anomaly engine, API, site, AI investigator, evaluation, deploy | not started (M2–M6) | |
+| Silver/Gold SQL (one set of files for DuckDB and Spark), DQ gate, 3 anomaly detectors | mock-tested on synthetic cells: FY boundaries, rejects accounted for, de-obligations, newest-run-wins, Gold = Silver to the cent, planted outlier flagged, small groups abstain, log-normal and Pareto flag rates bounded, concentration + growth rules, no misconduct vocabulary, deterministic | `lakehouse/tests/test_pipeline.py` (16 tests) |
+| Databricks notebooks + job + Actions runner (`lakehouse-databricks`) | written, not yet run | `evidence/pipeline/databricks_run.json` |
+| API, site, AI investigator, evaluation, deploy | not started (M4–M6) | |
 
 Architecture and decisions: see `docs/M0.md` (mirrors the M0 assessment) and `docs/DECISIONS.md`.
 
@@ -26,7 +29,12 @@ preliminary (reporting lag and revisions) until the first snapshot after Jan 1, 
 
 ## Run the tests
 ```
-pip install -e "ingest[test]" && (cd ingest && pytest -q)
+pip install -e "ingest[test]" -e "lakehouse[test]"
+(cd ingest && pytest -q) && (cd lakehouse && PYTHONPATH=tests pytest -q)
+```
+## Build the local snapshot from raw cells (same SQL Databricks runs)
+```
+python -m civiclens_lakehouse.pipeline --raw data/raw --db build/civiclens.duckdb
 ```
 ## Run the live probe (needs internet access to api.usaspending.gov)
 ```

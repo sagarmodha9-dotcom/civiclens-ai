@@ -1,0 +1,15 @@
+[project]
+name = "civiclens-lakehouse"
+version = "0.1.0"
+description = "CivicLens AI: Bronze/Silver/Gold transformations, anomaly detectors, DQ gate (DuckDB + Spark)"
+requires-python = ">=3.11"
+dependencies = ["duckdb>=1.1"]
+[project.optional-dependencies]
+test = ["pytest>=8"]
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+[tool.setuptools.packages.find]
+include = ["civiclens_lakehouse*"]
+[tool.setuptools.package-data]
+civiclens_lakehouse = ["sql/*.sql"]

@@ -1,0 +1,93 @@
+name: lakehouse-databricks
+# Uploads the raw data artifact to the Unity Catalog Volume, syncs the repo into the workspace, creates/updates the
+# job from lakehouse/databricks/job.json, runs it, waits, and commits the DQ result to evidence/pipeline/.
+on:
+  workflow_dispatch:
+    inputs:
+      raw_artifact_run_id:
+        description: "run id of the ingest-usaspending run whose raw artifact to upload (blank = skip upload)"
+        default: ""
+permissions:
+  contents: write
+  actions: read
+env:
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+  REPO_PATH: /Workspace/Users/${{ secrets.DATABRICKS_USER }}/civiclens-ai
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q databricks-cli==0.18.0 requests
+      - name: Download raw artifact
+        if: inputs.raw_artifact_run_id != ''
+        uses: actions/download-artifact@v4
+        with: { pattern: raw-usaspending-*, path: data/raw, merge-multiple: true, run-id: ${{ inputs.raw_artifact_run_id }}, github-token: ${{ github.token }} }
+      - name: Upload raw cells to the Volume (Files API, one PUT per file)
+        if: inputs.raw_artifact_run_id != ''
+        run: |
+          set -e
+          python3 - <<'PY'
+          import os, requests, pathlib
+          host, tok = os.environ["DATABRICKS_HOST"].rstrip("/"), os.environ["DATABRICKS_TOKEN"]
+          root = pathlib.Path("data/raw"); n = 0
+          for p in sorted(root.rglob("*")):
+              if p.is_file() and (p.suffix in (".csv", ".json")):
+                  rel = p.relative_to(root).as_posix()
+                  url = f"{host}/api/2.0/fs/files/Volumes/civiclens/bronze/raw/{rel}?overwrite=true"
+                  with open(p, "rb") as f:
+                      r = requests.put(url, headers={"Authorization": f"Bearer {tok}", "Content-Type": "application/octet-stream"}, data=f, timeout=600)
+                  r.raise_for_status(); n += 1
+          print(f"uploaded {n} files")
+          PY
+      - name: Sync repo into the workspace and run the job
+        run: |
+          set -e
+          python3 - <<'PY'
+          import os, json, time, requests, base64, pathlib
+          host, tok = os.environ["DATABRICKS_HOST"].rstrip("/"), os.environ["DATABRICKS_TOKEN"]
+          H = {"Authorization": f"Bearer {tok}"}
+          repo_path = os.environ["REPO_PATH"]
+          # import the files the job needs (notebooks + the SQL package) via Workspace API
+          def put(path, content: bytes, fmt="SOURCE", lang=None):
+              body = {"path": path, "content": base64.b64encode(content).decode(), "overwrite": True, "format": fmt}
+              if lang: body["language"] = lang
+              r = requests.post(f"{host}/api/2.0/workspace/import", headers=H, json=body, timeout=60); r.raise_for_status()
+          requests.post(f"{host}/api/2.0/workspace/mkdirs", headers=H, json={"path": f"{repo_path}/lakehouse/databricks"}, timeout=60).raise_for_status()
+          requests.post(f"{host}/api/2.0/workspace/mkdirs", headers=H, json={"path": f"{repo_path}/lakehouse/civiclens_lakehouse/sql"}, timeout=60).raise_for_status()
+          for nb in ("01_bronze", "02_silver_gold_anomalies"):
+              put(f"{repo_path}/lakehouse/databricks/{nb}", open(f"lakehouse/databricks/{nb}.py","rb").read(), "SOURCE", "PYTHON")
+          for f in pathlib.Path("lakehouse/civiclens_lakehouse").rglob("*"):
+              if f.is_file():
+                  put(f"{repo_path}/lakehouse/{f.relative_to('lakehouse').as_posix()}", f.read_bytes(), "AUTO")
+          spec = json.loads(open("lakehouse/databricks/job.json").read().replace("${REPO_PATH}", repo_path))
+          jobs = requests.get(f"{host}/api/2.1/jobs/list", headers=H, params={"name": spec["name"]}, timeout=60).json().get("jobs", [])
+          if jobs:
+              job_id = jobs[0]["job_id"]; requests.post(f"{host}/api/2.1/jobs/reset", headers=H, json={"job_id": job_id, "new_settings": spec}, timeout=60).raise_for_status()
+          else:
+              job_id = requests.post(f"{host}/api/2.1/jobs/create", headers=H, json=spec, timeout=60).json()["job_id"]
+          run_id = requests.post(f"{host}/api/2.1/jobs/run-now", headers=H, json={"job_id": job_id}, timeout=60).json()["run_id"]
+          print("job", job_id, "run", run_id)
+          while True:
+              r = requests.get(f"{host}/api/2.1/jobs/runs/get", headers=H, params={"run_id": run_id}, timeout=60).json()
+              st = r["state"]; print(st.get("life_cycle_state"), st.get("result_state", ""), flush=True)
+              if st["life_cycle_state"] in ("TERMINATED", "SKIPPED", "INTERNAL_ERROR"): break
+              time.sleep(30)
+          out = {"job_id": job_id, "run_id": run_id, "run_page_url": r.get("run_page_url"), "state": st, "tasks": []}
+          for t in r.get("tasks", []):
+              o = requests.get(f"{host}/api/2.1/jobs/runs/get-output", headers=H, params={"run_id": t["run_id"]}, timeout=60).json()
+              out["tasks"].append({"task_key": t["task_key"], "state": t.get("state"), "notebook_output": o.get("notebook_output"), "error": o.get("error")})
+          pathlib.Path("evidence/pipeline").mkdir(parents=True, exist_ok=True)
+          json.dump(out, open("evidence/pipeline/databricks_run.json", "w"), indent=1)
+          print(json.dumps(out, indent=1)[:4000])
+          assert st.get("result_state") == "SUCCESS", st
+          PY
+      - name: Commit evidence
+        if: always()
+        run: |
+          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
+          git add evidence/pipeline && git commit -m "evidence: databricks pipeline run" && git push || echo "nothing to commit"
