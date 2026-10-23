@@ -309,3 +309,28 @@ def test_client_ip_prefers_fly_header_then_forwarded_for():
     assert inv.client_ip(req({"fly-client-ip": "203.0.113.9", "x-forwarded-for": "198.51.100.1, 10.0.0.1"})) == "203.0.113.9"
     assert inv.client_ip(req({"x-forwarded-for": "198.51.100.1, 10.0.0.1"})) == "198.51.100.1"
     assert inv.client_ip(req({})) == "10.0.0.1"
+
+
+def test_numeric_string_facts_are_coerced_and_psc_class_listing_is_complete(snap):
+    scope = Scope("036", 2025)
+    rows = run_tool(snap, scope, "aggregate_spend", {"group_by": "recipient", "limit": 5})
+    log = [{"id": "tu_1", "name": "aggregate_spend", "args": {"group_by": "recipient", "limit": 5}, "scope": scope.__dict__, "result": rows}]
+    giant = next(r for r in rows if r["recipient_name"] == "GIANT CORP")
+    f = inv.Fact(claim="GIANT", value=f"{float(giant['obligations']):,.2f}", unit="USD", tool_call_id="tu_1", measure="obligations", entities=[giant["recipient_uei"]])
+    assert verify(FinalAnswer(facts=[f], interpretation="x", citations=[]), log)["ok"]
+    classes = run_tool(snap, Scope("036"), "aggregate_spend", {"group_by": "psc_class", "limit": 1})
+    assert {r["psc_class2"] for r in classes} >= {"D3", "70"}                     # limit does not truncate the class list
+
+
+def test_rounded_prose_and_scope_entities(snap):
+    scope = Scope("036", 2025)
+    rows = run_tool(snap, scope, "aggregate_spend", {"group_by": "fiscal_year", "limit": 5})
+    log = [{"id": "tu_1", "name": "aggregate_spend", "args": {"group_by": "fiscal_year", "limit": 5}, "scope": scope.__dict__, "result": rows}]
+    total = float(rows[0]["obligations"])
+    f = inv.Fact(claim="VA FY2025 total", value=total, unit="USD", tool_call_id="tu_1", measure="obligations", entities=["036"], fiscal_years=[2025])
+    v = verify(FinalAnswer(facts=[f], interpretation="x", citations=[]), log)
+    assert v["ok"]                                                              # "036" is the call's own scope, not a row value
+    toks = dict((t, h) for t, _, h in inv.prose_numbers_with_tolerance("about $1.1M and 3.59 and 505"))
+    assert toks["$1.1M"] == 50_000 and abs(toks["3.59"] - 0.005) < 1e-9 and toks["505"] == 0.5
+    ans = FinalAnswer(facts=[f], interpretation=f"VA obligated about ${round(total / 1e6, 1)}M in FY2025.", citations=[])
+    assert inv.ground_prose(ans, verify(ans, log), log) == []                  # one-decimal rounding of a verified fact is grounded

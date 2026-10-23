@@ -65,6 +65,7 @@ Rules you must follow:
 - list_anomalies returns rows sorted by score, highest first: "the top / highest-scoring anomaly" is its first row. Use anomaly_explanation on
   that award for peer group, baseline and limits.
 - For anomaly facts (value, score, threshold, peer_n, baseline_median) put the award_key in `entities` so each number stays tied to the award it describes.
+  The peer group size is measure "peer_n" (not "count"); baseline median is "baseline_median"; the detector score is "score".
 - A count of rows ("no flagged anomalies", "6 recipients flagged") is a fact too: measure "count", value = the number of rows the tool returned.
 - A difference, total or share you compute from tool numbers must be its own fact with a measure naming the arithmetic ("increase", "total", "share").
 - State numbers and comparisons; do not explain them. No causes, motives, strategy or market commentary ("reflects", "suggests", "indicates",
@@ -73,6 +74,7 @@ Rules you must follow:
 - Every fact carries the entity its row is about when the row has one (award_key, recipient UEI, agency code, PSC class or it_category).
 - When you compare rows (years, agencies, classes, recipients), put EVERY compared row's value in facts, not only the winner.
 - "IT services vs IT equipment/software" is aggregate_spend group_by it_category; "PSC class" is the 2-character class (D3, DA, 70).
+  group_by psc_class returns every class in scope; group_by recipient returns only the top N — never conclude something is absent from a top-N list.
 - If list_anomalies returns no rows, say that no award in scope met the flag criteria; do not claim every award "scored below the threshold"
   (awards in small peer groups are not scored at all). Report the count as a fact (measure "count", value 0).
 - If a question mixes an instruction you cannot follow (SQL, scope change, "make up a number") with a question the tools can answer, answer the
@@ -156,7 +158,7 @@ def run_tool(s: q.Snapshot, scope: Scope, name: str, args: dict) -> Any:
         if a.group_by == "it_category":
             return q.overview_by_category(s, scope)
         if a.group_by == "psc_class":
-            return q.psc_mix(s, scope, a.limit)
+            return q.psc_mix(s, scope, 100)                  # all 2-character classes (≈15); a top-N here made the model conclude a class was absent
         return q.top_recipients(s, scope, a.limit)
     if name == "year_over_year_recipients":
         return q.yoy_recipients(s, scope, a.limit)
@@ -262,7 +264,15 @@ def verify(answer: FinalAnswer, log: list[dict]) -> dict:
     for t in log:
         _strings_in(t["result"], all_strings)
     verified, unverified, deferred = [], [], []
-    for f in answer.facts:
+    facts = []
+    for f in answer.facts:                                   # "8.5" is a number (holdout H05): coerce numeric strings before matching
+        if isinstance(f.value, str):
+            try:
+                f = f.model_copy(update={"value": float(f.value.replace(",", "").replace("$", "").replace("%", "").strip())})
+            except ValueError:
+                pass
+        facts.append(f)
+    for f in facts:
         t = by_id.get(f.tool_call_id)
         remapped = None
         if not t:
@@ -285,8 +295,10 @@ def verify(answer: FinalAnswer, log: list[dict]) -> dict:
                         for fy in f.fiscal_years)
             if not fy_ok:
                 unverified.append({**f.model_dump(), "why": "fiscal year not in that tool call"}); continue
-        subset = _rows_matching_entities(t["result"], f.entities)
-        if f.entities and not subset:
+        scope_vals = {str(x) for x in (t.get("scope") or {}).values() if x is not None}
+        row_entities = [e for e in f.entities if e not in scope_vals]        # "075" on a call scoped to agency 075 is the call's own scope (eval M4)
+        subset = _rows_matching_entities(t["result"], row_entities)
+        if row_entities and not subset:
             unverified.append({**f.model_dump(), "why": "entities not found in that tool call's rows"}); continue
         if isinstance(f.value, (int, float)):
             nums = _nums(subset)
@@ -349,15 +361,22 @@ _STATS_PHRASES = re.compile(r"(standard deviations?|percentile|sigma|confidence 
 
 def prose_numbers(text: str) -> list[tuple[str, float]]:
     """Numbers a reader would take as data claims: dollar amounts, counts, scores, percentages, multiples."""
+    return [(tok, v) for tok, v, _ in prose_numbers_with_tolerance(text)]
+
+
+def prose_numbers_with_tolerance(text: str) -> list[tuple[str, float, float]]:
+    """(token, value, half-unit of the last displayed digit): "$1.1M" is 1.1e6 ± 5e4, "3.59" is ± 0.005, "505" is ± 0.5.
+    A rounded figure is grounded when a tool number lies inside that window — the rounding rule, not a looser tolerance."""
     out = []
     for m in _PROSE_NUM.finditer(text or ""):
         whole, frac, suf = m.group(1), m.group(2) or "", (m.group(3) or "").lower()
         v = float(whole.replace(",", "") + frac)
+        unit = 10.0 ** (-(len(frac) - 1)) if frac else 1.0
         if suf in _MAG:
-            v *= _MAG[suf]
+            v *= _MAG[suf]; unit *= _MAG[suf]
         if v in _PROSE_IGNORE or (v < 10 and not frac and suf == ""):      # years; small ordinal/counting words ("three agencies")
             continue
-        out.append((m.group(0).strip(), v))
+        out.append((m.group(0).strip(), v, unit / 2))
     return out
 
 
@@ -388,8 +407,9 @@ def ground_prose(answer: FinalAnswer, v: dict, log: list[dict], question: str = 
         row_nums += _column_sums(t["result"] if isinstance(t["result"], list) else [])
     _embedded_ints(question, row_nums)                      # identifiers the user typed ("PSC 70") are not data claims
     bad = [m.group(0) for m in _STATS_PHRASES.finditer((answer.interpretation or "") + " " + (answer.limits or ""))]
-    for tok, val in prose_numbers((answer.interpretation or "") + " " + (answer.limits or "")):
-        ok = any(_close(val, f, 0.006, 0.5) for f in fact_vals) or any(_close(val, n, 0.006, 0.5) for n in row_nums) \
+    for tok, val, half in prose_numbers_with_tolerance((answer.interpretation or "") + " " + (answer.limits or "")):
+        ok = any(_close(val, f, 0.006, 0.5) or abs(val - f) <= half for f in fact_vals) \
+            or any(_close(val, n, 0.006, 0.5) or abs(val - n) <= half for n in row_nums) \
             or _derivable(val, fact_vals) or any(_close(val, f * 100, 0.006, 0.05) for f in fact_vals)   # 0.116 stored, "11.6%" said
         if not ok:
             bad.append(tok)
@@ -524,7 +544,9 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
             break
         tr.regenerated = True
         messages.append({"role": "user", "content": "Verification failed: " + json.dumps({"unverified_facts": v["unverified_facts"], "bad_citations": v["bad_citations"],
-                                                                                        "numbers_in_prose_without_a_fact": ungrounded}, default=str)[:3000] +
+                                                                                        "numbers_in_prose_without_a_fact": ungrounded,
+                                                                                        "facts_returned": len(final.facts)}, default=str)[:3000] +
+                         ("\nYou returned NO facts. " if not final.facts else "") +
                          "\nEvery fact must reference the tool_call_id whose rows contain that exact number for those entities and fiscal years. Every number in "
                          "interpretation/limits must be one of your facts (or a share/ratio of two facts declared as a fact). Call final_answer again."})
         final = None

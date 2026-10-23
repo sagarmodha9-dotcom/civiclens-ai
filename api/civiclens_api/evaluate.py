@@ -40,6 +40,7 @@ NOT unsupported (do not list these):
 - comparative or trend words that follow from numbers in the rows ("declined", "dipped", "grew", "higher than", "second-largest");
 - the standard anomaly wording ("statistically unusual relative to a comparison group of N") when a flagged row is present;
 - hedged non-claims ("this does not by itself indicate...", "this data does not support any characterisation of conduct") and bracketed server notes;
+- statements about what the tools, the scope or the investigator can or cannot do ("SQL cannot be run here", "outside the scope of this data");
 - saying the first row of a sorted result is the largest / top / highest ("making it the largest recipient"), or that a flagged award is large relative to its peer group;
 - totals, shares or differences over the listed rows ("of their combined obligations", "$35.6 billion across the five years" when the five yearly rows are present), and
   order-of-magnitude comparisons of two numbers that are both in the rows.
