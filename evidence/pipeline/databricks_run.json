@@ -1,53 +1,42 @@
 {
  "stamp": {
-  "github_run_id": "39998030675",
-  "commit": "43dc0057ef6b",
-  "utc": "2026-10-23T17:52:14+00:00",
+  "github_run_id": "40000440021",
+  "commit": "612e7aee7576",
+  "utc": "2026-10-23T18:07:55+00:00",
   "catalog": "workspace",
   "ingest_run_id": "39997561946"
  },
  "job_id": 862977884764769,
- "run_id": 145677054756609,
- "run_page_url": "https://dbc-b531337f-7f65.cloud.databricks.com/?o=7474654994685709#job/862977884764769/run/145677054756609",
+ "run_id": 498821750520803,
+ "run_page_url": "https://dbc-b531337f-7f65.cloud.databricks.com/?o=7474654994685709#job/862977884764769/run/498821750520803",
  "state": {
   "life_cycle_state": "INTERNAL_ERROR",
   "result_state": "FAILED",
-  "state_message": "Task silver_gold_anomalies failed with message: Workload failed, see run output for details. This caused all downstream tasks to get skipped.",
+  "state_message": "Task bronze failed with message: Cannot launch the cluster. Cause: Invalid platform channel Client-1. INVALID_PARAMETER_VALUE: INVALID_PARAMETER_VALUE: Workspace doesn't support Client-1 channel for REPL. (requestId=27c777da-fb54-4746-9222-052fd435248f). This caused all downstream tasks to get skipped.",
   "user_cancelled_or_timedout": false
  },
  "tasks": [
   {
    "task_key": "bronze",
    "state": {
-    "life_cycle_state": "TERMINATED",
-    "result_state": "SUCCESS",
-    "state_message": "",
+    "life_cycle_state": "INTERNAL_ERROR",
+    "result_state": "FAILED",
+    "state_message": "Cannot launch the cluster. Cause: Invalid platform channel Client-1. INVALID_PARAMETER_VALUE: INVALID_PARAMETER_VALUE: Workspace doesn't support Client-1 channel for REPL. (requestId=27c777da-fb54-4746-9222-052fd435248f)",
     "user_cancelled_or_timedout": false
    },
    "notebook_output": {},
-   "error": null
+   "error": "Run failed with error message\n Cannot launch the cluster. Cause: Invalid platform channel Client-1. INVALID_PARAMETER_VALUE: INVALID_PARAMETER_VALUE: Workspace doesn't support Client-1 channel for REPL. (requestId=27c777da-fb54-4746-9222-052fd435248f)"
   },
   {
    "task_key": "silver_gold_anomalies",
    "state": {
-    "life_cycle_state": "TERMINATED",
-    "result_state": "FAILED",
-    "state_message": "Workload failed, see run output for details",
+    "life_cycle_state": "SKIPPED",
+    "result_state": "UPSTREAM_FAILED",
+    "state_message": "An upstream task failed.",
     "user_cancelled_or_timedout": false
    },
-   "notebook_output": {},
-   "error": "OSError: [Errno 5] Input/output error: '/Workspace/Users/sagarmodha9@gmail.com/civiclens-ai/lakehouse/civiclens_lakehouse/sql/silver_contract_transactions.sql'\nError(message=403 Forbidden: \nAccessDeniedRequests specifying Server Side Encryption with Customer provided keys must provide the correct secret key.5HSDZAYYCSECW6DYHhgpxyM9SZ+GFmHb7C/Y84XwwX02WfmE5XGzgwVy2HPWglw8TmdcIaum5mdz5O1Lo/t9u7YgDKA=, errorCode=system/Blob.SignedUrl.RequestError, errno=permission denied, statusCode=403)\n -> 403 Forbidden: \nAccessDeniedRequests specifying Server Side Encryption with Customer provided keys must provide the correct secret key.5HSDZAYYCSECW6DYHhgpxyM9SZ+GFmHb7C/Y84XwwX02WfmE5XGzgwVy2HPWglw8TmdcIaum5mdz5O1Lo/t9u7YgDKA=\n[Trace ID: 00-9896a5e2b6ea0afdada4cbe222f73bb7-2943cba590cd46c3-00]"
-  },
-  {
-   "task_key": "silver_gold_anomalies",
-   "state": {
-    "life_cycle_state": "TERMINATED",
-    "result_state": "FAILED",
-    "state_message": "Workload failed, see run output for details",
-    "user_cancelled_or_timedout": false
-   },
-   "notebook_output": {},
-   "error": "OSError: [Errno 5] Input/output error: '/Workspace/Users/sagarmodha9@gmail.com/civiclens-ai/lakehouse/civiclens_lakehouse/sql/silver_contract_transactions.sql'\nError(message=403 Forbidden: \nAccessDeniedRequests specifying Server Side Encryption with Customer provided keys must provide the correct secret key.N0TEEY5GDF0M76P9BIs6eJkuBmnrAkI6N7zsG05APhKAu8B2dpWrEYbyWtcuabmC/i4Vit773V0g4t9FFzXqc8OXh1zdT5tYK4zJpkrFXSSbbEUo, errorCode=system/Blob.SignedUrl.RequestError, errno=permission denied, statusCode=403)\n -> 403 Forbidden: \nAccessDeniedRequests specifying Server Side Encryption with Customer provided keys must provide the correct secret key.N0TEEY5GDF0M76P9BIs6eJkuBmnrAkI6N7zsG05APhKAu8B2dpWrEYbyWtcuabmC/i4Vit773V0g4t9FFzXqc8OXh1zdT5tYK4zJpkrFXSSbbEUo\n[Trace ID: 00-b3bf7d98dddcbc3f67f364e56727bd4f-d3db91decfeaa311-00]"
+   "notebook_output": null,
+   "error": "Run result unavailable: The task was skipped because not all its dependencies were executed and succeeded."
   }
  ],
  "databricks_dq": {},
