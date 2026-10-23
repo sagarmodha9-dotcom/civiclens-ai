@@ -67,6 +67,8 @@ jobs:
           git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
           git add evidence/ingest evidence/pipeline evidence/reconcile 2>/dev/null || git add evidence/ingest
           git commit -m "evidence: ingestion run $(date -u +%Y-%m-%dT%H:%MZ) (${{ steps.pull.outcome }})" || echo "nothing to commit"
-          for i in 1 2 3; do git pull --rebase -q origin main && git push && break || sleep 10; done
+          git status --short | head -20
+          pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
+          test "$pushed" = 1 || { echo "::error::evidence push failed after 3 attempts"; exit 1; }
       - if: steps.pull.outcome != 'success'
         run: exit 1
