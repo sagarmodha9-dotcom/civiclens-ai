@@ -81,13 +81,22 @@ jobs:
         working-directory: web
         run: |
           npm i -g vercel@latest >/dev/null
+          vercel project add "$VERCEL_PROJECT" --token "$VERCEL_TOKEN" >/dev/null 2>&1 || true     # idempotent: exists already after the first run
           vercel link --yes --project "$VERCEL_PROJECT" --token "$VERCEL_TOKEN"
           vercel env rm NEXT_PUBLIC_API_URL production --yes --token "$VERCEL_TOKEN" >/dev/null 2>&1 || true
           printf '%s' "${{ steps.api.outputs.url }}" | vercel env add NEXT_PUBLIC_API_URL production --token "$VERCEL_TOKEN"
           URL=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN" 2>/dev/null | tail -1)
           echo "deployment=$URL"
-          # stable production alias
-          ALIAS=$(vercel inspect "$URL" --token "$VERCEL_TOKEN" 2>&1 | grep -oE "https://[a-z0-9.-]*vercel.app" | grep -v "\-git-" | head -1 || true)
+          # stable production alias from the project record (run 40010130351 fell back to the per-deployment URL)
+          ALIAS=$(python3 - <<'PY'
+          import json, os, urllib.request
+          req = urllib.request.Request("https://api.vercel.com/v9/projects/" + os.environ["VERCEL_PROJECT"], headers={"Authorization": "Bearer " + os.environ["VERCEL_TOKEN"]})
+          d = json.load(urllib.request.urlopen(req, timeout=30))
+          al = [a["domain"] if isinstance(a, dict) else a for a in (d.get("targets", {}).get("production", {}) or {}).get("alias", [])]
+          al = [a for a in al if a.endswith(".vercel.app") and "-git-" not in a] or al
+          print("https://" + sorted(al, key=len)[0] if al else "")
+          PY
+          )
           [ -n "$ALIAS" ] || ALIAS="$URL"
           echo "url=$ALIAS" >> "$GITHUB_OUTPUT"; echo "site: $ALIAS"
       - name: Point API CORS at the site
@@ -138,12 +147,14 @@ jobs:
           npm ci >/dev/null && npx playwright install --with-deps chromium >/dev/null
           sleep 20
           npx playwright test 2>&1 | tee ../e2e.log | tail -25
+          cp test-results/results.json ../e2e-results.json
+          python3 -c "import json,sys; st=json.load(open('../e2e-results.json'))['stats']; print(st); sys.exit(1 if (st.get('expected',0) < 10 or st.get('unexpected',0)) else 0)"
         continue-on-error: true
       - name: Automated demo recording + screenshots of the public site
         if: ${{ !inputs.skip_web && steps.e2e.outcome == 'success' }}
         id: demo
         working-directory: web
-        env: { E2E_BASE_URL: "${{ steps.web.outputs.url }}", DEMO: "1" }
+        env: { E2E_BASE_URL: "${{ steps.web.outputs.url }}", DEMO: "1", PLAYWRIGHT_JSON_OUTPUT_NAME: "demo-results.json" }
         continue-on-error: true
         run: |
           mkdir -p ../docs/screenshots ../docs/demo
@@ -160,11 +171,12 @@ jobs:
           import json, os, datetime as dt, pathlib
           res = {}
           try:
-              r = json.load(open("web/test-results/results.json")); st = r.get("stats", {})
+              r = json.load(open("e2e-results.json")); st = r.get("stats", {})
               res = {"expected": st.get("expected"), "unexpected": st.get("unexpected"), "skipped": st.get("skipped"), "duration_ms": st.get("duration")}
           except Exception as e: res = {"error": str(e)[:100]}
           sec = json.load(open("api_access_checks.json")) if pathlib.Path("api_access_checks.json").exists() else {}
-          ok = "${{ steps.api.outcome }}" == "success" and ("${{ inputs.skip_web }}" == "true" or ("${{ steps.e2e.outcome }}" == "success" and not res.get("unexpected") and "${{ steps.apisec.outcome }}" == "success"))
+          e2e_ok = "${{ steps.e2e.outcome }}" == "success" and (res.get("expected") or 0) >= 10 and not res.get("unexpected")   # tests must actually have run
+          ok = "${{ steps.api.outcome }}" == "success" and ("${{ inputs.skip_web }}" == "true" or (e2e_ok and "${{ steps.apisec.outcome }}" == "success"))
           rep = {"stamp": {"github_run_id": "${{ github.run_id }}", "commit": "${{ github.sha }}"[:12], "utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")},
                  "snapshot_version": "${{ steps.snap.outputs.version }}", "api_url": "${{ steps.api.outputs.url }}", "site_url": "${{ steps.web.outputs.url }}",
                  "api_smoke": "${{ steps.api.outcome }}", "web_deploy": "${{ steps.web.outcome }}", "e2e": "${{ steps.e2e.outcome }}", "e2e_results": res, "pass": ok,

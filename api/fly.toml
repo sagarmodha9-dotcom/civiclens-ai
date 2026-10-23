@@ -7,7 +7,7 @@ primary_region = "iad"
   # SNAPSHOT_URL / SNAPSHOT_SHA256 are passed with --build-arg from the deploy workflow (pinned version)
 
 [env]
-  CIVICLENS_CORS = "https://civiclens-ai.vercel.app"
+  # CIVICLENS_CORS is set as a Fly secret by the deploy workflow to the site's public alias
   CIVICLENS_PER_IP_PER_HOUR = "8"
   CIVICLENS_GLOBAL_PER_DAY = "120"
   CIVICLENS_MONTHLY_BUDGET_USD = "5"
