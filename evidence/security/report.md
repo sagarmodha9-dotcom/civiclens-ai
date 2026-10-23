@@ -1,6 +1,6 @@
 # Security gate — **PASS**
 
-GitHub run `40013054700` · commit `c4be8941ae9f` · 2026-10-23T19:39:44+00:00
+GitHub run `40013530239` · commit `7690ec115aaa` · 2026-10-23T19:43:12+00:00
 
 - gitleaks over the full git history (`--log-opts=--all`): 0 finding(s)
 - pip-audit (dependencies of api, lakehouse, ingest; 60 packages audited): 0 vulnerable package(s) 
