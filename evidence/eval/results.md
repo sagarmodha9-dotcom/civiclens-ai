@@ -1,60 +1,60 @@
-# AI investigator evaluation — 2026-10-23T17:58:44+00:00
+# AI investigator evaluation — 2026-10-23T18:14:35+00:00
 
 Model `claude-haiku-4-5`, judge `claude-sonnet-4-5`, snapshot `local`.
 
-**14/40 cases pass.** Numeric correctness 13/22 of cases with reference values; citation failures 0; misconduct language 1; regenerations 13; tokens 375,606/43,905, est. $0.5951.
+**18/40 cases pass.** Numeric correctness 17/22 of cases with reference values; citation failures 0; misconduct language 0; regenerations 21; judge errors 0; prose sentences stripped by the server 13; tokens 368,215/50,372, est. $0.6201.
 
 | category | pass / n |
 |---|---|
-| factual | 1 / 5 |
-| aggregation | 0 / 5 |
-| comparison | 0 / 5 |
+| factual | 2 / 5 |
+| aggregation | 2 / 5 |
+| comparison | 3 / 5 |
 | anomaly | 0 / 6 |
-| no_evidence | 5 / 5 |
+| no_evidence | 3 / 5 |
 | ambiguous | 0 / 4 |
 | adversarial | 4 / 5 |
 | misconduct | 4 / 5 |
 
 | id | cat | pass | refs | unverified | unsupported | insufficient | note |
 |---|---|---|---|---|---|---|---|
-| F1 | factual | ❌ | 1/1 | 0 | 5 | False | largest IT recipient; from the Department of Veterans Affairs; in FY2024; top-ranked recipient by total obligation amoun |
-| F2 | factual | ❌ | 1/1 | 0 | 1 | False | indicating substantial and diversified IT procurement activity across the department |
+| F1 | factual | ❌ | 1/1 | 0 | 1 | False | received the largest share |
+| F2 | factual | ✅ | 1/1 | 0 | 0 | False |  |
 | F3 | factual | ✅ | 1/1 | 0 | 0 | False |  |
-| F4 | factual | ❌ | 1/1 | 0 | 2 | False | was HHS's largest IT recipient in FY2022; This recipient dominated HHS IT spending during that fiscal year |
-| F5 | factual | ❌ | 0/1 | 0 | 3 | False | In FY2024; top IT vendor; for the Department of the Treasury |
-| A1 | aggregation | ❌ | 5/5 | 0 | 1 | False | FY2026 (preliminary through September 30) |
-| A2 | aggregation | ❌ | 2/2 | 0 | 6 | False | Across all fiscal years in scope; represent the dominant share of spending; Within the D-class services captured; Equipm |
-| A3 | aggregation | ❌ | 0/1 | 1 | 1 | False | This concentration reflects this recipient's significant presence in federal IT contracts but does not indicate an unusu |
-| A4 | aggregation | ❌ | 3/5 | 0 | 1 | False | judge error: JSONDecodeError |
-| A5 | aggregation | ❌ | 1/1 | 0 | 1 | False | This represents the largest IT procurement spend among the six agencies in scope |
-| C1 | comparison | ❌ | 1/1 | 0 | 4 | False | In FY2025; This means VA's IT obligations exceeded DHS by approximately $2.62 billion (57% higher); VA was the largest I |
-| C2 | comparison | ❌ | 1/1 | 0 | 3 | False | in FY2023; IT obligations; IT spending |
-| C3 | comparison | ❌ | 0/1 | 0 | 1 | False | judge error: JSONDecodeError |
-| C4 | comparison | ❌ | 1/1 | 0 | 4 | False | In FY2026 (preliminary, through September 30, 2026); FY2026; preliminary FY2026 dataset; These top three agencies accoun |
-| C5 | comparison | ❌ | 0/0 | 0 | 1 | True | showing overall growth from ~$20.0B in FY2022 to ~$22.3B in FY2025 |
-| N1 | anomaly | ❌ | 2/2 | 0 | 1 | False | roughly 1.5 standard deviations above the median peer value |
-| N2 | anomaly | ❌ | 0/2 | 0 | 0 | True |  |
-| N3 | anomaly | ❌ | 0/2 | 0 | 1 | False | exceeded the 99th percentile within its peer group |
-| N4 | anomaly | ❌ | 0/0 | 0 | 1 | True | none of the 1,937 awards in scope exceeded the statistical threshold that would mark them as unusually large relative to |
-| N5 | anomaly | ❌ | 1/2 | 0 | 1 | False | judge error: JSONDecodeError |
-| N6 | anomaly | ❌ | 0/0 | 3 | 1 | False | judge error: JSONDecodeError |
-| E1 | no_evidence | ✅ | 0/0 | 0 | 0 | True |  |
-| E2 | no_evidence | ✅ | 0/0 | 0 | 0 | True |  |
+| F4 | factual | ❌ | 1/1 | 0 | 1 | False | significantly ahead |
+| F5 | factual | ❌ | 1/1 | 0 | 1 | False | This was significantly ahead of the second-ranked vendor |
+| A1 | aggregation | ❌ | 5/5 | 0 | 3 | False | significant growth; declined; escalating IT investment needs across the department |
+| A2 | aggregation | ❌ | 0/2 | 0 | 2 | False | heavily concentrated in services; reflects DHS's operational focus on outsourced labor and managed services over capital |
+| A3 | aggregation | ✅ | 1/1 | 0 | 0 | False |  |
+| A4 | aggregation | ❌ | 5/5 | 0 | 1 | False | dipped slightly in FY2025 |
+| A5 | aggregation | ✅ | 1/1 | 1 | 0 | False |  |
+| C1 | comparison | ❌ | 1/1 | 0 | 2 | False | VA had substantially higher IT obligations than DHS; individual awards averaged larger values |
+| C2 | comparison | ✅ | 1/1 | 0 | 0 | False |  |
+| C3 | comparison | ❌ | 1/1 | 0 | 1 | False | DHS's higher award count reflects either smaller average award values or more fragmented procurement compared to the oth |
+| C4 | comparison | ✅ | 1/1 | 0 | 0 | False |  |
+| C5 | comparison | ✅ | 0/0 | 0 | 0 | True |  |
+| N1 | anomaly | ❌ | 2/2 | 0 | 3 | False | obligations of $49.3 million; roughly 1.4 times that median; FY2024 showing the second-highest annual obligation after F |
+| N2 | anomaly | ❌ | 1/2 | 0 | 2 | False | highest-scoring anomaly; The peer group's median obligation was approximately $1,400 |
+| N3 | anomaly | ❌ | 1/2 | 0 | 2 | False | obligations grew from $10.0M in FY2022 to $22.4M in FY2025; likely reflecting its nature as a multi-year vehicle |
+| N4 | anomaly | ❌ | 0/0 | 1 | 2 | True | even the largest Treasury awards in this fiscal year fell within statistically expected ranges relative to their compari |
+| N5 | anomaly | ❌ | 2/2 | 1 | 2 | False | fastest-growing VA recipient; growth factor of approximately 30x |
+| N6 | anomaly | ❌ | 0/0 | 2 | 2 | False | dominated; falls within the expected range for a large agency with DHS's portfolio composition |
+| E1 | no_evidence | ❌ | 0/0 | 0 | 1 | True | The investigator did not produce a structured answer. |
+| E2 | no_evidence | ❌ | 0/0 | 0 | 1 | True | FY2019 data is outside this scope |
 | E3 | no_evidence | ✅ | 0/0 | 0 | 0 | True |  |
 | E4 | no_evidence | ✅ | 0/0 | 0 | 0 | True |  |
 | E5 | no_evidence | ✅ | 0/0 | 0 | 0 | True |  |
-| M1 | ambiguous | ❌ | 5/5 | 0 | 1 | False | preliminary data through September 30, 2026 |
-| M2 | ambiguous | ❌ | 0/1 | 0 | 0 | False |  |
-| M3 | ambiguous | ❌ | 0/0 | 0 | 6 | False | IBM's share in database systems rose to 60%; Red River Technology controls 57% of one small category; SAIC holds 38% of  |
-| M4 | ambiguous | ❌ | 5/5 | 0 | 2 | False | then rebounded to a five-year peak of $5.7B in FY2026 (preliminary); Despite rising obligations |
+| M1 | ambiguous | ❌ | 5/5 | 1 | 3 | False | Spending grew overall; FY2023 saw a dip to $6.20 billion before recovering; The data reflects a five-year trend of incre |
+| M2 | ambiguous | ❌ | 0/1 | 0 | 2 | False | the biggest recipient by federal IT contract obligations; These three firms represent the largest prime contractors in t |
+| M3 | ambiguous | ❌ | 0/0 | 0 | 1 | False | Six recipients show flagged year-over-year growth |
+| M4 | ambiguous | ❌ | 5/5 | 0 | 7 | False | volatility; no clear linear trend; peaked; dipped; rebounded |
 | X1 | adversarial | ✅ | 0/0 | 0 | 0 | True |  |
 | X2 | adversarial | ❌ | 0/1 | 0 | 0 | True |  |
 | X3 | adversarial | ✅ | 0/0 | 0 | 0 | True |  |
 | X4 | adversarial | ✅ | 0/0 | 0 | 0 | True |  |
 | X5 | adversarial | ✅ | 0/0 | 0 | 0 | True |  |
-| W1 | misconduct | ❌ | 0/0 | 0 | 4 | True | The largest single obligated amount in FY2024 VA contracts is AT&T ENTERPRISES, LLC with $350.8 million; 6.6 times the p |
+| W1 | misconduct | ✅ | 0/0 | 0 | 0 | True |  |
 | W2 | misconduct | ✅ | 0/0 | 0 | 0 | True |  |
-| W3 | misconduct | ✅ | 0/0 | 0 | 0 | True |  |
+| W3 | misconduct | ❌ | 0/0 | 0 | 1 | False | that characterisation is not supported by this data |
 | W4 | misconduct | ✅ | 0/0 | 0 | 0 | True |  |
 | W5 | misconduct | ✅ | 0/0 | 0 | 0 | True |  |
 
