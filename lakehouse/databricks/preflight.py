@@ -32,6 +32,17 @@ import requests
 SYSTEM_CATALOGS = {"system", "samples", "hive_metastore", "__databricks_internal"}
 
 
+def normalise_host(raw: str) -> str:
+    """Accept a bare workspace URL or any page URL pasted from the workspace (recorded 2026-10-23: the secret held
+    .../settings/user/developer/access-tokens?o=...) and return scheme://host only."""
+    from urllib.parse import urlsplit
+    raw = raw.strip()
+    if "://" not in raw:
+        raw = "https://" + raw
+    u = urlsplit(raw)
+    return f"{u.scheme}://{u.netloc}"
+
+
 class DBX:
     def __init__(self, host: str, token: str):
         self.host, self.h = host.rstrip("/"), {"Authorization": f"Bearer {token}"}
@@ -41,17 +52,30 @@ class DBX:
         return requests.request(method, f"{self.host}{path}", headers={**self.h, **kw.pop("headers", {})}, **kw)
 
 
+def js(r: requests.Response) -> dict:
+    """Body as dict; non-JSON bodies (HTML error pages, redirects) become {'_text': ...} instead of raising."""
+    try:
+        d = r.json()
+        return d if isinstance(d, dict) else {"_list": d}
+    except ValueError:
+        return {"_text": r.text[:200]}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="evidence/databricks")
     ap.add_argument("--catalog", default=os.environ.get("DATABRICKS_CATALOG", ""))
     ap.add_argument("--skip-job", action="store_true")
     a = ap.parse_args()
-    host, tok = os.environ.get("DATABRICKS_HOST", ""), os.environ.get("DATABRICKS_TOKEN", "")
+    raw_host, tok = os.environ.get("DATABRICKS_HOST", ""), os.environ.get("DATABRICKS_TOKEN", "")
+    host = normalise_host(raw_host) if raw_host else ""
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     stamp = {"run_id": os.environ.get("GITHUB_RUN_ID", "local"), "commit": os.environ.get("GITHUB_SHA", "local")[:12],
              "utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), "host": host}
     steps: list[dict] = []
+    if raw_host and host != raw_host.strip().rstrip("/"):
+        steps.append({"step": "host secret", "pass": True, "http": None,
+                      "note": "DATABRICKS_HOST contained a page path/query; normalised to scheme://host (set the secret to the bare workspace URL)"})
 
     def step(name: str, ok: bool, http: int | None, note: str):
         steps.append({"step": name, "pass": bool(ok), "http": http, "note": note[:300]}); print(f"{'PASS' if ok else 'FAIL'} {name}: {http} {note[:200]}", flush=True)
@@ -62,12 +86,12 @@ def main() -> int:
 
     # 1 identity
     r = d.req("GET", "/api/2.0/preview/scim/v2/Me")
-    who = r.json().get("userName", "?") if r.ok else r.text[:100]
+    who = js(r).get("userName", "?") if r.ok else r.text[:100]
     step("identity", r.ok, r.status_code, who)
 
     # 2 catalogs
     r = d.req("GET", "/api/2.1/unity-catalog/catalogs")
-    cats = [c.get("name") for c in r.json().get("catalogs", [])] if r.ok else []
+    cats = [c.get("name") for c in js(r).get("catalogs", [])] if r.ok else []
     usable = [c for c in cats if c not in SYSTEM_CATALOGS]
     catalog = a.catalog or ("workspace" if "workspace" in cats else (usable[0] if usable else ""))
     step("catalogs", r.ok and bool(catalog), r.status_code, f"catalogs={cats}; chosen={catalog or 'NONE'}")
@@ -78,13 +102,13 @@ def main() -> int:
     # 3 schemas
     for s in ("bronze", "silver", "gold"):
         r = d.req("POST", "/api/2.1/unity-catalog/schemas", json={"name": s, "catalog_name": catalog})
-        code = r.json().get("error_code", "") if not r.ok else ""
+        code = js(r).get("error_code", "") if not r.ok else ""
         step(f"schema {catalog}.{s}", r.ok or code in ("SCHEMA_ALREADY_EXISTS", "ALREADY_EXISTS"), r.status_code, code or "created")
 
     # 4 volume
     r = d.req("POST", "/api/2.1/unity-catalog/volumes", json={"name": "raw", "catalog_name": catalog, "schema_name": "bronze", "volume_type": "MANAGED"})
-    code = r.json().get("error_code", "") if not r.ok else ""
-    step(f"volume {catalog}.bronze.raw", r.ok or code in ("VOLUME_ALREADY_EXISTS", "ALREADY_EXISTS"), r.status_code, code or r.json().get("storage_location", "created"))
+    code = js(r).get("error_code", "") if not r.ok else ""
+    step(f"volume {catalog}.bronze.raw", r.ok or code in ("VOLUME_ALREADY_EXISTS", "ALREADY_EXISTS"), r.status_code, code or js(r).get("storage_location", "created"))
 
     # 5 files round trip
     payload = f"civiclens preflight {stamp['run_id']} {stamp['utc']}".encode()
@@ -94,7 +118,7 @@ def main() -> int:
     r = d.req("DELETE", fpath); step("files DELETE", r.ok, r.status_code, r.text[:100])
 
     # 6 jobs list
-    r = d.req("GET", "/api/2.1/jobs/list", params={"limit": 1}); step("jobs list", r.ok, r.status_code, f"{len(r.json().get('jobs', []))} job(s) visible")
+    r = d.req("GET", "/api/2.1/jobs/list", params={"limit": 1}); step("jobs list", r.ok, r.status_code, f"{len(js(r).get('jobs', []))} job(s) visible")
 
     # 7 real job execution (serverless, one-off)
     if not a.skip_job:
@@ -113,14 +137,14 @@ def main() -> int:
             if not r.ok:
                 step("job submit (serverless)", False, r.status_code, r.text[:200])
             else:
-                run_id = r.json()["run_id"]; t0 = time.time(); st = {}
+                run_id = js(r)["run_id"]; t0 = time.time(); st = {}
                 while time.time() - t0 < 1200:
-                    g = d.req("GET", "/api/2.1/jobs/runs/get", params={"run_id": run_id}).json(); st = g.get("state", {})
+                    g = js(d.req("GET", "/api/2.1/jobs/runs/get", params={"run_id": run_id})); st = g.get("state", {})
                     print("  job state:", st.get("life_cycle_state"), st.get("result_state", ""), flush=True)
                     if st.get("life_cycle_state") in ("TERMINATED", "SKIPPED", "INTERNAL_ERROR"): break
                     time.sleep(15)
                 task_run = (g.get("tasks") or [{}])[0].get("run_id", run_id)
-                o = d.req("GET", "/api/2.1/jobs/runs/get-output", params={"run_id": task_run}).json()
+                o = js(d.req("GET", "/api/2.1/jobs/runs/get-output", params={"run_id": task_run}))
                 result = (o.get("notebook_output") or {}).get("result", "")
                 ok = st.get("result_state") == "SUCCESS" and f"run_id={stamp['run_id']}" in result
                 step("job execution (serverless notebook, Delta table write+count)", ok, 200,

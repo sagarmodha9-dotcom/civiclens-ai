@@ -268,3 +268,70 @@ def test_fetch_file_gives_up_as_apierror_and_leaves_no_partial_file(tmp_path: Pa
     with pytest.raises(ApiError) as ei:
         client(max_retries=2).fetch_file("https://files.example/big.zip", tmp_path / "big.zip")
     assert "after 3 attempts" in str(ei.value) and not (tmp_path / "big.zip").exists()
+
+
+# ------------------------------------------------------------------ cached download jobs (observed live 2026-10-23)
+def test_split_time_period_covers_the_same_window_without_overlap():
+    from civiclens_ingest.client import split_time_period
+    f = contract_filters("Department of the Treasury", 2023)
+    alt = split_time_period(f)
+    tp = alt["time_period"]
+    assert [ (t["start_date"], t["end_date"]) for t in tp ] == [("2022-10-01", "2023-03-31"), ("2023-04-01", "2023-09-30")]
+    assert all(t["date_type"] == "action_date" for t in tp)
+    assert {k: v for k, v in alt.items() if k != "time_period"} == {k: v for k, v in f.items() if k != "time_period"}
+    assert f["time_period"] != tp and len(f["time_period"]) == 1          # original untouched
+
+
+def test_job_created_utc_parses_live_file_names():
+    from civiclens_ingest.client import job_created_utc
+    t = job_created_utc("PrimeTransactionsAndSubawards_2026-10-23_H15M13S54923263.zip")
+    assert t.isoformat() == "2026-10-23T15:13:54+00:00"
+    assert job_created_utc("PrimeTransactionsAndSubawards_job1.zip") is None
+
+
+@respx.mock
+def test_cached_download_job_triggers_a_fresh_equivalent_request(tmp_path: Path):
+    """Regression for Treasury FY2023-26: the API returned a 15-minute-old job for an identical request while the
+    count had moved on. The worker must notice the stale job, prove the split-window variant has the same count,
+    and request again with it."""
+    import datetime as dt
+    stale_name = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=15)).strftime("PrimeTransactionsAndSubawards_%Y-%m-%d_H%HM%MS%S000000.zip")
+    fresh_name = dt.datetime.now(dt.timezone.utc).strftime("PrimeTransactionsAndSubawards_%Y-%m-%d_H%HM%MS%S111111.zip")
+    _mock_download(3)
+    dl_route = respx.post(f"{BASE}/api/v2/download/transactions/").mock(side_effect=[
+        httpx.Response(200, json={"file_name": stale_name, "file_url": "https://files.example/stale.zip"}),
+        httpx.Response(200, json={"file_name": fresh_name, "file_url": "https://files.example/fresh.zip"})])
+    respx.get(f"{BASE}/api/v2/download/status/").mock(return_value=httpx.Response(200, json={"status": "finished", "file_url": "https://files.example/fresh.zip", "total_rows": 5, "total_columns": 415}))
+    respx.get("https://files.example/fresh.zip").mock(return_value=httpx.Response(200, content=_zip_bytes(3)))
+    stale = respx.get("https://files.example/stale.zip").mock(return_value=httpx.Response(200, content=_zip_bytes(2)))
+    m = pull_cell(client(), tmp_path, "020", "Department of the Treasury", 2023, poll_seconds=0)
+    assert dl_route.call_count == 2 and stale.call_count == 0            # stale zip never fetched
+    second_body = json.loads(dl_route.calls[1].request.content)
+    assert len(second_body["filters"]["time_period"]) == 2                 # variant request used
+    assert m["download_was_cached"] is True and m["request"]["variant"] == "split_time_period"
+    assert m["request"]["variant_count"] == 3 and m["request"]["scope_filters"]["time_period"][0]["start_date"] == "2022-10-01"
+    assert m["status"] == "complete" and m["rows_total"] == 3
+
+
+@respx.mock
+def test_variant_with_a_different_count_is_refused(tmp_path: Path):
+    import datetime as dt
+    stale_name = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=15)).strftime("PrimeTransactionsAndSubawards_%Y-%m-%d_H%HM%MS%S000000.zip")
+    _mock_download(3)
+    respx.post(f"{BASE}/api/v2/download/transactions/").mock(return_value=httpx.Response(200, json={"file_name": stale_name, "file_url": "https://files.example/stale.zip"}))
+    respx.post(f"{BASE}/api/v2/download/count/").mock(side_effect=[
+        httpx.Response(200, json={**SYNTHETIC_COUNT, "calculated_count": 3}), httpx.Response(200, json={**SYNTHETIC_COUNT, "calculated_count": 2})])
+    with pytest.raises(ApiError) as ei:
+        pull_cell(client(), tmp_path, "020", "Department of the Treasury", 2023, poll_seconds=0)
+    assert "split-window count 2 != standard count 3" in str(ei.value)
+    assert not (tmp_path / "agency=020" / "fy=2023" / "manifest.json").exists()
+
+
+@respx.mock
+def test_fresh_job_is_not_treated_as_cached(tmp_path: Path):
+    import datetime as dt
+    fresh_name = dt.datetime.now(dt.timezone.utc).strftime("PrimeTransactionsAndSubawards_%Y-%m-%d_H%HM%MS%S111111.zip")
+    _mock_download(3)
+    dl_route = respx.post(f"{BASE}/api/v2/download/transactions/").mock(return_value=httpx.Response(200, json={"file_name": fresh_name, "file_url": "https://files.example/job1.zip"}))
+    m = pull_cell(client(), tmp_path, "036", "VA", 2025, poll_seconds=0)
+    assert dl_route.call_count == 1 and m["download_was_cached"] is False and m["request"]["variant"] == "standard"

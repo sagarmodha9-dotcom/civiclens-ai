@@ -53,7 +53,9 @@ jobs:
           set -e
           python3 - <<'PY'
           import os, requests, pathlib
-          host, tok = os.environ["DATABRICKS_HOST"].rstrip("/"), os.environ["DATABRICKS_TOKEN"]
+          from urllib.parse import urlsplit
+          _h = os.environ["DATABRICKS_HOST"].strip(); _u = urlsplit(_h if "://" in _h else "https://" + _h)
+          host, tok = f"{_u.scheme}://{_u.netloc}", os.environ["DATABRICKS_TOKEN"]
           root = pathlib.Path("data/raw"); n = 0
           for p in sorted(root.rglob("*")):
               if p.is_file() and (p.suffix in (".csv", ".json")):
@@ -72,7 +74,9 @@ jobs:
           set -e
           python3 - <<'PY'
           import os, json, time, requests, base64, pathlib
-          host, tok = os.environ["DATABRICKS_HOST"].rstrip("/"), os.environ["DATABRICKS_TOKEN"]
+          from urllib.parse import urlsplit
+          _h = os.environ["DATABRICKS_HOST"].strip(); _u = urlsplit(_h if "://" in _h else "https://" + _h)
+          host, tok = f"{_u.scheme}://{_u.netloc}", os.environ["DATABRICKS_TOKEN"]
           H = {"Authorization": f"Bearer {tok}"}
           repo_path = os.environ["REPO_PATH"]
           # import the files the job needs (notebooks + the SQL package) via Workspace API

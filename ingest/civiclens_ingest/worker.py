@@ -20,7 +20,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from .client import ApiError, UsaSpendingClient, contract_filters, fy_window, stable_hash
+from .client import ApiError, UsaSpendingClient, contract_filters, fy_window, job_created_utc, split_time_period, stable_hash
 
 MANIFEST_VERSION = 1
 
@@ -53,6 +53,9 @@ def count_csv_rows(p: Path) -> int:
         return max(sum(1 for _ in f) - 1, 0)      # header excluded; the probe tells us if any file lacks one
 
 
+CACHE_TOLERANCE_SECONDS = 120   # a download job older than this at request time was served from the API's cache
+
+
 def pull_cell(c: UsaSpendingClient, root: Path, agency_code: str, agency_name: str, fy: int,
               force: bool = False, poll_seconds: float = 15.0) -> dict:
     d = cell_dir(root, agency_code, fy)
@@ -70,10 +73,28 @@ def pull_cell(c: UsaSpendingClient, root: Path, agency_code: str, agency_name: s
             and prev.get("api_count") == expected and prev.get("api_last_updated") == api_last_updated:
         return {**prev, "skipped": True}
 
-    run_id = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    requested_at = dt.datetime.now(dt.timezone.utc)
+    run_id = requested_at.strftime("%Y%m%dT%H%M%SZ")
     tmp = Path(tempfile.mkdtemp(prefix=f"civiclens-{agency_code}-{fy}-", dir=d))
     try:
         sub = c.request_transaction_download(filters)
+        request_filters, variant, variant_count = filters, "standard", None
+        job_ts = job_created_utc(sub.get("file_name", ""))
+        prev_file = ((prev or {}).get("source") or {}).get("file_name")
+        cached = (job_ts is not None and (requested_at - job_ts).total_seconds() > CACHE_TOLERANCE_SECONDS) \
+            or (prev_file is not None and sub.get("file_name") == prev_file)
+        if cached:
+            # The API returned a previously generated job (de-duplicated request). Its zip may predate the count we
+            # just took, so force a fresh job with an equivalent body and prove the scope is identical first.
+            alt = split_time_period(filters)
+            vc = c.download_count(alt)
+            variant_count = vc.get("calculated_count", vc.get("calculated_transaction_count"))
+            if variant_count != expected:
+                raise ApiError(0, f"cell {agency_code}/{fy}: split-window count {variant_count} != standard count {expected}; "
+                                  f"refusing to use the variant request")
+            sub = c.request_transaction_download(alt)
+            request_filters, variant = alt, "split_time_period"
+            job_ts = job_created_utc(sub.get("file_name", ""))
         status = c.wait_for_download(sub["file_name"], poll_seconds=poll_seconds)
         zpath = tmp / sub["file_name"]
         meta = c.fetch_file(status.get("file_url") or sub.get("file_url"), zpath)
@@ -94,7 +115,10 @@ def pull_cell(c: UsaSpendingClient, root: Path, agency_code: str, agency_name: s
             "manifest_version": MANIFEST_VERSION, "run_id": run_id, "status": "complete",
             "source": {"base": c.base, "endpoint": "/api/v2/download/transactions/", "file_name": sub["file_name"],
                        "file_url": status.get("file_url") or sub.get("file_url")},
-            "request": {"filters": filters, "file_format": "csv"}, "filter_hash": filter_hash,
+            "request": {"filters": request_filters, "file_format": "csv", "variant": variant,
+                        "scope_filters": filters, "variant_count": variant_count}, "filter_hash": filter_hash,
+            "download_job_created_utc": job_ts.strftime("%Y%m%dT%H%M%SZ") if job_ts else None,
+            "download_was_cached": bool(cached),
             "agency_code": agency_code, "agency_name": agency_name, "fiscal_year": fy, "window": fy_window(fy),
             "extracted_utc": run_id, "api_last_updated": api_last_updated,
             "api_count": expected, "api_count_response": count, "download_status": status,

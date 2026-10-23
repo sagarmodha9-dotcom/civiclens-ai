@@ -60,11 +60,16 @@ def main() -> int:
     md = [f"# Ingestion report — {report['run_utc']}", "",
           f"Cells complete: **{len(results)}**, failed: **{len(failures)}**, prime transactions: **{total:,}**, "
           f"count mismatches: **{len(mism)}**", "",
-          "| agency | FY | status | prime rows | API count | match | sub-award rows | extracted | API last_updated |",
-          "|---|---|---|---|---|---|---|---|---|"]
+          "| agency | FY | status | prime rows | API count | match | sub-award rows | download job (UTC) | request | extracted | API last_updated |",
+          "|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in results:
-        md.append(f"| {r['agency_name']} | {r['fiscal_year']} | {r['status']} | {r.get('rows_total'):,} | {r.get('api_count'):,} | "
-                  f"{r.get('count_matches')} | {r.get('rows_subawards')} | {r.get('extracted_utc')} | {r.get('api_last_updated')} |")
+        req = r.get("request") or {}
+        md.append(f"| {r['agency_name']} | {r['fiscal_year']} | {r['status']}{' (unchanged, skipped)' if r.get('skipped') else ''} | {r.get('rows_total'):,} | {r.get('api_count'):,} | "
+                  f"{r.get('count_matches')} | {r.get('rows_subawards')} | {r.get('download_job_created_utc') or ''}{' cached' if r.get('download_was_cached') else ''} | "
+                  f"{req.get('variant', 'standard')} | {r.get('extracted_utc')} | {r.get('api_last_updated')} |")
+    md += ["", "`download job` is the generation time USAspending embeds in the zip name; `cached` means the API returned an earlier job for an "
+           "identical request, in which case the worker re-requested with an equivalent split-window body (`request = split_time_period`) "
+           "after proving both bodies count the same rows."]
     for f in failures:
         md.append(f"| {f['agency_code']} | {f['fiscal_year']} | FAILED ({f.get('kind')}) | | | | | | {f['error'][:120]} |")
     if failures:

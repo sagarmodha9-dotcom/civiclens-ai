@@ -11,6 +11,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -77,6 +78,38 @@ def contract_filters(agency_name: str, fy: int, psc_prefixes: tuple[str, ...] = 
         "agencies": [{"type": "awarding", "tier": "toptier", "name": agency_name}],
         "psc_codes": {"require": psc},
     }
+
+
+def split_time_period(filters: dict) -> dict:
+    """Same scope, different request body: the fiscal-year window as two adjacent halves (Oct 1 - Mar 31, Apr 1 - Sep 30).
+
+    USAspending de-duplicates download requests: an identical body made again within its cache window returns the
+    PREVIOUS job's zip (observed 2026-10-23: Treasury FY2023-26 re-pulled at 15:28Z came back as the 15:13Z files
+    while the count endpoint had moved on, so the zips were stale by 1-6 rows). Splitting the window changes the body,
+    forcing a fresh job, without changing which rows qualify: action_date filters are inclusive on both ends and the
+    halves do not overlap. The caller must verify download_count(split) == download_count(original) before use."""
+    out = json.loads(json.dumps(filters))
+    tp = out["time_period"]
+    if len(tp) != 1:
+        return out
+    start, end = tp[0]["start_date"], tp[0]["end_date"]
+    year = int(start[:4]) + 1
+    out["time_period"] = [{"start_date": start, "end_date": f"{year}-03-31", "date_type": tp[0].get("date_type", "action_date")},
+                          {"start_date": f"{year}-04-01", "end_date": end, "date_type": tp[0].get("date_type", "action_date")}]
+    return out
+
+
+_JOB_TS = re.compile(r"_(\d{4})-(\d{2})-(\d{2})_H(\d{2})M(\d{2})S(\d{2})")
+
+
+def job_created_utc(file_name: str) -> dt.datetime | None:
+    """The generation time USAspending embeds in a download file name, e.g.
+    PrimeTransactionsAndSubawards_2026-10-23_H15M13S54923263.zip -> 2026-10-23T15:13:54Z. None if absent."""
+    m = _JOB_TS.search(file_name or "")
+    if not m:
+        return None
+    y, mo, d, h, mi, se = (int(x) for x in m.groups())
+    return dt.datetime(y, mo, d, h, mi, se, tzinfo=dt.timezone.utc)
 
 
 class UsaSpendingClient:
