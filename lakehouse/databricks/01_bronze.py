@@ -7,7 +7,9 @@
 import json
 from pyspark.sql import functions as F
 
-CATALOG, VOL = "civiclens", "/Volumes/civiclens/bronze/raw"
+# Free Edition cannot create catalogs (no metastore storage root -> INVALID_STATE, see evidence/databricks/auth-proof.md),
+# so the lakehouse lives in the workspace catalog it ships with: workspace.bronze / silver / gold.
+CATALOG, VOL = "workspace", "/Volumes/workspace/bronze/raw"
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.bronze")
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.silver")
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.gold")

@@ -12,7 +12,7 @@ repo_root = Path(dbutils.notebook.entry_point.getDbutils().notebook().getContext
 sys.path.insert(0, f"/Workspace{repo_root}/lakehouse")
 from civiclens_lakehouse.pipeline import PARAMS, REQUIRED_COLUMNS, INGEST_COLUMNS, render
 
-CATALOG = "civiclens"
+CATALOG = "workspace"   # Free Edition: see 01_bronze.py
 NAMES = {"bronze_prime_transactions": f"{CATALOG}.bronze.prime_transactions",
          "silver_rejects": f"{CATALOG}.silver.rejects", "silver_contract_transactions": f"{CATALOG}.silver.contract_transactions",
          "gold_award_fy": f"{CATALOG}.gold.award_fy", "gold_agency_fy": f"{CATALOG}.gold.agency_fy",

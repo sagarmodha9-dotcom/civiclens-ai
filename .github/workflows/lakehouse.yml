@@ -43,7 +43,7 @@ jobs:
           for p in sorted(root.rglob("*")):
               if p.is_file() and (p.suffix in (".csv", ".json")):
                   rel = p.relative_to(root).as_posix()
-                  url = f"{host}/api/2.0/fs/files/Volumes/civiclens/bronze/raw/{rel}?overwrite=true"
+                  url = f"{host}/api/2.0/fs/files/Volumes/workspace/bronze/raw/{rel}?overwrite=true"
                   with open(p, "rb") as f:
                       r = requests.put(url, headers={"Authorization": f"Bearer {tok}", "Content-Type": "application/octet-stream"}, data=f, timeout=600)
                   r.raise_for_status(); n += 1
