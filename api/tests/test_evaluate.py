@@ -58,3 +58,20 @@ def test_pass_is_two_tier_and_unverified_facts_fail_verification():
     assert sc["verified_pass"] is False and sc["pass"] is False          # an unverified fact fails both tiers
     v_prose = {**v_ok, "ungrounded_prose": ["60%"]}
     assert ev.score_case({"id": "t"}, _answer("1"), v_prose, Trace(), [], {"count": 0, "unsupported": []})["verified_pass"] is False
+
+
+def test_scorer_accepts_total_of_obligations_but_not_other_measures(snapshot_path):
+    from civiclens_api import evaluate as ev
+    from civiclens_api.queries import Snapshot
+    snap = Snapshot(snapshot_path)
+    from types import SimpleNamespace
+    answer = SimpleNamespace(interpretation="x", limits="", insufficient_evidence=False)
+    tr = SimpleNamespace(regenerated=False, input_tokens=0, output_tokens=0, tool_log=[])
+    v = {"verified_facts": [{"measure": "total", "value": 100.0, "entities": []}], "unverified_facts": [], "bad_citations": [], "ungrounded_prose": []}
+    sc = ev.score_case({"id": "t"}, answer, v, tr, [("obligations", 100.0, [])], {"count": 0, "unsupported": []})
+    assert sc["numeric_correct"] is True
+    v2 = {**v, "verified_facts": [{"measure": "awards", "value": 100.0, "entities": []}]}
+    assert ev.score_case({"id": "t"}, answer, v2, tr, [("obligations", 100.0, [])], {"count": 0, "unsupported": []})["numeric_correct"] is False
+    assert ev.score_case({"id": "t"}, answer, v, tr, [("peer_n", 100.0, [])], {"count": 0, "unsupported": []})["numeric_correct"] is False
+    peak = ev.ref_peak_fy(snap, ev.Scope("036"))
+    assert len(peak) == 1 and peak[0][0] == "obligations" and peak[0][1] == max(float(r["obligations"]) for r in ev.q.overview_by_fy(snap, ev.Scope("036")))

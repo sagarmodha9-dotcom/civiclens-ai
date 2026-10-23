@@ -76,7 +76,10 @@ def test_verification_accepts_only_numbers_from_the_right_call_entities_and_year
     wrong_year = ok.model_copy(update={"facts": [ok.facts[0].model_copy(update={"fiscal_years": [2023]})]})
     assert verify(wrong_year, log)["unverified_facts"][0]["why"].startswith("fiscal year")
     wrong_call = ok.model_copy(update={"facts": [ok.facts[0].model_copy(update={"tool_call_id": "tu_9"})]})
-    assert verify(wrong_call, log)["unverified_facts"][0]["why"] == "unknown tool_call_id"
+    rc = verify(wrong_call, log)                                                  # unknown id but the number IS in a logged call for GIANT
+    assert rc["ok"] and rc["verified_facts"][0]["remapped_tool_call_id"] and rc["verified_facts"][0]["tool_call_id"] == "tu_1"
+    phantom = wrong_call.model_copy(update={"facts": [wrong_call.facts[0].model_copy(update={"value": 12345.0})]})
+    assert verify(phantom, log)["unverified_facts"][0]["why"].startswith("unknown tool_call_id")
     bad_cite = ok.model_copy(update={"citations": ["AWD-DOES-NOT-EXIST"]})
     assert verify(bad_cite, log)["bad_citations"] == ["AWD-DOES-NOT-EXIST"]
 

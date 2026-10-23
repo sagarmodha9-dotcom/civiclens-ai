@@ -46,7 +46,9 @@ jobs:
         id: pipaudit
         run: |
           pip install -q pip-audit -e api -e lakehouse -e ingest
-          pip-audit --strict --desc -f json -o pip-audit.json || true
+          # --skip-editable: our three local packages are not on PyPI (run 40008859311 failed on that); their dependencies are audited.
+          pip-audit --skip-editable --desc -f json -o pip-audit.json || true
+          test -s pip-audit.json || { echo "::error::pip-audit produced no report"; exit 1; }
           python3 -c "import json; d=json.load(open('pip-audit.json')); v=[x for x in d.get('dependencies',[]) if x.get('vulns')]; print('vulnerable packages:', [(x['name'],x['version'],[y['id'] for y in x['vulns']]) for x in v]); raise SystemExit(1 if v else 0)"
       - name: npm audit (web, production deps, high+)
         id: npmaudit
@@ -65,15 +67,19 @@ jobs:
           n = json.load(open("npm-audit.json")) if pathlib.Path("npm-audit.json").exists() else {}
           pv = [x for x in p.get("dependencies", []) if x.get("vulns")]
           nm = n.get("metadata", {}).get("vulnerabilities", {})
-          ok = g == [] and not pv and not (nm.get("high", 0) + nm.get("critical", 0))
+          audited = len(p.get("dependencies", []))
+          complete = g is not None and audited > 0 and "total" in nm          # every scanner must have produced a real report
+          ok = complete and g == [] and not pv and not (nm.get("high", 0) + nm.get("critical", 0))
           rep = {"stamp": {"github_run_id": os.environ["GITHUB_RUN_ID"], "commit": os.environ["GITHUB_SHA"][:12], "utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")},
-                 "gitleaks_findings": None if g is None else len(g), "pip_audit_vulnerable": [(x["name"], x["version"], [y["id"] for y in x["vulns"]]) for x in pv],
-                 "npm_audit": nm, "pass": ok}
+                 "gitleaks_findings": None if g is None else len(g), "pip_audit_packages_audited": audited,
+                 "pip_audit_vulnerable": [(x["name"], x["version"], [y["id"] for y in x["vulns"]]) for x in pv],
+                 "npm_audit": nm, "all_scanners_reported": complete, "pass": ok}
           pathlib.Path("evidence/security/report.json").write_text(json.dumps(rep, indent=1))
           md = [f"# Security gate — **{'PASS' if ok else 'FAIL'}**", "", f"GitHub run `{rep['stamp']['github_run_id']}` · commit `{rep['stamp']['commit']}` · {rep['stamp']['utc']}", "",
                 f"- gitleaks over the full git history (`--log-opts=--all`): {rep['gitleaks_findings']} finding(s)",
-                f"- pip-audit (api, lakehouse, ingest): {len(pv)} vulnerable package(s) {rep['pip_audit_vulnerable'] or ''}",
-                f"- npm audit (web, production dependencies): {json.dumps(nm)}",
+                f"- pip-audit (dependencies of api, lakehouse, ingest; {audited} packages audited): {len(pv)} vulnerable package(s) {rep['pip_audit_vulnerable'] or ''}",
+                f"- npm audit (web, production dependencies): {json.dumps(nm) if nm else 'NO REPORT'}",
+                f"- all scanners produced a report: {complete}",
                 "", "Rate limits in production: per-IP hourly and global daily caps on the investigator, a monthly token budget that switches to cached answers, "
                 "read-only tools only (no SQL tool, no network, no writes), and all secrets provided via GitHub Actions secrets / Fly secrets — never in source."]
           pathlib.Path("evidence/security/report.md").write_text("\n".join(md) + "\n"); print("\n".join(md))

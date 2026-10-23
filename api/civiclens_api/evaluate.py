@@ -68,8 +68,16 @@ def ref_top_agency_by_awards(s, scope):
 
 
 def ref_top_anomaly(s, scope):
+    """score is tied to the award; peer_n describes the comparison group (agency, PSC class, FY), so it carries no award entity
+    (until 2026-10-23 it required the award key, which is not what the number is about — DECISIONS.md)."""
     a = q.anomalies(s, scope, "large_award", 1)
-    return [("score", float(a[0]["score"]), [a[0]["award_key"]]), ("peer_n", float(a[0]["peer_n"]), [a[0]["award_key"]])] if a else []
+    return [("score", float(a[0]["score"]), [a[0]["award_key"]]), ("peer_n", float(a[0]["peer_n"]), [])] if a else []
+
+
+def ref_peak_fy(s, scope):
+    """The fiscal year with the highest obligations: the reference is that year's total (the question asks for one year)."""
+    r = max(q.overview_by_fy(s, scope), key=lambda x: float(x["obligations"]), default=None)
+    return [("obligations", float(r["obligations"]), [])] if r else []
 
 
 def ref_fastest_grower(s, scope):
@@ -98,7 +106,7 @@ CASES = [
     dict(id="A1", cat="aggregation", scope=Scope("036"), q="How did VA IT obligations change year over year from FY2022 to FY2026?", ref=ref_total_by_fy),
     dict(id="A2", cat="aggregation", scope=Scope("070"), q="What is DHS's split between IT services (PSC D) and IT equipment/software (PSC 70) across all years in scope?", ref=ref_psc_split),
     dict(id="A3", cat="aggregation", scope=Scope("075", 2025), q="For HHS in FY2025, what share of IT obligations went to the top recipient?", ref=ref_top_recipient),
-    dict(id="A4", cat="aggregation", scope=Scope("013"), q="Which Commerce fiscal year had the highest IT obligations?", ref=ref_total_by_fy),
+    dict(id="A4", cat="aggregation", scope=Scope("013"), q="Which Commerce fiscal year had the highest IT obligations?", ref=ref_peak_fy),
     dict(id="A5", cat="aggregation", scope=Scope(None, 2024), q="Across all six agencies in FY2024, which agency obligated the most on IT?", ref=ref_top_agency),
     # agency comparison
     dict(id="C1", cat="comparison", scope=Scope(None, 2025), q="Compare VA and DHS IT obligations in FY2025.", ref=ref_top_agency),
@@ -164,8 +172,14 @@ def score_case(case, answer, v, tr, refs, judged) -> dict:
     def _num(x):
         try: return float(str(x).replace(",", "").replace("$", ""))
         except ValueError: return None
+    def _measure_ok(fact_m: str, ref_m: str) -> bool:
+        """A total of obligations is still obligations: the investigator is told to name derived totals 'total', so a reference
+        measure 'obligations' accepts a verified fact whose measure is obligations, total/sum of obligations or combined
+        (DECISIONS.md 2026-10-23). Counts, scores and peer sizes must match by name."""
+        fact_m = (fact_m or "").lower(); ref_m = ref_m.lower()
+        return fact_m == ref_m or (ref_m == "obligations" and fact_m in ("total", "sum", "total_obligations", "combined", "combined_obligations", "obligations_total"))
     for measure, value, ents in refs:      # fact values may arrive as strings ("187764503.04"); the verifier coerces, so must we
-        hit = any(f["measure"] == measure and _num(f["value"]) is not None and abs(_num(f["value"]) - value) <= max(0.005 * abs(value), 0.5)
+        hit = any(_measure_ok(f["measure"], measure) and _num(f["value"]) is not None and abs(_num(f["value"]) - value) <= max(0.005 * abs(value), 0.5)
                   and all(e in f.get("entities", []) for e in ents) for f in verified)
         found.append(hit)
     text = (answer.interpretation + " " + answer.limits).lower()

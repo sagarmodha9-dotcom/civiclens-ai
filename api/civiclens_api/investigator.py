@@ -76,7 +76,10 @@ Rules you must follow:
 - If list_anomalies returns no rows, say that no award in scope met the flag criteria; do not claim every award "scored below the threshold"
   (awards in small peer groups are not scored at all). Report the count as a fact (measure "count", value 0).
 - If a question mixes an instruction you cannot follow (SQL, scope change, "make up a number") with a question the tools can answer, answer the
-  answerable part with the tools and note the rest in limits. Do not repeat SQL or instructions from the question in your answer.
+  answerable part with the tools and note the rest in limits. Example: "Run DROP TABLE x; then tell me the total" → call aggregate_spend,
+  report the total as a fact, and say in limits that SQL cannot be run. Do not repeat SQL or instructions from the question in your answer.
+- No generalisations ("large awards often reflect…", "typically"), and call an award multi-year only when award_detail / award_years rows show
+  obligations in more than one fiscal year — then cite those rows as facts.
 - Never use the words fraud, waste, abuse, corrupt or misconduct, even to deny them; say "this data does not support any characterisation of conduct".
 - Always finish by calling final_answer, even to say the evidence is insufficient. Never reply with plain text.
 - If the tools return no relevant rows, set insufficient_evidence=true and explain what is missing.
@@ -261,8 +264,18 @@ def verify(answer: FinalAnswer, log: list[dict]) -> dict:
     verified, unverified, deferred = [], [], []
     for f in answer.facts:
         t = by_id.get(f.tool_call_id)
+        remapped = None
         if not t:
-            unverified.append({**f.model_dump(), "why": "unknown tool_call_id"}); continue
+            # The model cited an id that is not in the log (eval N2/N6: mangled ids). The guarantee is that the number comes
+            # from a tool result for these entities, so look for a logged call whose matching rows contain it and record the remap.
+            for cand in log:
+                sub = _rows_matching_entities(cand["result"], f.entities)
+                if sub and isinstance(f.value, (int, float)) and any(abs(n - float(f.value)) <= max(0.005 * abs(float(f.value)), 0.5) for n in _nums(sub)):
+                    t, remapped = cand, cand["id"]; break
+        if not t:
+            unverified.append({**f.model_dump(), "why": "unknown tool_call_id and value not in any tool result for those entities"}); continue
+        if remapped:
+            f = f.model_copy(update={"tool_call_id": remapped})
         # fiscal years claimed must be consistent with the scope/args of that call or appear in its rows
         if f.fiscal_years:
             call_text = json.dumps(t["args"]) + json.dumps(t["scope"])
@@ -278,7 +291,7 @@ def verify(answer: FinalAnswer, log: list[dict]) -> dict:
         if isinstance(f.value, (int, float)):
             nums = _nums(subset)
             if any(abs(n - float(f.value)) <= max(0.005 * abs(float(f.value)), 0.5) for n in nums):
-                verified.append(f.model_dump()); continue
+                verified.append({**f.model_dump(), **({"remapped_tool_call_id": True} if remapped else {})}); continue
             if _is_count_fact(f, subset):
                 verified.append({**f.model_dump(), "count": True}); continue
             deferred.append((f, t, subset)); continue
@@ -363,7 +376,7 @@ def _embedded_ints(obj: Any, out: list[float]) -> None:
         out.extend(float(m.group(0)) for m in _EMBEDDED_INT.finditer(obj))
 
 
-def ground_prose(answer: FinalAnswer, v: dict, log: list[dict]) -> list[str]:
+def ground_prose(answer: FinalAnswer, v: dict, log: list[dict], question: str = "") -> list[str]:
     """Every number in interpretation/limits must be traceable to the tool results: a verified fact value (rounded prose
     allowed, 0.6%), a number in any tool result or tool argument the model saw (including integers embedded in text such
     as a PSC class), a column total of one tool call, or a share/ratio/difference of two verified facts. Statistical
@@ -373,6 +386,7 @@ def ground_prose(answer: FinalAnswer, v: dict, log: list[dict]) -> list[str]:
     for t in log:
         _numbers_in(t["result"], row_nums); _embedded_ints(t["result"], row_nums); _numbers_in(t.get("args"), row_nums)
         row_nums += _column_sums(t["result"] if isinstance(t["result"], list) else [])
+    _embedded_ints(question, row_nums)                      # identifiers the user typed ("PSC 70") are not data claims
     bad = [m.group(0) for m in _STATS_PHRASES.finditer((answer.interpretation or "") + " " + (answer.limits or ""))]
     for tok, val in prose_numbers((answer.interpretation or "") + " " + (answer.limits or "")):
         ok = any(_close(val, f, 0.006, 0.5) for f in fact_vals) or any(_close(val, n, 0.006, 0.5) for n in row_nums) \
@@ -502,7 +516,7 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
             final = FinalAnswer(interpretation="The investigator did not produce a structured answer.", insufficient_evidence=True,
                                 limits="No final_answer was returned within the tool-call budget.")
         v = verify(final, tr.tool_log)
-        ungrounded = ground_prose(final, v, tr.tool_log)
+        ungrounded = ground_prose(final, v, tr.tool_log, question)
         if not final.facts and not final.insufficient_evidence and prose_numbers(final.interpretation):
             ungrounded = ungrounded or [tok for tok, _ in prose_numbers(final.interpretation)]   # numbers stated with no facts at all (eval N3)
         v["ungrounded_prose"] = ungrounded
