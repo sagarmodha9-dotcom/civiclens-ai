@@ -1,0 +1,49 @@
+name: probe-usaspending
+# Live validation of the USAspending endpoints CivicLens depends on. Read-only. Commits the recorded schemas,
+# counts and pagination behaviour to evidence/probe/ so nothing downstream is built on an assumed field.
+on:
+  workflow_dispatch:
+    inputs:
+      quick:
+        description: "one agency, one FY only"
+        type: boolean
+        default: false
+  push:
+    paths: ["ingest/**", ".github/workflows/probe.yml"]
+permissions:
+  contents: write
+concurrency: probe
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e "ingest[test]"
+      - run: cd ingest && pytest -q
+  probe:
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e "ingest"
+      - name: Live probe (read-only; one small download job is submitted and polled, the file is not fetched)
+        run: python -m civiclens_ingest.probe --out evidence/probe ${{ inputs.quick && '--quick' || '' }}
+        continue-on-error: true
+        id: probe
+      - uses: actions/upload-artifact@v4
+        with: { name: probe-evidence, path: evidence/probe }
+      - name: Commit evidence
+        run: |
+          git config user.name "civiclens-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add evidence/probe
+          git commit -m "evidence: USAspending probe $(date -u +%Y-%m-%dT%H:%MZ) (exit ${{ steps.probe.outcome }})" || echo "nothing to commit"
+          git push
+      - name: Fail the job if the probe failed
+        if: steps.probe.outcome != 'success'
+        run: exit 1

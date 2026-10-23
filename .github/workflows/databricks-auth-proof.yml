@@ -1,0 +1,37 @@
+name: databricks-auth-proof
+# Proves (or disproves) unattended automation on Databricks Free Edition: with only a repo secret, can Actions
+# upload a file to a Unity Catalog Volume and read it back via the Files API? Writes the result to evidence/.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe workspace identity, Files API upload/read/delete, Jobs API list
+        run: |
+          set -u
+          mkdir -p evidence/databricks
+          out=evidence/databricks/auth-proof.md
+          echo "# Databricks unattended-auth proof — $(date -u +%Y-%m-%dT%H:%MZ)" > $out
+          echo "" >> $out
+          if [ -z "${DATABRICKS_HOST:-}" ] || [ -z "${DATABRICKS_TOKEN:-}" ]; then echo "secrets DATABRICKS_HOST / DATABRICKS_TOKEN not set" | tee -a $out; exit 1; fi
+          H="Authorization: Bearer $DATABRICKS_TOKEN"
+          me=$(curl -sS -w '\n%{http_code}' -H "$H" "$DATABRICKS_HOST/api/2.0/preview/scim/v2/Me"); code=$(echo "$me" | tail -1)
+          echo "| step | HTTP | note |" >> $out; echo "|---|---|---|" >> $out
+          echo "| whoami (SCIM Me) | $code | $(echo "$me" | head -1 | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("userName","?"))' 2>/dev/null) |" >> $out
+          cats=$(curl -sS -o /dev/null -w '%{http_code}' -H "$H" "$DATABRICKS_HOST/api/2.1/unity-catalog/catalogs"); echo "| list catalogs | $cats | |" >> $out
+          vol="$DATABRICKS_HOST/api/2.0/fs/files/Volumes/civiclens/bronze/raw/_authproof/$(date -u +%s).txt"
+          up=$(curl -sS -o /dev/null -w '%{http_code}' -X PUT -H "$H" -H 'Content-Type: application/octet-stream' --data-binary 'civiclens auth proof' "$vol"); echo "| Files API PUT to Volume | $up | needs catalog civiclens, schema bronze, volume raw to exist |" >> $out
+          rd=$(curl -sS -o /dev/null -w '%{http_code}' -H "$H" "$vol"); echo "| Files API GET | $rd | |" >> $out
+          dl=$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE -H "$H" "$vol"); echo "| Files API DELETE | $dl | |" >> $out
+          jobs=$(curl -sS -o /dev/null -w '%{http_code}' -H "$H" "$DATABRICKS_HOST/api/2.1/jobs/list?limit=1"); echo "| Jobs API list | $jobs | |" >> $out
+          cat $out
+          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
+          git add evidence/databricks && git commit -m "evidence: databricks auth proof" && git push || true
+          [ "$code" = "200" ] && [ "$jobs" = "200" ]
