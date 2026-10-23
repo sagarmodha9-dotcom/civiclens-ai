@@ -37,6 +37,17 @@ def sha256_file(p: Path) -> str:
     return h.hexdigest()
 
 
+def classify_csv(name: str) -> str:
+    """Probed 2026-10-23: the zip holds prime transactions and sub-awards in separate CSVs. Classification is by
+    file name; a name matching neither is 'unknown' and is never counted as prime spend."""
+    n = name.lower()
+    if "subaward" in n:
+        return "subawards"
+    if "primetransaction" in n or "transaction" in n:
+        return "prime_transactions"
+    return "unknown"
+
+
 def count_csv_rows(p: Path) -> int:
     with open(p, "rb") as f:
         return max(sum(1 for _ in f) - 1, 0)      # header excluded; the probe tells us if any file lacks one
@@ -51,10 +62,10 @@ def pull_cell(c: UsaSpendingClient, root: Path, agency_code: str, agency_name: s
     prev = json.loads((d / "manifest.json").read_text()) if (d / "manifest.json").exists() else None
     api_last_updated = c.last_updated()
     count = c.download_count(filters)
-    expected = count.get("calculated_transaction_count")
-    if count.get("transaction_rows_gt_limit"):
+    expected = count.get("calculated_count", count.get("calculated_transaction_count"))
+    if count.get("rows_gt_limit", count.get("transaction_rows_gt_limit")):
         raise ApiError(0, f"cell {agency_code}/{fy} exceeds the API's download row limit "
-                          f"({count.get('maximum_transaction_limit')}); split the cell by quarter")
+                          f"({count.get('maximum_limit', count.get('maximum_transaction_limit'))}); split the cell by quarter")
     if prev and not force and prev.get("status") == "complete" and prev.get("filter_hash") == filter_hash \
             and prev.get("api_count") == expected and prev.get("api_last_updated") == api_last_updated:
         return {**prev, "skipped": True}
@@ -73,8 +84,12 @@ def pull_cell(c: UsaSpendingClient, root: Path, agency_code: str, agency_name: s
                     z.extract(info, tmp)
                     p = tmp / info.filename
                     files.append({"name": info.filename, "bytes": p.stat().st_size, "sha256": sha256_file(p),
-                                  "rows": count_csv_rows(p)})
-        rows = sum(f["rows"] for f in files)
+                                  "rows": count_csv_rows(p), "kind": classify_csv(info.filename)})
+        prime = [f for f in files if f["kind"] == "prime_transactions"]
+        if not prime:
+            raise ApiError(0, f"download for {agency_code}/{fy} contained no prime-transactions CSV: "
+                              f"{[f['name'] for f in files]}")
+        rows = sum(f["rows"] for f in prime)                 # sub-award files are kept but never counted as prime
         manifest = {
             "manifest_version": MANIFEST_VERSION, "run_id": run_id, "status": "complete",
             "source": {"base": c.base, "endpoint": "/api/v2/download/transactions/", "file_name": sub["file_name"],
@@ -84,6 +99,8 @@ def pull_cell(c: UsaSpendingClient, root: Path, agency_code: str, agency_name: s
             "extracted_utc": run_id, "api_last_updated": api_last_updated,
             "api_count": expected, "api_count_response": count, "download_status": status,
             "zip": {"name": sub["file_name"], **meta}, "files": files, "rows_total": rows,
+            "rows_subawards": sum(f["rows"] for f in files if f["kind"] == "subawards"),
+            "download_total_rows_all_files": status.get("total_rows"),
             "count_matches": (expected == rows) if expected is not None else None,
             "calls": c.records_json()[-6:],
         }

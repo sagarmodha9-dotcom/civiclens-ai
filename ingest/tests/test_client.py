@@ -15,7 +15,9 @@ import respx
 from civiclens_ingest.client import BASE, ApiError, UsaSpendingClient, contract_filters, fy_window
 from civiclens_ingest.worker import pull_cell
 
-SYNTHETIC_COUNT = {"calculated_transaction_count": 3, "maximum_transaction_limit": 500000, "transaction_rows_gt_limit": False}
+# shape recorded live by probe.py on 2026-10-23 (new names + deprecated twins); values synthetic
+SYNTHETIC_COUNT = {"calculated_count": 3, "maximum_limit": 500000, "rows_gt_limit": False, "spending_level": "transactions",
+                   "calculated_transaction_count": 3, "maximum_transaction_limit": 500000, "transaction_rows_gt_limit": False, "messages": []}
 
 
 def client(**kw):
@@ -78,7 +80,7 @@ def test_iter_awards_follows_hasNext_and_passes_keyset_fields():
     ids = [r["generated_internal_id"] for r in client().iter_awards({}, ["Award ID"], limit=2)]
     assert ids == ["CONT_AWD_1", "CONT_AWD_2", "CONT_AWD_3"]
     assert bodies[1]["last_record_unique_id"] == 2 and bodies[1]["last_record_sort_value"] == "100"
-    assert all(b["subawards"] is False for b in bodies)
+    assert all(b["spending_level"] == "awards" for b in bodies)
 
 
 # ------------------------------------------------------------------ download polling
@@ -102,19 +104,24 @@ def test_wait_for_download_gives_up_after_max_wait():
 
 
 # ------------------------------------------------------------------ worker: manifest, idempotency, atomic swap
-def _zip_bytes(rows: int) -> bytes:
+def _zip_bytes(rows: int, subaward_rows: int = 2) -> bytes:
+    """Mirrors the live zip layout (PrimeTransactionsAndSubawards_*.zip): one prime-transactions CSV and one
+    sub-awards CSV. The sub-award rows must never be counted as prime spend."""
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w") as z:
         z.writestr("Contracts_PrimeTransactions_1.csv", "contract_transaction_unique_key,action_date,federal_action_obligation\n" +
                    "\n".join(f"K{i},2025-01-0{i+1},{1000*(i+1)}" for i in range(rows)) + "\n")
+        z.writestr("Contracts_Subawards_1.csv", "subaward_unique_key,prime_award_unique_key,subaward_amount\n" +
+                   "\n".join(f"S{i},K0,{100*(i+1)}" for i in range(subaward_rows)) + "\n")
     return buf.getvalue()
 
 
 def _mock_download(rows_in_zip: int, count: int = 3):
     respx.get(f"{BASE}/api/v2/awards/last_updated/").mock(return_value=httpx.Response(200, json={"last_updated": "10/22/2026"}))
-    respx.post(f"{BASE}/api/v2/download/count/").mock(return_value=httpx.Response(200, json={**SYNTHETIC_COUNT, "calculated_transaction_count": count}))
-    respx.post(f"{BASE}/api/v2/download/transactions/").mock(return_value=httpx.Response(200, json={"file_name": "job1.zip", "file_url": "https://files.example/job1.zip", "status_url": "..."}))
-    respx.get(f"{BASE}/api/v2/download/status/").mock(return_value=httpx.Response(200, json={"status": "finished", "file_url": "https://files.example/job1.zip", "total_rows": rows_in_zip}))
+    respx.post(f"{BASE}/api/v2/download/count/").mock(return_value=httpx.Response(200, json={**SYNTHETIC_COUNT, "calculated_count": count, "calculated_transaction_count": count}))
+    respx.post(f"{BASE}/api/v2/download/transactions/").mock(return_value=httpx.Response(200, json={"file_name": "PrimeTransactionsAndSubawards_job1.zip", "file_url": "https://files.example/job1.zip", "status_url": "..."}))
+    # live: status.total_rows counts prime + sub-award rows together (272 vs 235 for SSA FY2026)
+    respx.get(f"{BASE}/api/v2/download/status/").mock(return_value=httpx.Response(200, json={"status": "finished", "file_url": "https://files.example/job1.zip", "total_rows": rows_in_zip + 2, "total_columns": 415}))
     return respx.get("https://files.example/job1.zip").mock(return_value=httpx.Response(200, content=_zip_bytes(rows_in_zip)))
 
 
@@ -124,6 +131,7 @@ def test_pull_cell_writes_manifest_with_provenance_and_matching_counts(tmp_path:
     m = pull_cell(client(), tmp_path, "036", "Department of Veterans Affairs", 2025, poll_seconds=0)
     d = tmp_path / "agency=036" / "fy=2025"
     assert m["status"] == "complete" and m["rows_total"] == 3 and m["count_matches"] is True
+    assert m["rows_subawards"] == 2 and m["download_total_rows_all_files"] == 5     # sub-awards kept, never counted as prime
     assert (d / "manifest.json").exists() and (d / "Contracts_PrimeTransactions_1.csv").exists()
     saved = json.loads((d / "manifest.json").read_text())
     for key in ("request", "filter_hash", "extracted_utc", "api_last_updated", "api_count", "zip", "files", "calls"):
@@ -144,7 +152,7 @@ def test_pull_cell_is_idempotent_when_nothing_changed(tmp_path: Path):
 def test_pull_cell_repulls_when_api_count_changed(tmp_path: Path):
     dl = _mock_download(3)
     pull_cell(client(), tmp_path, "036", "VA", 2025, poll_seconds=0)
-    respx.post(f"{BASE}/api/v2/download/count/").mock(return_value=httpx.Response(200, json={**SYNTHETIC_COUNT, "calculated_transaction_count": 4}))
+    respx.post(f"{BASE}/api/v2/download/count/").mock(return_value=httpx.Response(200, json={**SYNTHETIC_COUNT, "calculated_count": 4, "calculated_transaction_count": 4}))
     respx.get("https://files.example/job1.zip").mock(return_value=httpx.Response(200, content=_zip_bytes(4)))
     m = pull_cell(client(), tmp_path, "036", "VA", 2025, poll_seconds=0)
     assert m.get("skipped") is None and m["rows_total"] == 4 and m["count_matches"] is True
@@ -160,7 +168,7 @@ def test_count_mismatch_is_flagged_not_hidden(tmp_path: Path):
 @respx.mock
 def test_over_limit_cell_refuses_instead_of_truncating(tmp_path: Path):
     respx.get(f"{BASE}/api/v2/awards/last_updated/").mock(return_value=httpx.Response(200, json={"last_updated": "10/22/2026"}))
-    respx.post(f"{BASE}/api/v2/download/count/").mock(return_value=httpx.Response(200, json={**SYNTHETIC_COUNT, "transaction_rows_gt_limit": True}))
+    respx.post(f"{BASE}/api/v2/download/count/").mock(return_value=httpx.Response(200, json={**SYNTHETIC_COUNT, "rows_gt_limit": True, "transaction_rows_gt_limit": True}))
     with pytest.raises(ApiError) as ei:
         pull_cell(client(), tmp_path, "036", "VA", 2025, poll_seconds=0)
     assert "split the cell" in str(ei.value)
@@ -172,8 +180,27 @@ def test_failed_download_leaves_previous_files_untouched(tmp_path: Path):
     pull_cell(client(), tmp_path, "036", "VA", 2025, poll_seconds=0)
     d = tmp_path / "agency=036" / "fy=2025"
     before = (d / "manifest.json").read_text()
-    respx.post(f"{BASE}/api/v2/download/count/").mock(return_value=httpx.Response(200, json={**SYNTHETIC_COUNT, "calculated_transaction_count": 9}))
+    respx.post(f"{BASE}/api/v2/download/count/").mock(return_value=httpx.Response(200, json={**SYNTHETIC_COUNT, "calculated_count": 9, "calculated_transaction_count": 9}))
     respx.get(f"{BASE}/api/v2/download/status/").mock(return_value=httpx.Response(200, json={"status": "failed", "message": "boom"}))
     with pytest.raises(ApiError):
         pull_cell(client(), tmp_path, "036", "VA", 2025, poll_seconds=0)
     assert (d / "manifest.json").read_text() == before and (d / "Contracts_PrimeTransactions_1.csv").exists()
+
+
+@respx.mock
+def test_zip_without_a_prime_transactions_file_is_refused(tmp_path: Path):
+    _mock_download(3)
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        z.writestr("Contracts_Subawards_1.csv", "subaward_unique_key\nS1\n")
+    respx.get("https://files.example/job1.zip").mock(return_value=httpx.Response(200, content=buf.getvalue()))
+    with pytest.raises(ApiError) as ei:
+        pull_cell(client(), tmp_path, "036", "VA", 2025, poll_seconds=0)
+    assert "no prime-transactions CSV" in str(ei.value)
+
+
+def test_requests_carry_spending_level_not_deprecated_subawards_flag():
+    import inspect
+    from civiclens_ingest import client as mod
+    src = inspect.getsource(mod)
+    assert '"subawards": False' not in src and '"spending_level"' in src

@@ -131,12 +131,15 @@ class UsaSpendingClient:
         return self._call("GET", Endpoints.toptier_agencies).get("results", [])
 
     def download_count(self, filters: dict) -> dict:
-        """Expected keys (to be confirmed by probe): calculated_transaction_count, maximum_transaction_limit,
-        transaction_rows_gt_limit."""
-        return self._call("POST", Endpoints.download_count, {"filters": filters})
+        """Probed 2026-10-23: returns calculated_count, maximum_limit, rows_gt_limit, spending_level, messages, plus
+        the deprecated transaction_* twins. We send spending_level explicitly and read the new names."""
+        return self._call("POST", Endpoints.download_count, {"filters": filters, "spending_level": "transactions"})
 
     def request_transaction_download(self, filters: dict, columns: list[str] | None = None) -> dict:
-        body: dict = {"filters": filters, "file_format": "csv"}
+        """Probed 2026-10-23: the job's zip is named PrimeTransactionsAndSubawards_*.zip and its status total_rows
+        counts prime AND sub-award rows (272 vs a prime count of 235 for SSA FY2026). The worker must count only
+        the prime-transaction CSV."""
+        body: dict = {"filters": filters, "file_format": "csv", "spending_level": "transactions"}
         if columns:
             body["columns"] = columns
         return self._call("POST", Endpoints.download_transactions, body)
@@ -172,7 +175,7 @@ class UsaSpendingClient:
                                sort: str = "Award Amount", order: str = "desc", last_record_unique_id=None,
                                last_record_sort_value=None) -> dict:
         body: dict = {"filters": filters, "fields": fields, "page": page, "limit": limit, "sort": sort,
-                      "order": order, "subawards": False}
+                      "order": order, "spending_level": "awards"}
         if last_record_unique_id is not None:
             body["last_record_unique_id"] = last_record_unique_id
             body["last_record_sort_value"] = last_record_sort_value

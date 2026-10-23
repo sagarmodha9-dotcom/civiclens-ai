@@ -1,0 +1,53 @@
+name: ingest-usaspending
+# Full MVP pull: 6 agencies x FY2022-FY2026 prime contract transactions, IT PSC codes. Sequential download jobs.
+# Raw data is uploaded as a workflow artifact (14 days); manifests and the report are committed to evidence/ingest/.
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "agency codes, comma separated (blank = all six)"
+        default: ""
+      fys:
+        description: "fiscal years, comma separated (blank = 2022-2026)"
+        default: ""
+  schedule:
+    - cron: "17 9 * * 1"      # Mondays 09:17 UTC; idempotent, re-pulls only cells whose API count or last_updated changed
+permissions:
+  contents: write
+concurrency: ingest
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e "ingest"
+      - name: Restore previous raw data (so idempotency can skip unchanged cells)
+        uses: actions/cache/restore@v4
+        with: { path: data/raw, key: raw-${{ github.run_id }}, restore-keys: raw- }
+      - name: Pull all cells
+        id: pull
+        run: python -m civiclens_ingest.pull_all --out data/raw --report evidence/ingest --only "${{ inputs.only }}" --fys "${{ inputs.fys }}"
+        continue-on-error: true
+      - uses: actions/cache/save@v4
+        if: always()
+        with: { path: data/raw, key: raw-${{ github.run_id }} }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: raw-usaspending-${{ github.run_id }}, path: data/raw, retention-days: 14 }
+      - name: Commit manifests + report
+        if: always()
+        run: |
+          mkdir -p evidence/ingest/manifests
+          find data/raw -name manifest.json | while read f; do
+            cell=$(echo "$f" | sed -E 's#data/raw/agency=([0-9]+)/fy=([0-9]+)/manifest.json#\1_fy\2#')
+            python3 -c "import json,sys; m=json.load(open('$f')); m.pop('calls',None); json.dump(m, open('evidence/ingest/manifests/$cell.json','w'), indent=1, default=str)"
+          done
+          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
+          git add evidence/ingest
+          git commit -m "evidence: ingestion run $(date -u +%Y-%m-%dT%H:%MZ) (${{ steps.pull.outcome }})" || echo "nothing to commit"
+          git push
+      - if: steps.pull.outcome != 'success'
+        run: exit 1
