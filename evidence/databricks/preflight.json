@@ -1,0 +1,18 @@
+{
+ "stamp": {
+  "run_id": "39982507928",
+  "commit": "be3c52636d5d",
+  "utc": "2026-10-23T15:56:15+00:00",
+  "host": "https://dbc-b531337f-7f65.cloud.databricks.com/settings/user/developer/access-tokens?o=7474654994685709"
+ },
+ "catalog": null,
+ "steps": [
+  {
+   "step": "script crashed",
+   "pass": false,
+   "http": null,
+   "note": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+  }
+ ],
+ "pass": false
+}
