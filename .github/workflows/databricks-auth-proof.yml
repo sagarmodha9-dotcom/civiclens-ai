@@ -35,6 +35,13 @@ jobs:
           who=$(echo "$me" | head -1 | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("userName","?"))' 2>/dev/null || echo "(non-JSON body: $(echo "$me" | head -1 | tr -d '\n' | cut -c1-80 | sed 's/[<>]//g'))")
           echo "| whoami (SCIM Me) | $code | $who |" >> $out
           cats=$(curl -sS -o /dev/null -w '%{http_code}' -H "$H" "$DATABRICKS_HOST/api/2.1/unity-catalog/catalogs"); echo "| list catalogs | $cats | |" >> $out
+          # Ensure catalog civiclens, schemas bronze/silver/gold and managed volume bronze.raw exist (idempotent: 200 created, 409/400 already exists).
+          UC="$DATABRICKS_HOST/api/2.1/unity-catalog"; J='Content-Type: application/json'
+          cc=$(curl -sS -o /tmp/cc.json -w '%{http_code}' -X POST -H "$H" -H "$J" -d '{"name":"civiclens","comment":"CivicLens AI lakehouse"}' "$UC/catalogs"); echo "| create catalog civiclens | $cc | $(python3 -c 'import json;d=json.load(open("/tmp/cc.json"));print(d.get("error_code") or d.get("full_name") or "")' 2>/dev/null | cut -c1-60) |" >> $out
+          for s in bronze silver gold; do
+            sc=$(curl -sS -o /tmp/sc.json -w '%{http_code}' -X POST -H "$H" -H "$J" -d "{\"name\":\"$s\",\"catalog_name\":\"civiclens\"}" "$UC/schemas"); echo "| create schema $s | $sc | $(python3 -c 'import json;d=json.load(open("/tmp/sc.json"));print(d.get("error_code") or d.get("full_name") or "")' 2>/dev/null | cut -c1-60) |" >> $out
+          done
+          vc=$(curl -sS -o /tmp/vc.json -w '%{http_code}' -X POST -H "$H" -H "$J" -d '{"name":"raw","catalog_name":"civiclens","schema_name":"bronze","volume_type":"MANAGED"}' "$UC/volumes"); echo "| create volume bronze.raw | $vc | $(python3 -c 'import json;d=json.load(open("/tmp/vc.json"));print(d.get("error_code") or d.get("full_name") or "")' 2>/dev/null | cut -c1-60) |" >> $out
           vol="$DATABRICKS_HOST/api/2.0/fs/files/Volumes/civiclens/bronze/raw/_authproof/$(date -u +%s).txt"
           up=$(curl -sS -o /dev/null -w '%{http_code}' -X PUT -H "$H" -H 'Content-Type: application/octet-stream' --data-binary 'civiclens auth proof' "$vol"); echo "| Files API PUT to Volume | $up | needs catalog civiclens, schema bronze, volume raw to exist |" >> $out
           rd=$(curl -sS -o /dev/null -w '%{http_code}' -H "$H" "$vol"); echo "| Files API GET | $rd | |" >> $out
