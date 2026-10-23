@@ -22,3 +22,12 @@
 | 2026-10-23 | Anomaly validator compares at the Gold award-year grain (award_key, PIID, FY, agency, recipient UEI). Keying on (award_key, FY) alone collapsed 39 award-years that have two rows because the recipient UEI or PIID changed within the year, which produced a spurious 1.4 relative score difference in run 40006331782. | Same snapshot both times (ingest run 39997561946); the 46,458 vs 46,497 difference was the collapsed key, not the data. |
 | 2026-10-23 | Eval scorer: a reference measure `obligations` accepts a verified fact named `total`/`sum`/`combined` (a total of obligations is obligations; the investigator is told to name derived totals "total"). Reference A4 ("which FY had the highest") now expects that year's total rather than all five yearly totals; reference `peer_n` carries no award entity because the peer-group size is a property of the comparison group, not of the award. | Each change aligns the reference with what the question literally asks; none changes a tolerance or threshold. Recorded after run 40008897553 (F2, A4, N3). |
 | 2026-10-23 | Verifier: a fact citing an unknown `tool_call_id` is re-attributed to the logged call whose rows (for the fact's entities) contain the value, and the remap is recorded; otherwise it stays unverified. | The guarantee is that every number comes from a tool result for those entities; run 40008897553 showed the model mangling ids (N2, N6) while the numbers were in the log. |
+
+## Eval workflow: per-set concurrency and rebuild-on-race evidence commits (2026-10-23)
+
+Run 40012579554 (regression) was cancelled because `concurrency: eval` treated the holdout dispatch 15 s later as a
+superseding run; run 40012594419 (holdout) evaluated successfully but its evidence push failed because `git pull --rebase`
+cannot merge wholesale-replaced `results.json/md` against the previous holdout commit. Decision: concurrency group is
+`eval-<set>` so regression and holdout run in parallel without cancelling each other, and the commit step treats
+`evidence/eval[/holdout]` as owned by the run — on a race it resets to `origin/main`, re-applies its own files only
+(never the other set's folder) and retries with backoff. No scoring or references changed.
