@@ -1,16 +1,26 @@
 name: publish-snapshot
 # Promotes a validated snapshot: downloads the DuckDB built by an ingest run, stamps a version, refuses on DQ failure,
-# uploads it as an immutable GitHub Release asset, and only then moves snapshot/latest.json. Rollback = re-run with an
-# older release's version (or git revert of latest.json). The API image is built from a pinned version.
+# uploads it as an immutable GitHub Release asset, and only then moves snapshot/latest.json. Rollback = re-run with
+# promote_version set to an older release (or git revert of latest.json). The API image is built from a pinned version.
+#
+# Idempotency / safety:
+#  - a release is created at most once per version; promotion re-verifies the released asset's sha256 against the
+#    manifest before latest.json moves, so a failed or partial run can never promote an invalid snapshot;
+#  - promote_version re-promotes an EXISTING release (no new build, no new release) — this is also the rollback path;
+#  - the promote commit pulls/rebases with retries (run 40008901233 created the release but lost the push race).
 on:
   workflow_dispatch:
     inputs:
       ingest_run_id:
-        description: "run id of the ingest-usaspending run to publish"
-        required: true
+        description: "run id of the ingest-usaspending run to publish (ignored when promote_version is set)"
+        default: ""
+      promote_version:
+        description: "existing release version to (re)promote to latest, e.g. v20261023-1 (blank = build a new one)"
+        default: ""
 permissions:
   contents: write
   actions: read
+concurrency: publish
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -19,13 +29,18 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install -q duckdb
+      - name: Inputs
+        run: |
+          test -n "${{ inputs.promote_version }}" -o -n "${{ inputs.ingest_run_id }}" || { echo "::error::ingest_run_id or promote_version is required"; exit 1; }
       - uses: actions/download-artifact@v4
+        if: inputs.promote_version == ''
         with:
           name: snapshot-${{ inputs.ingest_run_id }}
           path: build
           run-id: ${{ inputs.ingest_run_id }}
           github-token: ${{ github.token }}
       - uses: actions/download-artifact@v4
+        if: inputs.promote_version == ''
         with:
           pattern: raw-usaspending-${{ inputs.ingest_run_id }}
           path: data/raw
@@ -34,18 +49,44 @@ jobs:
           github-token: ${{ github.token }}
       - name: Stamp (refuses on DQ failure)
         id: stamp
+        env: { GH_TOKEN: "${{ github.token }}" }
         run: |
-          V="v$(date -u +%Y%m%d)-${{ github.run_number }}"
-          python scripts/stamp_snapshot.py --db build/civiclens.duckdb --version "$V" --source-run "${{ inputs.ingest_run_id }}" --raw data/raw --out dist
+          if [ -n "${{ inputs.promote_version }}" ]; then V="${{ inputs.promote_version }}"; else V="v$(date -u +%Y%m%d)-${{ github.run_number }}"; fi
+          if [ -z "${{ inputs.promote_version }}" ]; then
+            python scripts/stamp_snapshot.py --db build/civiclens.duckdb --version "$V" --source-run "${{ inputs.ingest_run_id }}" --raw data/raw --out dist
+          fi
           echo "version=$V" >> "$GITHUB_OUTPUT"
-      - name: Release (immutable asset)
+      - name: Release (immutable asset; created once per version)
+        if: inputs.promote_version == ''
         env: { GH_TOKEN: "${{ github.token }}" }
         run: |
           V=${{ steps.stamp.outputs.version }}
+          if gh release view "snapshot-$V" >/dev/null 2>&1; then echo "release snapshot-$V already exists; not re-uploading"; exit 0; fi
           gh release create "snapshot-$V" dist/civiclens_$V.duckdb dist/civiclens_$V.sha256 dist/snapshot.json \
             --title "Snapshot $V" --notes "Validated snapshot from ingest run ${{ inputs.ingest_run_id }}. DQ gate passed. See snapshot.json."
-      - name: Promote to latest (only after the release exists)
+      - name: Verify the released asset before promotion (sha256 of the asset == manifest == .sha256 file)
+        env: { GH_TOKEN: "${{ github.token }}" }
         run: |
-          mkdir -p snapshot && cp dist/snapshot.json snapshot/latest.json
+          V=${{ steps.stamp.outputs.version }}
+          rm -rf verify && mkdir verify && gh release download "snapshot-$V" -D verify
+          python3 - "$V" <<'EOF'
+          import hashlib, json, sys, pathlib
+          v = sys.argv[1]; d = pathlib.Path("verify")
+          m = json.load(open(d / "snapshot.json"))
+          asset = d / m["file"]; sha = hashlib.sha256(asset.read_bytes()).hexdigest()
+          listed = (d / f"civiclens_{v}.sha256").read_text().split()[0]
+          assert m["version"] == v, (m["version"], v)
+          assert sha == m["sha256"] == listed, (sha, m["sha256"], listed)
+          assert m["dq_all_pass"] is True and asset.stat().st_size == m["bytes"]
+          import duckdb; c = duckdb.connect(str(asset), read_only=True)
+          meta = json.loads(c.execute("SELECT meta_json FROM _meta").fetchone()[0])
+          assert meta["snapshot_version"] == v and meta["dq"]["_all_pass"] is True
+          print("verified release asset", m["file"], sha, m["bytes"], "bytes; tables:", meta["tables"])
+          EOF
+          mkdir -p snapshot && cp verify/snapshot.json snapshot/latest.json
+      - name: Promote to latest (only after the release is verified)
+        run: |
           git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add snapshot/latest.json && git commit -m "snapshot: promote ${{ steps.stamp.outputs.version }} to latest" && git push
+          git add snapshot/latest.json && git commit -m "snapshot: promote ${{ steps.stamp.outputs.version }} to latest" || { echo "latest.json already at this version"; exit 0; }
+          pushed=0; for i in 1 2 3 4 5; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
+          test "$pushed" = 1 || { echo "::error::promotion push failed after 5 attempts; release exists, re-run with promote_version=${{ steps.stamp.outputs.version }}"; exit 1; }
