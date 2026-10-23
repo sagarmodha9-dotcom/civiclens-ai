@@ -1,0 +1,55 @@
+{
+ "version": "v20261023-1",
+ "file": "civiclens_v20261023-1.duckdb",
+ "sha256": "7c3de72f32bf341ed57d10b6f3c817acde2ff2376a887ffd53556b4eeebbac1f",
+ "bytes": 63713280,
+ "built_utc": "2026-10-23T17:45:22+00:00",
+ "api_last_updated": [
+  "10/23/2026"
+ ],
+ "source_ingest_run": "39997561946",
+ "tables": {
+  "bronze_prime_transactions": 109883,
+  "silver_contract_transactions": 109883,
+  "silver_rejects": 0,
+  "gold_award_fy": 68697,
+  "gold_agency_fy": 60,
+  "gold_recipient_agency_fy": 21017,
+  "gold_psc_fy": 360,
+  "anomaly_large_award": 46497,
+  "anomaly_concentration": 359,
+  "anomaly_recipient_growth": 21017
+ },
+ "dq_all_pass": true,
+ "anomaly_summary": {
+  "large_award": {
+   "rows": 46497,
+   "flagged": 157,
+   "normal": 44887,
+   "scored": 45044,
+   "not_scored": {
+    "not scored: fewer than 30 comparable award-years": 1453
+   }
+  },
+  "concentration": {
+   "rows": 359,
+   "flagged": 94,
+   "normal": 235,
+   "scored": 329,
+   "not_scored": {
+    "not scored: cell below spend floor": 30
+   }
+  },
+  "recipient_growth": {
+   "rows": 21017,
+   "flagged": 219,
+   "normal": 5222,
+   "scored": 5441,
+   "not_scored": {
+    "not scored: no prior-year obligations at this agency": 8417,
+    "not scored: prior year below base floor": 7159
+   }
+  }
+ },
+ "schema_version": 1
+}
