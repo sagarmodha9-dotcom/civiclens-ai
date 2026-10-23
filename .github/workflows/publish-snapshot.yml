@@ -1,0 +1,51 @@
+name: publish-snapshot
+# Promotes a validated snapshot: downloads the DuckDB built by an ingest run, stamps a version, refuses on DQ failure,
+# uploads it as an immutable GitHub Release asset, and only then moves snapshot/latest.json. Rollback = re-run with an
+# older release's version (or git revert of latest.json). The API image is built from a pinned version.
+on:
+  workflow_dispatch:
+    inputs:
+      ingest_run_id:
+        description: "run id of the ingest-usaspending run to publish"
+        required: true
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q duckdb
+      - uses: actions/download-artifact@v4
+        with:
+          name: snapshot-${{ inputs.ingest_run_id }}
+          path: build
+          run-id: ${{ inputs.ingest_run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: raw-usaspending-${{ inputs.ingest_run_id }}
+          path: data/raw
+          merge-multiple: true
+          run-id: ${{ inputs.ingest_run_id }}
+          github-token: ${{ github.token }}
+      - name: Stamp (refuses on DQ failure)
+        id: stamp
+        run: |
+          V="v$(date -u +%Y%m%d)-${{ github.run_number }}"
+          python scripts/stamp_snapshot.py --db build/civiclens.duckdb --version "$V" --source-run "${{ inputs.ingest_run_id }}" --raw data/raw --out dist
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+      - name: Release (immutable asset)
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          V=${{ steps.stamp.outputs.version }}
+          gh release create "snapshot-$V" dist/civiclens_$V.duckdb dist/civiclens_$V.sha256 dist/snapshot.json \
+            --title "Snapshot $V" --notes "Validated snapshot from ingest run ${{ inputs.ingest_run_id }}. DQ gate passed. See snapshot.json."
+      - name: Promote to latest (only after the release exists)
+        run: |
+          mkdir -p snapshot && cp dist/snapshot.json snapshot/latest.json
+          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
+          git add snapshot/latest.json && git commit -m "snapshot: promote ${{ steps.stamp.outputs.version }} to latest" && git push

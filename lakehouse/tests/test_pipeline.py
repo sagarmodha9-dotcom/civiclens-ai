@@ -154,3 +154,39 @@ def test_sql_files_contain_no_unsubstituted_parameters():
     import re
     for name in ("anomalies.sql", "gold.sql", "silver_contract_transactions.sql", "silver_rejects.sql"):
         assert not re.search(r"\{[a-z_]+\}", render(name)), name
+
+
+def test_anomaly_summary_separates_rows_scored_and_flagged(built):
+    con, meta = built
+    la = meta["anomaly_summary"]["large_award"]
+    assert la["rows"] == one(con, "SELECT COUNT(*) FROM anomaly_large_award")
+    assert la["flagged"] == 1 and la["scored"] == la["flagged"] + la["normal"] and la["rows"] > la["scored"]
+    assert any(k.startswith("not scored") for k in la["not_scored"])          # the small groups abstained, visibly
+
+
+def test_small_dataset_scores_nothing_but_says_why(tmp_path):
+    """Mirrors the real SSA FY2026 cell: many PSC classes, none with 30 award-years -> scored 0, flagged 0, all abstentions."""
+    from conftest import AG, row, write_cell
+    rows = [row(f"K-S{i}", f"AWD-S{i}", f"PIID-S{i}", "2026-01-15", 1000.0 * (i + 1), uei=f"UEIS{i:05d}", name=f"S{i}", psc=f"D{(i % 7) + 3}01") for i in range(60)]   # 7 PSC classes, <30 each
+    write_cell(tmp_path / "raw", AG, 2026, rows)
+    meta = build_duckdb(tmp_path / "raw", tmp_path / "s.duckdb")
+    la = meta["anomaly_summary"]["large_award"]
+    assert la["rows"] == 60 and la["scored"] == 0 and la["flagged"] == 0
+    assert la["not_scored"] == {"not scored: fewer than 30 comparable award-years": 60}
+
+
+def test_source_fiscal_year_column_is_cross_checked_when_present(raw_tree, tmp_path):
+    import csv
+    from conftest import AG, write_cell
+    d = raw_tree / "agency=036" / "fy=2025"
+    rows = list(csv.DictReader(open(d / "Contracts_PrimeTransactions_1.csv")))
+    for r in rows:
+        r["action_date_fiscal_year"] = "2025"
+    rows[0]["action_date_fiscal_year"] = "2019"                                  # one planted disagreement
+    # write with the extra column (REQUIRED_COLUMNS + the optional source FY column)
+    fields = list(rows[0].keys())
+    with open(d / "Contracts_PrimeTransactions_1.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields); w.writeheader(); w.writerows(rows)
+    meta = build_duckdb(raw_tree, tmp_path / "f.duckdb")
+    chk = meta["dq"]["fiscal_year_matches_source_column"]
+    assert chk["source_column_present"] and chk["mismatches_vs_action_date_fiscal_year"] == 1 and not chk["pass"] and not meta["dq"]["_all_pass"]

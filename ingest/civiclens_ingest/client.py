@@ -160,16 +160,38 @@ class UsaSpendingClient:
                                Endpoints.download_status)
             self._sleep(poll_seconds); waited += poll_seconds
 
-    def fetch_file(self, url: str, dest: Path) -> dict:
-        """Stream a (zip) file to disk; returns size and sha256. Resumable is handled by the caller re-running."""
+    def fetch_file(self, url: str, dest: Path, timeout: float = 300.0) -> dict:
+        """Stream a (zip) file to disk with retries; returns size and sha256.
+
+        Regression (run 39961334170, 2026-10-23): the first full pull died here on DHS FY2022 when the file server
+        dropped the connection before sending response headers. The job had already finished; only the fetch was
+        unlucky. Now: up to max_retries attempts with backoff, a file-server timeout of its own, partial files
+        removed on failure, and any transport error surfaced as ApiError so the caller can record it per cell."""
         dest.parent.mkdir(parents=True, exist_ok=True)
-        h, size = hashlib.sha256(), 0
-        with self._http.stream("GET", url) as r:
-            r.raise_for_status()
-            with open(dest, "wb") as f:
-                for chunk in r.iter_bytes(1 << 20):
-                    f.write(chunk); h.update(chunk); size += len(chunk)
-        return {"bytes": size, "sha256": h.hexdigest()}
+        delay, last = 2.0, "unknown"
+        for attempt in range(1, self.max_retries + 2):
+            h, size, t0 = hashlib.sha256(), 0, time.perf_counter()
+            try:
+                with self._http.stream("GET", url, timeout=timeout) as r:
+                    if r.status_code in (429, 500, 502, 503, 504):
+                        raise httpx.HTTPStatusError(f"HTTP {r.status_code}", request=r.request, response=r)
+                    r.raise_for_status()
+                    with open(dest, "wb") as f:
+                        for chunk in r.iter_bytes(1 << 20):
+                            f.write(chunk); h.update(chunk); size += len(chunk)
+                self.records.append(CallRecord("GET", url, None, 200, attempt, int((time.perf_counter() - t0) * 1000), ["<file>"], None,
+                                               dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")))
+                return {"bytes": size, "sha256": h.hexdigest(), "attempts": attempt}
+            except (httpx.HTTPError, OSError) as e:
+                last = f"{type(e).__name__}: {str(e)[:120]}"
+                if dest.exists():
+                    dest.unlink()
+                if attempt > self.max_retries:
+                    break
+                self._sleep(min(delay, 60.0)); delay *= 2
+        self.records.append(CallRecord("GET", url, None, None, self.max_retries + 1, 0, [], last,
+                                       dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")))
+        raise ApiError(0, f"file download failed after {self.max_retries + 1} attempts ({last})", url)
 
     def spending_by_award_page(self, filters: dict, fields: list[str], page: int = 1, limit: int = 100,
                                sort: str = "Award Amount", order: str = "desc", last_record_unique_id=None,

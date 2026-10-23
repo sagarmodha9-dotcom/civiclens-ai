@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install -e "ingest"
+      - run: pip install -e "ingest" -e "lakehouse"
       - name: Restore previous raw data (so idempotency can skip unchanged cells)
         uses: actions/cache/restore@v4
         with:
@@ -34,6 +34,17 @@ jobs:
         id: pull
         run: python -m civiclens_ingest.pull_all --out data/raw --report evidence/ingest --only "${{ inputs.only }}" --fys "${{ inputs.fys }}"
         continue-on-error: true
+      - name: Build local snapshot (same SQL as Databricks) and reconcile against USAspending at matching grain
+        if: steps.pull.outcome == 'success'
+        run: |
+          python -m civiclens_lakehouse.pipeline --raw data/raw --db build/civiclens.duckdb --report evidence/pipeline/actions_build.json
+          python -m civiclens_ingest.reconcile --raw data/raw --db build/civiclens.duckdb --out evidence/reconcile --sample 50 || echo "::warning::reconciliation reported mismatches; see evidence/reconcile/report.md"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: snapshot-${{ github.run_id }}
+          path: build/civiclens.duckdb
+          retention-days: 14
       - uses: actions/cache/save@v4
         if: always()
         with:
@@ -54,7 +65,7 @@ jobs:
             python3 -c "import json,sys; m=json.load(open('$f')); m.pop('calls',None); json.dump(m, open('evidence/ingest/manifests/$cell.json','w'), indent=1, default=str)"
           done
           git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/ingest
+          git add evidence/ingest evidence/pipeline evidence/reconcile 2>/dev/null || git add evidence/ingest
           git commit -m "evidence: ingestion run $(date -u +%Y-%m-%dT%H:%MZ) (${{ steps.pull.outcome }})" || echo "nothing to commit"
           git push
       - if: steps.pull.outcome != 'success'

@@ -204,3 +204,67 @@ def test_requests_carry_spending_level_not_deprecated_subawards_flag():
     from civiclens_ingest import client as mod
     src = inspect.getsource(mod)
     assert '"subawards": False' not in src and '"spending_level"' in src
+
+
+def test_award_transactions_paginates_and_window_filter_is_same_grain():
+    """R2's grain: our FY-window transactions vs the award's own transactions in the SAME window. Lifetime totals must
+    never enter the comparison. Mocked two-page transaction list across two fiscal years."""
+    import respx as _respx
+    with _respx.mock:
+        pages = iter([
+            httpx.Response(200, json={"results": [{"action_date": "2024-11-01", "federal_action_obligation": 100.0}, {"action_date": "2025-03-01", "federal_action_obligation": -20.0}],
+                                      "page_metadata": {"hasNext": True}}),
+            httpx.Response(200, json={"results": [{"action_date": "2025-10-15", "federal_action_obligation": 999.0}], "page_metadata": {"hasNext": False}}),
+        ])
+        _respx.post(f"{BASE}/api/v2/transactions/").mock(side_effect=lambda req: next(pages))
+        tx = client().award_transactions("CONT_AWD_X")
+    assert len(tx) == 3
+    start, end = fy_window(2025)
+    win = [t for t in tx if start <= t["action_date"] <= end]
+    assert len(win) == 2 and round(sum(t["federal_action_obligation"] for t in win), 2) == 80.0     # FY2026 row excluded
+
+
+
+def test_pull_all_records_internal_failures_and_continues(tmp_path, monkeypatch, capsys):
+    """Regression for the 13:40Z full run: an exception that was not an ApiError escaped pull_all after 5 cells and
+    the report was never written. Now any exception is recorded per cell and the run continues."""
+    import sys
+    from civiclens_ingest import pull_all as pa
+    calls = []
+
+    def fake_pull(c, root, code, name, fy, force=False, poll_seconds=10):
+        calls.append((code, fy))
+        if (code, fy) == ("070", 2022):
+            raise zipfile.BadZipFile("File is not a zip file")
+        return {"agency_code": code, "agency_name": name, "fiscal_year": fy, "status": "complete", "rows_total": 1, "api_count": 1,
+                "count_matches": True, "rows_subawards": 0, "extracted_utc": "x", "api_last_updated": "x", "run_id": "r"}
+    monkeypatch.setattr(pa, "pull_cell", fake_pull)
+    monkeypatch.setattr(pa, "UsaSpendingClient", lambda: type("C", (), {"close": lambda self: None})())
+    monkeypatch.setattr(sys, "argv", ["pull_all", "--out", str(tmp_path / "raw"), "--report", str(tmp_path / "rep"), "--only", "036,070", "--fys", "2022,2023"])
+    rc = pa.main()
+    assert rc == 1 and len(calls) == 4                                     # kept going after the failure
+    rep = json.loads((tmp_path / "rep" / "report.json").read_text())
+    assert rep["totals"]["cells_failed"] == 1 and rep["failures"][0]["kind"] == "internal" and "BadZipFile" in rep["failures"][0]["error"]
+    assert "Failure details" in (tmp_path / "rep" / "report.md").read_text()
+
+
+
+@respx.mock
+def test_fetch_file_retries_a_dropped_connection_then_succeeds(tmp_path: Path):
+    """Regression for run 39961334170: the zip fetch hit a transport error after the job finished. Two failures then
+    a good response must yield a complete file with the right hash; a partial file must not be left behind."""
+    body = _zip_bytes(3)
+    respx.get("https://files.example/big.zip").mock(side_effect=[httpx.ReadTimeout("headers"), httpx.RemoteProtocolError("dropped"),
+                                                                  httpx.Response(200, content=body)])
+    c = client()
+    meta = c.fetch_file("https://files.example/big.zip", tmp_path / "big.zip")
+    import hashlib
+    assert meta["attempts"] == 3 and meta["sha256"] == hashlib.sha256(body).hexdigest() and (tmp_path / "big.zip").read_bytes() == body
+
+
+@respx.mock
+def test_fetch_file_gives_up_as_apierror_and_leaves_no_partial_file(tmp_path: Path):
+    respx.get("https://files.example/big.zip").mock(side_effect=httpx.ReadTimeout("headers"))
+    with pytest.raises(ApiError) as ei:
+        client(max_retries=2).fetch_file("https://files.example/big.zip", tmp_path / "big.zip")
+    assert "after 3 attempts" in str(ei.value) and not (tmp_path / "big.zip").exists()

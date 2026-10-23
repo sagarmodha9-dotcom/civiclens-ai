@@ -57,7 +57,7 @@ def test_other_detectors_and_search(client):
 def test_sql_catalogue_is_published_and_no_endpoint_accepts_sql(client):
     cat = client.get("/v1/sql").json()
     assert "anomalies_large" in cat["queries"] and cat["row_cap"] == 2000
-    paths = [r.path for r in client.app.routes]
+    paths = [getattr(r, 'path', '') for r in client.app.routes]
     assert not any("sql" in p and p != "/v1/sql" for p in paths)
 
 

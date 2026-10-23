@@ -1,0 +1,39 @@
+# Fly.io app definition for the CivicLens API. Not deployed until the account and spend are approved.
+app = "civiclens-api"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+  # SNAPSHOT_URL / SNAPSHOT_SHA256 are passed with --build-arg from the deploy workflow (pinned version)
+
+[env]
+  CIVICLENS_CORS = "https://civiclens-ai.vercel.app"
+  CIVICLENS_PER_IP_PER_HOUR = "8"
+  CIVICLENS_GLOBAL_PER_DAY = "120"
+  CIVICLENS_MONTHLY_BUDGET_USD = "5"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "off"      # always on: a recruiter should never wait for a cold start
+  auto_start_machines = true
+  min_machines_running = 1
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 50
+    hard_limit = 100
+
+[[http_service.checks]]
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "10s"
+  method = "GET"
+  path = "/healthz"
+
+[mounts]
+  source = "civiclens_ledger"
+  destination = "/data/ledger"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
