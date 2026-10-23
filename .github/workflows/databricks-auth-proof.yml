@@ -21,10 +21,19 @@ jobs:
           echo "# Databricks unattended-auth proof — $(date -u +%Y-%m-%dT%H:%MZ)" > $out
           echo "" >> $out
           if [ -z "${DATABRICKS_HOST:-}" ] || [ -z "${DATABRICKS_TOKEN:-}" ]; then echo "secrets DATABRICKS_HOST / DATABRICKS_TOKEN not set" | tee -a $out; exit 1; fi
+          # normalise host: keep scheme + domain only (a pasted browser URL often carries /browse?o=... which breaks API paths)
+          DATABRICKS_HOST=$(printf '%s' "$DATABRICKS_HOST" | sed -E 's#^(https?://[^/?#]+).*$#\1#')
+          case "$DATABRICKS_HOST" in https://*) ;; *) DATABRICKS_HOST="https://$DATABRICKS_HOST";; esac
+          echo "host used: $DATABRICKS_HOST" | tee -a $out
+          # sanity on secret SHAPES only (never values): a PAT starts with dapi; a host contains databricks
+          case "$DATABRICKS_TOKEN" in dapi*) echo "token shape: ok (dapi…)" | tee -a $out;; *) echo "token shape: UNEXPECTED (does not start with dapi; was the URL pasted into DATABRICKS_TOKEN?)" | tee -a $out;; esac
+          case "$DATABRICKS_HOST" in *databricks*) echo "host shape: ok" | tee -a $out;; *) echo "host shape: UNEXPECTED (no 'databricks' in it; was the token pasted into DATABRICKS_HOST?)" | tee -a $out;; esac
+          echo "" >> $out
           H="Authorization: Bearer $DATABRICKS_TOKEN"
           me=$(curl -sS -w '\n%{http_code}' -H "$H" "$DATABRICKS_HOST/api/2.0/preview/scim/v2/Me"); code=$(echo "$me" | tail -1)
           echo "| step | HTTP | note |" >> $out; echo "|---|---|---|" >> $out
-          echo "| whoami (SCIM Me) | $code | $(echo "$me" | head -1 | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("userName","?"))' 2>/dev/null) |" >> $out
+          who=$(echo "$me" | head -1 | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("userName","?"))' 2>/dev/null || echo "(non-JSON body: $(echo "$me" | head -1 | tr -d '\n' | cut -c1-80 | sed 's/[<>]//g'))")
+          echo "| whoami (SCIM Me) | $code | $who |" >> $out
           cats=$(curl -sS -o /dev/null -w '%{http_code}' -H "$H" "$DATABRICKS_HOST/api/2.1/unity-catalog/catalogs"); echo "| list catalogs | $cats | |" >> $out
           vol="$DATABRICKS_HOST/api/2.0/fs/files/Volumes/civiclens/bronze/raw/_authproof/$(date -u +%s).txt"
           up=$(curl -sS -o /dev/null -w '%{http_code}' -X PUT -H "$H" -H 'Content-Type: application/octet-stream' --data-binary 'civiclens auth proof' "$vol"); echo "| Files API PUT to Volume | $up | needs catalog civiclens, schema bronze, volume raw to exist |" >> $out
