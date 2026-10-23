@@ -159,7 +159,7 @@ jobs:
         if: ${{ !inputs.skip_web }}
         id: e2e
         working-directory: web
-        env: { E2E_BASE_URL: "${{ steps.web.outputs.url }}" }
+        env: { E2E_BASE_URL: "${{ steps.web.outputs.url }}", E2E_API_URL: "${{ steps.api.outputs.url }}" }
         run: |
           npm ci >/dev/null && npx playwright install --with-deps chromium >/dev/null
           sleep 20

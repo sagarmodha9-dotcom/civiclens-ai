@@ -36,10 +36,20 @@ test("anomaly detail explains the flag with peer group, baseline, score and limi
 });
 
 test("empty state when the scope has nothing, and reset clears it", async ({ page }) => {
-  await page.goto("/anomalies?agency=028&fy=2022");
+  // Data-independent: find a scope with no flagged large awards from the API the site uses (the synthetic test snapshot and the
+  // real snapshot differ; on real data SSA FY2022 has 4 flagged, which is why this test cannot hard-code a scope).
+  const api = process.env.E2E_API_URL ?? "http://localhost:8000";
+  let empty: string | null = null;
+  outer: for (const agency of ["028", "013", "020", "075", "070", "036"]) for (const fy of [2022, 2023, 2024, 2025, 2026]) for (const psc of ["", "DK", "DC", "DJ", "DB", "DE"]) {
+    const qs = `agency=${agency}&fy=${fy}${psc ? `&psc=${psc}` : ""}`;
+    const r = await page.request.get(`${api}/v1/anomalies?detector=large_award&limit=1&${qs}`);
+    if (r.ok() && ((await r.json()).items ?? []).length === 0) { empty = qs; break outer; }
+  }
+  expect(empty, "no empty large_award scope found in the snapshot").not.toBeNull();
+  await page.goto(`/anomalies?${empty}`);
   await expect(page.getByText(/No flagged items in this scope/)).toBeVisible({ timeout: 15_000 });
   await page.getByRole("button", { name: "Reset" }).click();
-  await expect(page).not.toHaveURL(/agency=028/);
+  await expect(page).not.toHaveURL(/agency=/);
 });
 
 test("API failure shows an error state, not a blank page", async ({ page }) => {
@@ -49,11 +59,13 @@ test("API failure shows an error state, not a blank page", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
 });
 
-test("investigator shows the disabled/cached mode honestly when live AI is off", async ({ page }) => {
+test("investigator answers with verified facts, or says honestly why it cannot (disabled / rate-limited)", async ({ page }) => {
+  test.setTimeout(120_000);
   await page.goto("/investigator?agency=036&fy=2025");
   await page.getByLabel("Your question").fill("Which recipients received the most?");
   await page.getByRole("button", { name: "Ask" }).click();
-  await expect(page.getByText(/live AI investigation is disabled|Facts \(computed by SQL/).first()).toBeVisible({ timeout: 20_000 });
+  // a live Haiku answer with tool calls and server verification takes 20–60 s on the public API; cached answers return at once
+  await expect(page.getByText(/live AI investigation is disabled|Facts \(computed by SQL|rate limit|limited|budget/i).first()).toBeVisible({ timeout: 90_000 });
 });
 
 test("methodology publishes the SQL and the anomaly status breakdown", async ({ page }) => {
