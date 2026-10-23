@@ -99,10 +99,14 @@ jobs:
           )
           [ -n "$ALIAS" ] || ALIAS="$URL"
           echo "url=$ALIAS" >> "$GITHUB_OUTPUT"; echo "site: $ALIAS"
+          # the per-deployment URL is behind Vercel Deployment Protection (login wall); only the production alias is public
+          [ "$ALIAS" != "$URL" ] || { echo "::error::no public production alias found for project $VERCEL_PROJECT"; exit 1; }
+          for i in $(seq 1 10); do code=$(curl -s -o /dev/null -w "%{http_code}" "$ALIAS/"); [ "$code" = "200" ] && break || sleep 6; done
+          echo "alias HTTP $code"; test "$code" = "200"
       - name: Point API CORS at the site
         if: ${{ !inputs.skip_web }}
         env: { FLY_API_TOKEN: "${{ secrets.FLY_API_TOKEN }}" }
-        run: flyctl secrets set -a "$FLY_APP" CIVICLENS_CORS="${{ steps.web.outputs.url }},https://$VERCEL_PROJECT.vercel.app"
+        run: flyctl secrets set -a "$FLY_APP" CIVICLENS_CORS="${{ steps.web.outputs.url }}"     # the public alias only (civiclens-ai.vercel.app belongs to an unrelated project)
       - name: Live API access-control smoke (CORS allowlist, validation, read-only surface, headers)
         if: ${{ !inputs.skip_web }}
         id: apisec
