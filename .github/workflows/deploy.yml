@@ -104,6 +104,19 @@ jobs:
           sleep 20
           npx playwright test 2>&1 | tee ../e2e.log | tail -25
         continue-on-error: true
+      - name: Automated demo recording + screenshots of the public site
+        if: ${{ !inputs.skip_web && steps.e2e.outcome == 'success' }}
+        id: demo
+        working-directory: web
+        env: { E2E_BASE_URL: "${{ steps.web.outputs.url }}", DEMO: "1" }
+        continue-on-error: true
+        run: |
+          mkdir -p ../docs/screenshots ../docs/demo
+          npx playwright test demo.spec.ts --project=desktop 2>&1 | tail -8
+          v=$(find test-results -name "*.webm" | head -1); echo "video: $v"
+          test -n "$v" && ffmpeg -loglevel error -y -i "$v" -vf "fps=24,scale=1280:-2" -c:v libx264 -crf 26 -preset slow -pix_fmt yuv420p -movflags +faststart ../docs/demo/civiclens-demo.mp4
+          ls -la ../docs/demo ../docs/screenshots
+          python3 -c "import os,sys; sz=os.path.getsize('../docs/demo/civiclens-demo.mp4'); print('mp4 bytes', sz); sys.exit(1 if sz > 20_000_000 else 0)"
       - name: Evidence
         if: always()
         run: |
@@ -119,6 +132,8 @@ jobs:
           rep = {"stamp": {"github_run_id": "${{ github.run_id }}", "commit": "${{ github.sha }}"[:12], "utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")},
                  "snapshot_version": "${{ steps.snap.outputs.version }}", "api_url": "${{ steps.api.outputs.url }}", "site_url": "${{ steps.web.outputs.url }}",
                  "api_smoke": "${{ steps.api.outcome }}", "web_deploy": "${{ steps.web.outcome }}", "e2e": "${{ steps.e2e.outcome }}", "e2e_results": res, "pass": ok,
+                 "demo": "${{ steps.demo.outcome }}", "demo_video": "docs/demo/civiclens-demo.mp4" if pathlib.Path("docs/demo/civiclens-demo.mp4").exists() else None,
+                 "screenshots": sorted(p.name for p in pathlib.Path("docs/screenshots").glob("*.png")) if pathlib.Path("docs/screenshots").exists() else [],
                  "cost_note": "Fly.io shared-cpu-1x 512MB always-on + 1GB volume (approved <= $5/mo); Vercel Hobby free; Anthropic capped at $10/mo in console, app budget $5/mo."}
           pathlib.Path("evidence/deploy/report.json").write_text(json.dumps(rep, indent=1))
           md = [f"# Deployment — **{'PASS' if ok else 'FAIL'}**", "",
@@ -126,11 +141,12 @@ jobs:
                 f"- API: {rep['api_url']} — smoke {rep['api_smoke']} (healthz ok, snapshot version pinned, DQ pass, X-Snapshot-Version header)",
                 f"- Site: {rep['site_url']} — deploy {rep['web_deploy']}",
                 f"- Live e2e (Playwright desktop Chrome + Pixel 7 + axe WCAG 2.1 AA): {rep['e2e']} — {json.dumps(res)}",
+                f"- Automated demo recording of the public site: {rep['demo']} — {rep['demo_video'] or 'none'}; screenshots: {len(rep['screenshots'])}",
                 f"- Cost: {rep['cost_note']}"]
           pathlib.Path("evidence/deploy/report.md").write_text("\n".join(md) + "\n"); print("\n".join(md))
           EOF
           git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/deploy && git commit -m "evidence: deployment run ${{ github.run_id }}" || echo "nothing to commit"
+          git add evidence/deploy docs/demo docs/screenshots 2>/dev/null; git commit -m "evidence: deployment run ${{ github.run_id }} (+demo, screenshots)" || echo "nothing to commit"
           pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
           test "$pushed" = 1 || { echo "::error::evidence push failed"; exit 1; }
           python3 -c "import json,sys; sys.exit(0 if json.load(open('evidence/deploy/report.json'))['pass'] else 1)"

@@ -26,6 +26,7 @@ jobs:
         run: gh run download "${{ inputs.ingest_run_id }}" -n "snapshot-${{ inputs.ingest_run_id }}" -D build && ls -la build
       - name: Validate
         id: val
+        env: { INGEST_RUN_ID: "${{ inputs.ingest_run_id }}" }
         run: python -m civiclens_lakehouse.validate_anomalies --snapshot build/civiclens.duckdb --out evidence/anomalies
         continue-on-error: true
       - name: Commit evidence

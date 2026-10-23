@@ -77,6 +77,8 @@ SQL = {
                     FROM gold_agency_fy{where} ORDER BY awarding_agency_code, fiscal_year, it_category""",
     "overview_by_fy": """SELECT fiscal_year, SUM(obligations) AS obligations, SUM(transactions) AS transactions, SUM(awards) AS awards
                          FROM gold_agency_fy{where} GROUP BY fiscal_year ORDER BY fiscal_year""",
+    "overview_by_category": """SELECT it_category, SUM(obligations) AS obligations, SUM(transactions) AS transactions, SUM(awards) AS awards
+                               FROM gold_agency_fy{where} GROUP BY it_category ORDER BY obligations DESC""",
     "overview_by_agency": """SELECT awarding_agency_code, MAX(awarding_agency_name) AS awarding_agency_name, SUM(obligations) AS obligations,
                              SUM(awards) AS awards, SUM(recipients) AS recipient_rows FROM gold_agency_fy{where}
                              GROUP BY awarding_agency_code ORDER BY obligations DESC""",
@@ -135,6 +137,12 @@ def agency_fy(s: Snapshot, scope: Scope) -> list[dict]:
 def overview_by_fy(s: Snapshot, scope: Scope) -> list[dict]:
     w, p = _where(scope)
     return s.rows(SQL["overview_by_fy"].format(where=w), p)
+
+
+def overview_by_category(s: Snapshot, scope: Scope) -> list[dict]:
+    """IT services (PSC D*) vs IT equipment and software (PSC 70*) inside the scope."""
+    w, p = _where(scope)
+    return s.rows(SQL["overview_by_category"].format(where=w), p)
 
 
 def overview_by_agency(s: Snapshot, scope: Scope) -> list[dict]:

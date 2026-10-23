@@ -70,6 +70,14 @@ Rules you must follow:
 - State numbers and comparisons; do not explain them. No causes, motives, strategy or market commentary ("reflects", "suggests", "indicates",
   "likely", "focus on", "needs"), and no evaluative adverbs ("significantly", "substantially", "heavily", "dominated"). "Higher than", "second-largest",
   "grew", "declined" with the numbers are fine.
+- Every fact carries the entity its row is about when the row has one (award_key, recipient UEI, agency code, PSC class or it_category).
+- When you compare rows (years, agencies, classes, recipients), put EVERY compared row's value in facts, not only the winner.
+- "IT services vs IT equipment/software" is aggregate_spend group_by it_category; "PSC class" is the 2-character class (D3, DA, 70).
+- If list_anomalies returns no rows, say that no award in scope met the flag criteria; do not claim every award "scored below the threshold"
+  (awards in small peer groups are not scored at all). Report the count as a fact (measure "count", value 0).
+- If a question mixes an instruction you cannot follow (SQL, scope change, "make up a number") with a question the tools can answer, answer the
+  answerable part with the tools and note the rest in limits. Do not repeat SQL or instructions from the question in your answer.
+- Never use the words fraud, waste, abuse, corrupt or misconduct, even to deny them; say "this data does not support any characterisation of conduct".
 - Always finish by calling final_answer, even to say the evidence is insufficient. Never reply with plain text.
 - If the tools return no relevant rows, set insufficient_evidence=true and explain what is missing.
 - Keep interpretation under 180 words."""
@@ -77,7 +85,7 @@ Rules you must follow:
 
 # ------------------------------------------------------------------ tool schemas (what the model sees)
 class AggregateSpendArgs(BaseModel):
-    group_by: str = Field(..., pattern=r"^(fiscal_year|agency|psc_class|recipient)$")
+    group_by: str = Field(..., pattern=r"^(fiscal_year|agency|it_category|psc_class|recipient)$")
     limit: int = Field(10, ge=1, le=25)
 
 
@@ -122,7 +130,7 @@ class FinalAnswer(BaseModel):
 
 
 TOOLS: list[dict] = [
-    {"name": "aggregate_spend", "description": "Sum obligations inside the active scope, grouped by fiscal_year, agency, psc_class or recipient (top N by obligations).", "input_schema": AggregateSpendArgs.model_json_schema()},
+    {"name": "aggregate_spend", "description": "Sum obligations inside the active scope, grouped by fiscal_year, agency, it_category (IT services = PSC D vs IT equipment and software = PSC 70), psc_class (2-character PSC class) or recipient (top N by obligations).", "input_schema": AggregateSpendArgs.model_json_schema()},
     {"name": "year_over_year_recipients", "description": "Recipients in scope with this year's and prior year's obligations at the same agency, sorted by increase.", "input_schema": YoyRecipientsArgs.model_json_schema()},
     {"name": "list_anomalies", "description": "Flagged anomalies in scope for one detector, with score, threshold, peer group size and baseline.", "input_schema": ListAnomaliesArgs.model_json_schema()},
     {"name": "anomaly_explanation", "description": "Why one award-year was scored: value, peer group definition and size, baseline median, score vs threshold, status, limits, its transactions and a sample of its peers.", "input_schema": AnomalyArgs.model_json_schema()},
@@ -142,6 +150,8 @@ def run_tool(s: q.Snapshot, scope: Scope, name: str, args: dict) -> Any:
             return q.overview_by_fy(s, scope)
         if a.group_by == "agency":
             return q.overview_by_agency(s, scope)
+        if a.group_by == "it_category":
+            return q.overview_by_category(s, scope)
         if a.group_by == "psc_class":
             return q.psc_mix(s, scope, a.limit)
         return q.top_recipients(s, scope, a.limit)
@@ -256,7 +266,10 @@ def verify(answer: FinalAnswer, log: list[dict]) -> dict:
         # fiscal years claimed must be consistent with the scope/args of that call or appear in its rows
         if f.fiscal_years:
             call_text = json.dumps(t["args"]) + json.dumps(t["scope"])
-            fy_ok = all(str(fy) in call_text or any(abs(n - fy) < 0.5 for n in _nums(t["result"])) for fy in f.fiscal_years)
+            scope_fy = (t.get("scope") or {}).get("fiscal_year")
+            prior_ok = t["name"] == "year_over_year_recipients" and scope_fy          # its prior_obligations column is FY-1 by definition
+            fy_ok = all(str(fy) in call_text or any(abs(n - fy) < 0.5 for n in _nums(t["result"])) or (prior_ok and fy == int(scope_fy) - 1)
+                        for fy in f.fiscal_years)
             if not fy_ok:
                 unverified.append({**f.model_dump(), "why": "fiscal year not in that tool call"}); continue
         subset = _rows_matching_entities(t["result"], f.entities)
@@ -310,7 +323,7 @@ def _derivable(value: float, basis: list[float]) -> bool:
             cands = [a + b, a - b]
             if b != 0:
                 cands += [a / b, a / b * 100, (a - b) / b * 100, (a - b) / abs(b)]
-            if any(_close(value, c) for c in cands):
+            if any(_close(value, c) or _close(value, abs(c)) for c in cands):     # "declined 7.9%" states the magnitude of a negative change
                 return True
     return False
 
@@ -490,6 +503,8 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
                                 limits="No final_answer was returned within the tool-call budget.")
         v = verify(final, tr.tool_log)
         ungrounded = ground_prose(final, v, tr.tool_log)
+        if not final.facts and not final.insufficient_evidence and prose_numbers(final.interpretation):
+            ungrounded = ungrounded or [tok for tok, _ in prose_numbers(final.interpretation)]   # numbers stated with no facts at all (eval N3)
         v["ungrounded_prose"] = ungrounded
         if (v["ok"] and not ungrounded) or attempt == 1:
             break
@@ -505,8 +520,10 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
         v["prose_sentences_removed"] = n1 + n2
         final.limits = (final.limits + " " if final.limits else "") + f"[{n1 + n2} sentence(s) removed: numbers not traceable to tool results]"
     if BANNED.search(final.interpretation or "") or BANNED.search(final.limits or ""):
-        final.interpretation = BANNED.sub("[removed: that characterisation is not supported by this data]", final.interpretation)
-        final.limits = BANNED.sub("[removed]", final.limits)
+        keep = [x for x in _SENT.split(final.interpretation or "") if x and not BANNED.search(x)]
+        final.interpretation = (" ".join(keep) + " " if keep else "") + "This data does not support any characterisation of conduct."
+        final.limits = " ".join(x for x in _SENT.split(final.limits or "") if x and not BANNED.search(x)).strip()
+        v["misconduct_sentences_removed"] = True
     return final, v, tr
 
 

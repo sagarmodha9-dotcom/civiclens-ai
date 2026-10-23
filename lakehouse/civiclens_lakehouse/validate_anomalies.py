@@ -41,18 +41,20 @@ def _median(a):
 
 
 def recompute_large_award(con) -> dict:
-    rows = con.execute("""SELECT award_key, fiscal_year, awarding_agency_code, psc_class2, obligations
+    """Row grain = gold_award_fy grain (award_key, piid, fiscal_year, awarding_agency_code, recipient_uei): an award whose
+    recipient UEI or PIID changes within a fiscal year legitimately has two award-year rows, and both are scored."""
+    rows = con.execute("""SELECT award_key, piid, fiscal_year, awarding_agency_code, recipient_uei, psc_class2, obligations
                           FROM gold_award_fy WHERE obligations > 0""").fetchall()
     groups: dict[tuple, list] = {}
-    for ak, fy, ag, psc2, obl in rows:
-        groups.setdefault((ag, psc2, fy), []).append((ak, float(obl)))
+    for ak, piid, fy, ag, uei, psc2, obl in rows:
+        groups.setdefault((ag, psc2, fy), []).append(((ak, piid, fy, ag, uei), float(obl)))
     mine: dict[tuple, dict] = {}
     for key, items in groups.items():
         lg = np.log10([v for _, v in items])
         med = _median(lg)
         mad = _median(np.abs(lg - med))
         n = len(items)
-        for (ak, v), l in zip(items, lg):
+        for (rk, v), l in zip(items, lg):
             z = (l - med) / (1.4826 * mad) if mad > 0 else None
             if n < PARAMS["min_peer_n"]:
                 st = "not scored: fewer than %d comparable award-years" % PARAMS["min_peer_n"]
@@ -62,10 +64,16 @@ def recompute_large_award(con) -> dict:
                 st = "flagged"
             else:
                 st = "normal"
-            mine[(ak, key[2])] = {"score": z, "peer_n": n, "status": st, "median": 10 ** med, "mad": mad}
-    theirs = {(r[0], r[1]): {"score": r[2], "peer_n": r[3], "status": r[4]} for r in
-              con.execute("SELECT award_key, fiscal_year, score, peer_n, status FROM anomaly_large_award").fetchall()}
-    return _compare("large_award", mine, theirs)
+            if rk in mine:
+                raise RuntimeError(f"duplicate gold grain {rk}")
+            mine[rk] = {"score": z, "peer_n": n, "status": st, "median": 10 ** med, "mad": mad}
+    trows = con.execute("SELECT award_key, piid, fiscal_year, awarding_agency_code, recipient_uei, score, peer_n, status FROM anomaly_large_award").fetchall()
+    theirs = {(r[0], r[1], r[2], r[3], r[4]): {"score": r[5], "peer_n": r[6], "status": r[7]} for r in trows}
+    out = _compare("large_award", mine, theirs)
+    out["table_rows"] = len(trows)
+    out["award_years_with_two_rows"] = len(trows) - len({(r[0], r[2]) for r in trows})
+    out["pass"] = out["pass"] and len(theirs) == len(trows)
+    return out
 
 
 def recompute_concentration(con) -> dict:
@@ -131,7 +139,7 @@ def _compare(name, mine, theirs) -> dict:
         d = abs(float(a) - float(b)) / max(1.0, abs(float(b)))
         max_score_diff = max(max_score_diff, d)
     ok = not missing and not extra and not status_mismatch and flagged_mine == flagged_theirs and max_score_diff <= TOL
-    return {"detector": name, "rows_pipeline": len(theirs), "rows_recomputed": len(mine), "flagged_pipeline": len(flagged_theirs),
+    return {"detector": name, "rows_pipeline": len(theirs), "rows_recomputed": len(mine), "rows_compared": len(mine.keys() & theirs.keys()), "flagged_pipeline": len(flagged_theirs),
             "flagged_recomputed": len(flagged_mine), "flagged_sets_identical": flagged_mine == flagged_theirs,
             "status_mismatches": len(set(status_mismatch)), "max_relative_score_diff": max_score_diff,
             "rows_only_in_pipeline": len(extra), "rows_only_in_recompute": len(missing), "pass": ok}
@@ -217,7 +225,8 @@ def main() -> int:
         print("numpy is required"); return 2
     con = duckdb.connect(a.snapshot, read_only=True)
     meta = json.loads(con.execute("SELECT meta_json FROM _meta").fetchone()[0])
-    stamp = {"snapshot_version": meta.get("snapshot_version"), "utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+    stamp = {"snapshot_version": meta.get("snapshot_version") or f"unpublished build {meta.get('built_utc', '')} (ingest run {os.environ.get('INGEST_RUN_ID', '?')})",
+             "snapshot_sha256": __import__("hashlib").sha256(open(a.snapshot, "rb").read()).hexdigest()[:16], "utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
              "commit": os.environ.get("GITHUB_SHA", os.environ.get("CIVICLENS_COMMIT", ""))[:12], "github_run_id": os.environ.get("GITHUB_RUN_ID"),
              "params": PARAMS}
     recomputed = [recompute_large_award(con), recompute_concentration(con), recompute_growth(con)]
@@ -237,13 +246,17 @@ def main() -> int:
     (out / "validation.json").write_text(json.dumps({"stamp": stamp, "pass": ok, "recomputation": recomputed, "source_trace": sample}, indent=1, default=str))
 
     md = [f"# Anomaly engine validation — **{'PASS' if ok else 'FAIL'}**", "",
-          f"Snapshot `{stamp['snapshot_version']}` · commit `{stamp['commit'] or 'local'}` · {stamp['utc']}" + (f" · GitHub run `{stamp['github_run_id']}`" if stamp["github_run_id"] else ""), "",
+          f"Snapshot `{stamp['snapshot_version']}` · sha256 `{stamp['snapshot_sha256']}…` · commit `{stamp['commit'] or 'local'}` · {stamp['utc']}" + (f" · GitHub run `{stamp['github_run_id']}`" if stamp["github_run_id"] else ""), "",
           "## 1. Independent re-implementation (Python/NumPy vs the pipeline's SQL)", "",
           "| detector | rows | flagged (pipeline) | flagged (recomputed) | identical flagged set | status mismatches | max rel. score diff | result |", "|---|---|---|---|---|---|---|---|"]
     for r in recomputed:
         md.append(f"| {r['detector']} | {r['rows_pipeline']:,} | {r['flagged_pipeline']} | {r['flagged_recomputed']} | {'yes' if r['flagged_sets_identical'] else 'NO'} | "
                   f"{r['status_mismatches']} | {r['max_relative_score_diff']:.1e} | {'PASS' if r['pass'] else 'FAIL'} |")
-    md += ["", f"Parameters: `{json.dumps(PARAMS)}`. Thresholds were not changed for this run.", "",
+    la = recomputed[0]
+    md += ["", f"Parameters: `{json.dumps(PARAMS)}`. Thresholds were not changed for this run.",
+           f"Row grain for large_award is the Gold award-year grain (award_key, PIID, fiscal year, agency, recipient UEI): {la['table_rows']:,} table rows, "
+           f"of which {la['award_years_with_two_rows']} are award-years that appear twice because the recipient UEI or PIID changed within the year; "
+           f"both rows are scored and both are compared ({la['rows_compared']:,} compared).", "",
            "## 2. Source trace of representative flagged records", "",
            "Each flagged value is traced back through Silver to the deduplicated raw Bronze rows (the USAspending download). "
            "\"Matches\" means equal to the cent. Descriptors are read from the record; none of this is a finding about conduct.", "",

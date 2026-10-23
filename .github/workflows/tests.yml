@@ -53,7 +53,7 @@ jobs:
         run: |
           cd web && npm ci --ignore-scripts >/dev/null
           npm audit --omit=dev --audit-level=high --json > ../npm-audit.json || true
-          python3 -c "import json; d=json.load(open('../npm-audit.json')); m=d['metadata']['vulnerabilities']; print(m); raise SystemExit(1 if (m.get('high',0)+m.get('critical',0)) else 0)"
+          python3 -c "import json; d=json.load(open('../npm-audit.json')); m=d['metadata']['vulnerabilities']; print(m); assert 'total' in m, d; raise SystemExit(1 if (m.get('high',0)+m.get('critical',0)) else 0)"
       - name: Security evidence
         if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |

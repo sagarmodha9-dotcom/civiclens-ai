@@ -39,7 +39,10 @@ NOT unsupported (do not list these):
 - shares, differences, ratios, totals or percentage changes computed from numbers that are in the tool results;
 - comparative or trend words that follow from numbers in the rows ("declined", "dipped", "grew", "higher than", "second-largest");
 - the standard anomaly wording ("statistically unusual relative to a comparison group of N") when a flagged row is present;
-- hedged non-claims ("this does not by itself indicate...") and bracketed server notes ("[removed: ...]", "[n sentence(s) removed ...]").
+- hedged non-claims ("this does not by itself indicate...", "this data does not support any characterisation of conduct") and bracketed server notes;
+- saying the first row of a sorted result is the largest / top / highest ("making it the largest recipient"), or that a flagged award is large relative to its peer group;
+- totals, shares or differences over the listed rows ("of their combined obligations", "$35.6 billion across the five years" when the five yearly rows are present), and
+  order-of-magnitude comparisons of two numbers that are both in the rows.
 UNSUPPORTED (list these): causes, motives, strategy or intent ("reflects the department's focus on...", "escalating needs"),
 statements about the wider market, speculation about what a peer group is "likely" defined by, and any number with no basis in the rows.
 Return ONLY JSON on one line: {"unsupported": ["<verbatim phrase>", ...], "count": N}"""
@@ -75,7 +78,9 @@ def ref_fastest_grower(s, scope):
 
 
 def ref_psc_split(s, scope):
-    return [("obligations", float(r["obligations"]), [r["psc_class2"]]) for r in q.psc_mix(s, scope, 2)]
+    """IT services (PSC D*) vs IT equipment and software (PSC 70*). Until 2026-10-23 this reference returned the top two
+    2-character PSC classes, which is not what the question asks (DECISIONS.md); it now uses the it_category rollup."""
+    return [("obligations", float(r["obligations"]), []) for r in q.overview_by_category(s, scope)]
 
 
 def ref_none(s, scope):

@@ -116,9 +116,11 @@ def test_injection_text_in_data_does_not_change_scope_or_tools(snap, monkeypatch
 
 
 def test_misconduct_language_is_scrubbed_from_output(snap):
-    turns = [[("final_answer", {"facts": [], "interpretation": "This looks like fraud and waste by the vendor.", "citations": [], "limits": "abuse likely"})]]
+    turns = [[("final_answer", {"facts": [], "interpretation": "The award is large for its peer group. This looks like fraud and waste by the vendor.", "citations": [], "limits": "abuse likely. Peer group is small."})]]
     answer, v, tr = ask(snap, Scope("036", 2025), "is it fraud?", client=FakeClient(turns))
-    assert "fraud" not in answer.interpretation.lower() and "removed" in answer.interpretation and "abuse" not in answer.limits.lower()
+    assert not inv.BANNED.search(answer.interpretation) and not inv.BANNED.search(answer.limits)
+    assert answer.interpretation == "The award is large for its peer group. This data does not support any characterisation of conduct."
+    assert answer.limits == "Peer group is small." and v["misconduct_sentences_removed"]
 
 
 def test_ledger_enforces_per_ip_daily_and_budget_limits(tmp_path, monkeypatch):
@@ -268,3 +270,29 @@ def test_identifiers_and_row_numbers_in_prose_are_grounded_but_foreign_numbers_a
     v = verify(ans, log)
     bad = inv.ground_prose(ans, v, log)
     assert bad == ["12,345"]                                                   # '70' is a PSC class in the rows, '10' is the tool's limit; 12,345 is from nowhere
+
+
+def test_it_category_grouping_and_prior_year_facts(snap):
+    scope = Scope("036", 2026)
+    cats = run_tool(snap, scope, "aggregate_spend", {"group_by": "it_category", "limit": 5})
+    assert {r["it_category"] for r in cats} >= {"IT services", "IT equipment and software"}
+    yoy = run_tool(snap, scope, "year_over_year_recipients", {"limit": 5})
+    gamma = next(r for r in yoy if r["recipient_name"] == "GAMMA INC")
+    log = [{"id": "tu_1", "name": "year_over_year_recipients", "args": {"limit": 5}, "scope": scope.__dict__, "result": yoy}]
+    prior = inv.Fact(claim="GAMMA FY2025", value=float(gamma["prior_obligations"]), unit="USD", tool_call_id="tu_1", measure="prior_obligations",
+                     entities=[gamma["recipient_uei"]], fiscal_years=[2025])                     # FY-1 of a FY2026 scope: legitimate
+    assert verify(FinalAnswer(facts=[prior], interpretation="x", citations=[]), log)["ok"]
+    wrong_year = prior.model_copy(update={"fiscal_years": [2023]})
+    assert not verify(FinalAnswer(facts=[wrong_year], interpretation="x", citations=[]), log)["ok"]
+    assert inv._derivable(7.9, [6.73e9, 6.20e9])                                       # magnitude of a 7.9% decline
+
+
+def test_numbers_with_no_facts_at_all_trigger_regeneration(snap):
+    scope = Scope("036", 2025)
+    turns = [
+        [("aggregate_spend", {"group_by": "recipient", "limit": 5})],
+        [("final_answer", {"facts": [], "interpretation": "GIANT CORP received $250.0 million.", "citations": []})],
+        [("final_answer", {"facts": [], "interpretation": "GIANT CORP received $250.0 million.", "citations": []})],
+    ]
+    answer, v, tr = ask(snap, scope, "who got the most?", client=FakeClient(turns))
+    assert tr.regenerated and v["ungrounded_prose"] == ["$250.0 million"] and v["prose_sentences_removed"] == 1
