@@ -1,0 +1,11 @@
+{
+ "stamp": {
+  "github_run_id": "40005517016",
+  "commit": "fe31ee605671",
+  "utc": "2026-10-23T18:42:47+00:00"
+ },
+ "gitleaks_findings": 40,
+ "pip_audit_vulnerable": [],
+ "npm_audit": {},
+ "pass": false
+}
