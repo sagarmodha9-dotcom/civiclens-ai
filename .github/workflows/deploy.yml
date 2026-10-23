@@ -45,8 +45,18 @@ jobs:
       - name: Fly app, volume, secrets (idempotent)
         env: { FLY_API_TOKEN: "${{ secrets.FLY_API_TOKEN }}" }
         run: |
-          flyctl apps list | grep -q "^$FLY_APP" || flyctl apps create "$FLY_APP" --org personal
-          flyctl volumes list -a "$FLY_APP" | grep -q civiclens_ledger || flyctl volumes create civiclens_ledger -a "$FLY_APP" --region "$FLY_REGION" --size 1 --yes
+          # Existence checks use --json: the table output of flyctl 0.4.121 no longer starts lines with the app name, so the old
+          # grep missed our own app and tried to create it again ("Name has already been taken", run 40013076317).
+          if flyctl apps list --json | python3 -c "import json,sys,os; sys.exit(0 if any(a.get('Name')==os.environ['FLY_APP'] or a.get('name')==os.environ['FLY_APP'] for a in json.load(sys.stdin)) else 1)"; then
+            echo "app $FLY_APP exists"
+          else
+            flyctl apps create "$FLY_APP" --org personal
+          fi
+          if flyctl volumes list -a "$FLY_APP" --json | python3 -c "import json,sys; sys.exit(0 if any(v.get('name')=='civiclens_ledger' or v.get('Name')=='civiclens_ledger' for v in json.load(sys.stdin)) else 1)"; then
+            echo "volume civiclens_ledger exists"
+          else
+            flyctl volumes create civiclens_ledger -a "$FLY_APP" --region "$FLY_REGION" --size 1 --yes
+          fi
           # flyctl exits non-zero when a secret is unchanged ("No change detected"); that is not a failure (runs 40011977050, 40012220409)
           out=$(flyctl secrets set -a "$FLY_APP" --stage ANTHROPIC_API_KEY="${{ secrets.ANTHROPIC_API_KEY }}" 2>&1) || { echo "$out" | grep -qi "no change" || { echo "$out"; exit 1; }; }
       - name: Deploy API (image built with the pinned snapshot)
