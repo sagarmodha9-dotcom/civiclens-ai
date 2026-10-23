@@ -1,5 +1,5 @@
 {
- "run_utc": "2026-10-23T13:23:40+00:00",
+ "run_utc": "2026-10-23T13:26:35+00:00",
  "cells": [
   {
    "manifest_version": 1,
@@ -93,7 +93,8 @@
    "rows_total": 235,
    "rows_subawards": 37,
    "download_total_rows_all_files": 272,
-   "count_matches": true
+   "count_matches": true,
+   "skipped": true
   }
  ],
  "failures": [],
