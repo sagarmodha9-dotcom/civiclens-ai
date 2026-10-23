@@ -1,0 +1,61 @@
+name: eval-investigator
+# Real model evaluation of the AI investigator against a snapshot built by an ingest run.
+# 40 cases: numeric correctness vs reference SQL, citation integrity, unsupported-claim judge, refusal behaviour.
+# Results (pass and fail alike) are committed to evidence/eval/. Cost is bounded by the case count (~40 Haiku + 40 Sonnet-judge calls).
+on:
+  workflow_dispatch:
+    inputs:
+      ingest_run_id:
+        description: "ingest-usaspending run id whose snapshot-<id> artifact to evaluate"
+        required: true
+      only:
+        description: "comma list of case ids (blank = all)"
+        default: ""
+permissions:
+  contents: write
+  actions: read
+concurrency: eval
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -e "api[test]" 2>/dev/null || pip install -e "api" pytest
+      - name: Download snapshot from the ingest run
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh run download "${{ inputs.ingest_run_id }}" -n "snapshot-${{ inputs.ingest_run_id }}" -D build
+          ls -la build
+          python - <<'EOF'
+          import duckdb
+          c = duckdb.connect("build/civiclens.duckdb", read_only=True)
+          import json; m = json.loads(c.execute("SELECT meta_json FROM _meta").fetchone()[0])
+          print("snapshot:", m.get("snapshot_version"), "dq:", m.get("dq", {}).get("_all_pass"), "\nanomalies:", json.dumps(m.get("anomaly_summary"), indent=1))
+          EOF
+      - name: API tests against the real snapshot
+        env:
+          CIVICLENS_SNAPSHOT: ${{ github.workspace }}/build/civiclens.duckdb
+        run: cd api && python -m pytest -q tests 2>&1 | tail -5
+      - name: Evaluate
+        id: ev
+        env:
+          CIVICLENS_SNAPSHOT: ${{ github.workspace }}/build/civiclens.duckdb
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python -m civiclens_api.evaluate --out evidence/eval --only "${{ inputs.only }}"
+        working-directory: api
+        continue-on-error: true
+      - name: Commit results
+        if: always()
+        run: |
+          mkdir -p evidence/eval && cp -r api/evidence/eval/. evidence/eval/ 2>/dev/null || true
+          echo "ingest_run_id=${{ inputs.ingest_run_id }} eval_run_id=${{ github.run_id }} outcome=${{ steps.ev.outcome }}" > evidence/eval/run.txt
+          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
+          git add evidence/eval && git commit -m "evidence: investigator evaluation (${{ steps.ev.outcome }}) on snapshot of ingest run ${{ inputs.ingest_run_id }}" || echo "nothing to commit"
+          git status --short | head -20
+          pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
+          test "$pushed" = 1 || { echo "::error::evidence push failed after 3 attempts"; exit 1; }
+      - if: steps.ev.outcome != 'success'
+        run: exit 1
