@@ -76,10 +76,10 @@
     "2023-09-30"
    ],
    "response": {
-    "calculated_transaction_count": 4269,
+    "calculated_transaction_count": 4270,
     "maximum_transaction_limit": 500000,
     "transaction_rows_gt_limit": false,
-    "calculated_count": 4269,
+    "calculated_count": 4270,
     "spending_level": "transactions",
     "maximum_limit": 500000,
     "rows_gt_limit": false,
@@ -98,10 +98,10 @@
     "2024-09-30"
    ],
    "response": {
-    "calculated_transaction_count": 3973,
+    "calculated_transaction_count": 3974,
     "maximum_transaction_limit": 500000,
     "transaction_rows_gt_limit": false,
-    "calculated_count": 3973,
+    "calculated_count": 3974,
     "spending_level": "transactions",
     "maximum_limit": 500000,
     "rows_gt_limit": false,
@@ -142,10 +142,10 @@
     "2026-09-30"
    ],
    "response": {
-    "calculated_transaction_count": 4387,
+    "calculated_transaction_count": 4385,
     "maximum_transaction_limit": 500000,
     "transaction_rows_gt_limit": false,
-    "calculated_count": 4387,
+    "calculated_count": 4385,
     "spending_level": "transactions",
     "maximum_limit": 500000,
     "rows_gt_limit": false,
@@ -362,10 +362,10 @@
     "2026-09-30"
    ],
    "response": {
-    "calculated_transaction_count": 3742,
+    "calculated_transaction_count": 3743,
     "maximum_transaction_limit": 500000,
     "transaction_rows_gt_limit": false,
-    "calculated_count": 3742,
+    "calculated_count": 3743,
     "spending_level": "transactions",
     "maximum_limit": 500000,
     "rows_gt_limit": false,
@@ -472,10 +472,10 @@
     "2026-09-30"
    ],
    "response": {
-    "calculated_transaction_count": 2862,
+    "calculated_transaction_count": 2865,
     "maximum_transaction_limit": 500000,
     "transaction_rows_gt_limit": false,
-    "calculated_count": 2862,
+    "calculated_count": 2865,
     "spending_level": "transactions",
     "maximum_limit": 500000,
     "rows_gt_limit": false,
@@ -707,6 +707,6 @@
    }
   }
  },
- "summary": "30 cells, 109,891 transactions in scope (per API count)",
+ "summary": "30 cells, 109,895 transactions in scope (per API count)",
  "status": "ok"
 }
