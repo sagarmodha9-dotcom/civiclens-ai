@@ -1,21 +1,33 @@
 {
  "stamp": {
-  "github_run_id": "40013076317",
-  "commit": "c4be8941ae9f",
-  "utc": "2026-10-23T19:39:15+00:00"
+  "github_run_id": "40013550875",
+  "commit": "7690ec115aaa",
+  "utc": "2026-10-23T19:47:45+00:00"
  },
  "snapshot_version": "v20261023-1",
- "api_url": "",
- "site_url": "",
- "api_smoke": "skipped",
- "web_deploy": "skipped",
- "e2e": "skipped",
+ "api_url": "https://civiclens-api.fly.dev",
+ "site_url": "https://civiclens-ai-smoky.vercel.app",
+ "api_smoke": "success",
+ "web_deploy": "success",
+ "e2e": "failure",
  "e2e_results": {
-  "error": "[Errno 2] No such file or directory: 'e2e-results.json'"
+  "expected": 13,
+  "unexpected": 4,
+  "skipped": 1,
+  "duration_ms": 54644.175
  },
  "pass": false,
- "api_access_checks": {},
- "api_access_outcome": "skipped",
+ "api_access_checks": {
+  "cors_rejects_unknown_origin": true,
+  "cors_allows_site": true,
+  "investigate_validates_input_422": true,
+  "unknown_agency_rejected_422": true,
+  "no_write_methods_405": true,
+  "published_sql_readable": true,
+  "security_headers": true,
+  "rate_limits_advertised": true
+ },
+ "api_access_outcome": "success",
  "demo": "skipped",
  "demo_video": null,
  "screenshots": [],
