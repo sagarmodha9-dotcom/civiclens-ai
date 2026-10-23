@@ -1,0 +1,56 @@
+{
+ "stamp": {
+  "github_run_id": "39996200492",
+  "commit": "c4b7b8ebfd42",
+  "utc": "2026-10-23T17:43:14+00:00",
+  "catalog": "workspace",
+  "ingest_run_id": "39995114903"
+ },
+ "job_id": 862977884764769,
+ "run_id": 438986202905306,
+ "run_page_url": "https://dbc-b531337f-7f65.cloud.databricks.com/?o=7474654994685709#job/862977884764769/run/438986202905306",
+ "state": {
+  "life_cycle_state": "INTERNAL_ERROR",
+  "result_state": "FAILED",
+  "state_message": "Task silver_gold_anomalies failed with message: Workload failed, see run output for details. This caused all downstream tasks to get skipped.",
+  "user_cancelled_or_timedout": false
+ },
+ "tasks": [
+  {
+   "task_key": "bronze",
+   "state": {
+    "life_cycle_state": "TERMINATED",
+    "result_state": "SUCCESS",
+    "state_message": "",
+    "user_cancelled_or_timedout": false
+   },
+   "notebook_output": {},
+   "error": null
+  },
+  {
+   "task_key": "silver_gold_anomalies",
+   "state": {
+    "life_cycle_state": "TERMINATED",
+    "result_state": "FAILED",
+    "state_message": "Workload failed, see run output for details",
+    "user_cancelled_or_timedout": false
+   },
+   "notebook_output": {},
+   "error": "OSError: [Errno 5] Input/output error: '/Workspace/Users/sagarmodha9@gmail.com/civiclens-ai/lakehouse/civiclens_lakehouse/pipeline.py'\n[Trace ID: 00-0c5a363a4cbe81b8ab2c0ec1c9bb1b3d-a22908abc9924f6c-00]"
+  },
+  {
+   "task_key": "silver_gold_anomalies",
+   "state": {
+    "life_cycle_state": "TERMINATED",
+    "result_state": "FAILED",
+    "state_message": "Workload failed, see run output for details",
+    "user_cancelled_or_timedout": false
+   },
+   "notebook_output": {},
+   "error": "[DATATYPE_MISSING_SIZE] DataType \"VARCHAR\" requires a length parameter, for example \"VARCHAR\"(10). Please specify the length. SQLSTATE: 42K01"
+  }
+ ],
+ "databricks_dq": {},
+ "vs_duckdb": {},
+ "pass": false
+}
