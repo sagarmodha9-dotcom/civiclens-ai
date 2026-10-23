@@ -62,6 +62,15 @@ Rules you must follow:
 - Do not describe scores with statistics the tools did not return (no "standard deviations", "percentiles", "sigma"). A large_award score is
   a robust z-score on log10 obligations against the peer group's median and MAD; say "score X against threshold Y, peer group of N".
 - "Most awards" means the awards count; "most obligations" means dollars. Answer the measure the question asks for and name it.
+- list_anomalies returns rows sorted by score, highest first: "the top / highest-scoring anomaly" is its first row. Use anomaly_explanation on
+  that award for peer group, baseline and limits.
+- For anomaly facts (value, score, threshold, peer_n, baseline_median) put the award_key in `entities` so each number stays tied to the award it describes.
+- A count of rows ("no flagged anomalies", "6 recipients flagged") is a fact too: measure "count", value = the number of rows the tool returned.
+- A difference, total or share you compute from tool numbers must be its own fact with a measure naming the arithmetic ("increase", "total", "share").
+- State numbers and comparisons; do not explain them. No causes, motives, strategy or market commentary ("reflects", "suggests", "indicates",
+  "likely", "focus on", "needs"), and no evaluative adverbs ("significantly", "substantially", "heavily", "dominated"). "Higher than", "second-largest",
+  "grew", "declined" with the numbers are fine.
+- Always finish by calling final_answer, even to say the evidence is insufficient. Never reply with plain text.
 - If the tools return no relevant rows, set insufficient_evidence=true and explain what is missing.
 - Keep interpretation under 180 words."""
 
@@ -201,13 +210,45 @@ def _rows_matching_entities(result: Any, entities: list[str]) -> Any:
     return keep
 
 
+def _column_sums(rows: Any) -> list[float]:
+    """Totals of each numeric column over a list of rows (the one aggregate the model may state about a result set)."""
+    if not isinstance(rows, list) or not rows or not all(isinstance(r, dict) for r in rows):
+        return []
+    sums: dict[str, float] = {}
+    for r in rows:
+        for k, val in r.items():
+            n = _nums(val)
+            if len(n) == 1 and not isinstance(val, str):
+                sums[k] = sums.get(k, 0.0) + n[0]
+    return list(sums.values())
+
+
+_COUNT_MEASURES = ("count", "anomal", "flagged", "rows", "results", "matches", "number", "n_")
+
+
+def _is_count_fact(f, subset: Any) -> bool:
+    """value == number of rows the tool returned (for the fact's entities), and the measure is a count, not a column."""
+    if not isinstance(f.value, (int, float)) or float(f.value) != int(f.value) or not isinstance(subset, list):
+        return False
+    m = (f.measure or "").lower()
+    if subset and isinstance(subset[0], dict) and m in {k.lower() for k in subset[0]}:
+        return False
+    return int(f.value) == len(subset) and (any(k in m for k in _COUNT_MEASURES) or "number of" in (f.claim or "").lower() or "no " in (f.claim or "").lower()[:40])
+
+
 def verify(answer: FinalAnswer, log: list[dict]) -> dict:
-    """Returns {verified_facts, unverified_facts, bad_citations, ok}."""
+    """Returns {verified_facts, unverified_facts, bad_citations, ok}.
+
+    A numeric fact verifies when its value appears in the rows of the cited tool call that mention its entities. Two
+    server-computable exceptions: a count fact whose value is the number of rows that call returned, and a derived fact
+    (share, ratio, change, difference, total; declared as such by measure or unit) that equals simple arithmetic over
+    the numbers in those matching rows, the column totals of that call, or other verified fact values. Derived facts
+    are checked in a second pass so order in the facts list does not matter."""
     by_id = {t["id"]: t for t in log}
     all_strings: set[str] = set()
     for t in log:
         _strings_in(t["result"], all_strings)
-    verified, unverified = [], []
+    verified, unverified, deferred = [], [], []
     for f in answer.facts:
         t = by_id.get(f.tool_call_id)
         if not t:
@@ -223,15 +264,21 @@ def verify(answer: FinalAnswer, log: list[dict]) -> dict:
             unverified.append({**f.model_dump(), "why": "entities not found in that tool call's rows"}); continue
         if isinstance(f.value, (int, float)):
             nums = _nums(subset)
-            if not any(abs(n - float(f.value)) <= max(0.005 * abs(float(f.value)), 0.5) for n in nums):
-                if _is_derived_measure(f) and _derivable(float(f.value), [float(x["value"]) for x in verified if isinstance(x["value"], (int, float))]):
-                    verified.append({**f.model_dump(), "derived": True}); continue
-                unverified.append({**f.model_dump(), "why": "number not in that tool call's matching rows (and not a share/ratio of verified facts)"}); continue
-        else:
-            strs: set[str] = set(); _strings_in(subset, strs)
-            if not any(str(f.value).strip().lower() == s.strip().lower() for s in strs):
-                unverified.append({**f.model_dump(), "why": "string value not in that tool call's matching rows"}); continue
+            if any(abs(n - float(f.value)) <= max(0.005 * abs(float(f.value)), 0.5) for n in nums):
+                verified.append(f.model_dump()); continue
+            if _is_count_fact(f, subset):
+                verified.append({**f.model_dump(), "count": True}); continue
+            deferred.append((f, t, subset)); continue
+        strs: set[str] = set(); _strings_in(subset, strs)
+        if not any(str(f.value).strip().lower() == s.strip().lower() for s in strs):
+            unverified.append({**f.model_dump(), "why": "string value not in that tool call's matching rows"}); continue
         verified.append(f.model_dump())
+    fact_vals = [float(x["value"]) for x in verified if isinstance(x["value"], (int, float))]
+    for f, t, subset in deferred:
+        basis = fact_vals + _nums(subset) + _column_sums(t["result"] if isinstance(t["result"], list) else [])
+        if _is_derived_measure(f) and _derivable(float(f.value), basis):
+            verified.append({**f.model_dump(), "derived": True}); continue
+        unverified.append({**f.model_dump(), "why": "number not in that tool call's matching rows (and not a declared share/ratio/change/total of them)"})
     bad_cites = [c for c in answer.citations if c not in all_strings]
     return {"verified_facts": verified, "unverified_facts": unverified, "bad_citations": bad_cites,
             "ok": not unverified and not bad_cites}
@@ -243,7 +290,8 @@ def _nums(obj: Any) -> list[float]:
 
 def _is_derived_measure(f) -> bool:
     u, m = (f.unit or "").lower(), (f.measure or "").lower()
-    return u in ("percent", "%", "pct", "ratio", "x", "times") or any(k in m for k in ("share", "ratio", "pct", "percent", "change", "growth"))
+    return u in ("percent", "%", "pct", "ratio", "x", "times") or any(k in m for k in (
+        "share", "ratio", "pct", "percent", "change", "growth", "increase", "decrease", "delta", "difference", "diff", "total", "sum", "combined"))
 
 
 def _close(a: float, b: float, rel: float = 0.01, absolute: float = 0.05) -> bool:
@@ -251,15 +299,19 @@ def _close(a: float, b: float, rel: float = 0.01, absolute: float = 0.05) -> boo
 
 
 def _derivable(value: float, basis: list[float]) -> bool:
-    """A share, ratio or percentage change computable from two already-verified fact values (the only arithmetic the
-    investigator may do on its own)."""
+    """A share, ratio, percentage change, pairwise sum/difference, or the total of all verified fact values: the only
+    arithmetic the investigator may do on its own."""
+    if basis and _close(value, sum(basis)):
+        return True
     for a in basis:
         for b in basis:
-            if b == 0 or a == b:
+            if a == b:
                 continue
-            for cand in (a / b, a / b * 100, (a - b) / b * 100, (a - b) / abs(b)):
-                if _close(value, cand):
-                    return True
+            cands = [a + b, a - b]
+            if b != 0:
+                cands += [a / b, a / b * 100, (a - b) / b * 100, (a - b) / abs(b)]
+            if any(_close(value, c) for c in cands):
+                return True
     return False
 
 
@@ -283,16 +335,31 @@ def prose_numbers(text: str) -> list[tuple[str, float]]:
     return out
 
 
+_EMBEDDED_INT = re.compile(r"(?<![\w.])\d{1,4}(?![\w.])")
+
+
+def _embedded_ints(obj: Any, out: list[float]) -> None:
+    """Short integers inside strings the model saw ("PSC class 70", "D3", "fewer than 30 comparable award-years")."""
+    if isinstance(obj, dict):
+        for val in obj.values():
+            _embedded_ints(val, out)
+    elif isinstance(obj, (list, tuple)):
+        for val in obj:
+            _embedded_ints(val, out)
+    elif isinstance(obj, str):
+        out.extend(float(m.group(0)) for m in _EMBEDDED_INT.finditer(obj))
+
+
 def ground_prose(answer: FinalAnswer, v: dict, log: list[dict]) -> list[str]:
-    """Every number in interpretation/limits must match a verified fact value (rounded prose allowed, 0.5%), a
-    share/ratio of two verified facts, or a number in the rows of a tool call the facts cite. Returns the offending
-    tokens (empty when fully grounded)."""
+    """Every number in interpretation/limits must be traceable to the tool results: a verified fact value (rounded prose
+    allowed, 0.6%), a number in any tool result or tool argument the model saw (including integers embedded in text such
+    as a PSC class), a column total of one tool call, or a share/ratio/difference of two verified facts. Statistical
+    vocabulary no tool returns is always ungrounded. Returns the offending tokens (empty when fully grounded)."""
     fact_vals = [float(f["value"]) for f in v["verified_facts"] if isinstance(f["value"], (int, float))]
-    cited = {f["tool_call_id"] for f in v["verified_facts"]}
     row_nums: list[float] = []
     for t in log:
-        if t["id"] in cited:
-            _numbers_in(t["result"], row_nums)
+        _numbers_in(t["result"], row_nums); _embedded_ints(t["result"], row_nums); _numbers_in(t.get("args"), row_nums)
+        row_nums += _column_sums(t["result"] if isinstance(t["result"], list) else [])
     bad = [m.group(0) for m in _STATS_PHRASES.finditer((answer.interpretation or "") + " " + (answer.limits or ""))]
     for tok, val in prose_numbers((answer.interpretation or "") + " " + (answer.limits or "")):
         ok = any(_close(val, f, 0.006, 0.5) for f in fact_vals) or any(_close(val, n, 0.006, 0.5) for n in row_nums) \
@@ -380,6 +447,7 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
     messages = [{"role": "user", "content": f"Active dashboard scope (JSON): {scope_txt}\n\nQuestion: {question[:600]}"}]
     tr = Trace()
     final: FinalAnswer | None = None
+    nudged = False
     for attempt in range(2):
         calls = 0
         while calls <= MAX_TOOL_CALLS:
@@ -391,6 +459,10 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
             tool_uses = [b for b in resp.content if getattr(b, "type", "") == "tool_use"]
             messages.append({"role": "assistant", "content": [b.model_dump() if hasattr(b, "model_dump") else b for b in resp.content]})
             if not tool_uses:
+                if not nudged:        # plain-text reply (eval E1/E5): ask once for the structured answer, then give up
+                    nudged = True
+                    messages.append({"role": "user", "content": "Reply only by calling final_answer (set insufficient_evidence=true if the question cannot be answered from the tools)."})
+                    continue
                 break
             results = []
             for tu in tool_uses:

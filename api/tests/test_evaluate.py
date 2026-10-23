@@ -47,3 +47,14 @@ def test_judge_parses_json_inside_prose_and_retries_once():
 
 def test_c3_reference_measures_awards_not_dollars():
     assert ev.CASES[[c["id"] for c in ev.CASES].index("C3")]["ref"] is ev.ref_top_agency_by_awards
+
+
+def test_pass_is_two_tier_and_unverified_facts_fail_verification():
+    v_ok = {"verified_facts": [_answer("1").facts[0].model_dump()], "unverified_facts": [], "bad_citations": [], "ungrounded_prose": []}
+    sc = ev.score_case({"id": "t"}, _answer("1"), v_ok, Trace(), [], {"count": 2, "unsupported": ["reflects strategy", "market leader"]})
+    assert sc["verified_pass"] is True and sc["pass"] is False           # judge flags lower the strict tier only
+    v_bad = {**v_ok, "unverified_facts": [{"claim": "x"}]}
+    sc = ev.score_case({"id": "t"}, _answer("1"), v_bad, Trace(), [], {"count": 0, "unsupported": []})
+    assert sc["verified_pass"] is False and sc["pass"] is False          # an unverified fact fails both tiers
+    v_prose = {**v_ok, "ungrounded_prose": ["60%"]}
+    assert ev.score_case({"id": "t"}, _answer("1"), v_prose, Trace(), [], {"count": 0, "unsupported": []})["verified_pass"] is False

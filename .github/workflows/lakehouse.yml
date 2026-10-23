@@ -99,21 +99,33 @@ jobs:
               r = requests.put(f"{host}/api/2.0/fs/files{whl_volume}?overwrite=true", headers={**H, "Content-Type": "application/octet-stream"}, data=fh, timeout=300)
           r.raise_for_status(); print("wheel on volume:", whl_volume)
           spec = json.loads(open("lakehouse/databricks/job.json").read().replace("${REPO_PATH}", repo_path).replace("${CATALOG}", os.environ["CATALOG"]).replace("${WHEEL}", whl_volume))
-          jobs = requests.get(f"{host}/api/2.1/jobs/list", headers=H, params={"name": spec["name"]}, timeout=60).json().get("jobs", [])
-          if jobs:
-              job_id = jobs[0]["job_id"]; requests.post(f"{host}/api/2.1/jobs/reset", headers=H, json={"job_id": job_id, "new_settings": spec}, timeout=60).raise_for_status()
-          else:
-              job_id = requests.post(f"{host}/api/2.1/jobs/create", headers=H, json=spec, timeout=60).json()["job_id"]
-          run_id = requests.post(f"{host}/api/2.1/jobs/run-now", headers=H, json={"job_id": job_id}, timeout=60).json()["run_id"]
-          print("job", job_id, "run", run_id)
-          while True:
-              r = requests.get(f"{host}/api/2.1/jobs/runs/get", headers=H, params={"run_id": run_id}, timeout=60).json()
-              st = r["state"]; print(st.get("life_cycle_state"), st.get("result_state", ""), flush=True)
-              if st["life_cycle_state"] in ("TERMINATED", "SKIPPED", "INTERNAL_ERROR"): break
-              time.sleep(30)
+          def upsert_and_run(spec):
+              jobs = requests.get(f"{host}/api/2.1/jobs/list", headers=H, params={"name": spec["name"]}, timeout=60).json().get("jobs", [])
+              if jobs:
+                  job_id = jobs[0]["job_id"]; requests.post(f"{host}/api/2.1/jobs/reset", headers=H, json={"job_id": job_id, "new_settings": spec}, timeout=60).raise_for_status()
+              else:
+                  job_id = requests.post(f"{host}/api/2.1/jobs/create", headers=H, json=spec, timeout=60).json()["job_id"]
+              run_id = requests.post(f"{host}/api/2.1/jobs/run-now", headers=H, json={"job_id": job_id}, timeout=60).json()["run_id"]
+              print("job", job_id, "run", run_id, "environment client", spec["environments"][0]["spec"]["client"])
+              while True:
+                  r = requests.get(f"{host}/api/2.1/jobs/runs/get", headers=H, params={"run_id": run_id}, timeout=60).json()
+                  st = r["state"]; print(st.get("life_cycle_state"), st.get("result_state", ""), flush=True)
+                  if st["life_cycle_state"] in ("TERMINATED", "SKIPPED", "INTERNAL_ERROR"): break
+                  time.sleep(30)
+              return job_id, run_id, r, st
+          # Serverless environment versions differ by workspace (run 40000440021: "Workspace doesn't support Client-1 channel").
+          # Try the documented versions in order and record the one this workspace accepts.
+          env_used = None
+          for client_ver in ("3", "2", "4", "1"):
+              spec["environments"][0]["spec"]["client"] = client_ver
+              job_id, run_id, r, st = upsert_and_run(spec)
+              msg = (st.get("state_message") or "") + json.dumps(r.get("tasks", []), default=str)
+              if "platform channel" in msg or "Client-" in msg and "channel" in msg:
+                  print(f"environment client {client_ver} rejected by workspace; trying next"); continue
+              env_used = client_ver; break
           out = {"stamp": {"github_run_id": os.environ.get("GITHUB_RUN_ID"), "commit": os.environ.get("GITHUB_SHA","")[:12],
                            "utc": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(timespec="seconds"),
-                           "catalog": os.environ["CATALOG"], "ingest_run_id": "${{ inputs.raw_artifact_run_id }}"},
+                           "catalog": os.environ["CATALOG"], "ingest_run_id": "${{ inputs.raw_artifact_run_id }}", "serverless_environment_client": env_used},
                  "job_id": job_id, "run_id": run_id, "run_page_url": r.get("run_page_url"), "state": st, "tasks": []}
           for t in r.get("tasks", []):
               o = requests.get(f"{host}/api/2.1/jobs/runs/get-output", headers=H, params={"run_id": t["run_id"]}, timeout=60).json()
@@ -147,7 +159,7 @@ jobs:
           json.dump(out, open("evidence/pipeline/databricks_run.json", "w"), indent=1)
           md = [f"# Databricks lakehouse run — **{'PASS' if ok else 'FAIL'}**", "",
                 f"GitHub run `{out['stamp']['github_run_id']}` · commit `{out['stamp']['commit']}` · {out['stamp']['utc']} · catalog `{out['stamp']['catalog']}` · "
-                f"ingest run `{out['stamp']['ingest_run_id']}` · Databricks job {job_id} run {run_id} · state {st.get('result_state')} · [run page]({r.get('run_page_url')})", "",
+                f"ingest run `{out['stamp']['ingest_run_id']}` · Databricks job {job_id} run {run_id} · serverless environment client `{env_used}` · wheel `{whl_volume}` · state {st.get('result_state')} · [run page]({r.get('run_page_url')})", "",
                 "Tables: `{c}.bronze.prime_transactions`, `{c}.silver.contract_transactions`, `{c}.silver.rejects`, `{c}.gold.award_fy|agency_fy|recipient_agency_fy|psc_fy`, "
                 "`{c}.gold.anomaly_large_award|anomaly_concentration|anomaly_recipient_growth` (Delta, Unity Catalog).".format(c=out['stamp']['catalog']), "",
                 "| metric | Databricks (Spark, Delta) | DuckDB build of the same raw data | match |", "|---|---|---|---|"]

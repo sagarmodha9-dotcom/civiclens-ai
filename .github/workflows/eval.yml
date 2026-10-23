@@ -11,6 +11,9 @@ on:
       only:
         description: "comma list of case ids (blank = all)"
         default: ""
+      set:
+        description: "regression (40 cases, used while fixing) or holdout (independent set, never tuned on; reported separately)"
+        default: "regression"
 permissions:
   contents: write
   actions: read
@@ -44,16 +47,19 @@ jobs:
         env:
           CIVICLENS_SNAPSHOT: ${{ github.workspace }}/build/civiclens.duckdb
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python -m civiclens_api.evaluate --out evidence/eval --only "${{ inputs.only }}"
+        run: |
+          sub=""; [ "${{ inputs.set }}" = "holdout" ] && sub="/holdout"
+          python -m civiclens_api.evaluate --set "${{ inputs.set }}" --out "evidence/eval$sub" --only "${{ inputs.only }}"
         working-directory: api
         continue-on-error: true
       - name: Commit results
         if: always()
         run: |
-          mkdir -p evidence/eval && cp -r api/evidence/eval/. evidence/eval/ 2>/dev/null || true
-          echo "ingest_run_id=${{ inputs.ingest_run_id }} eval_run_id=${{ github.run_id }} outcome=${{ steps.ev.outcome }}" > evidence/eval/run.txt
+          sub=""; [ "${{ inputs.set }}" = "holdout" ] && sub="/holdout"
+          mkdir -p "evidence/eval$sub" && cp -r api/evidence/eval/. evidence/eval/ 2>/dev/null || true
+          echo "ingest_run_id=${{ inputs.ingest_run_id }} eval_run_id=${{ github.run_id }} set=${{ inputs.set }} outcome=${{ steps.ev.outcome }}" > "evidence/eval$sub/run.txt"
           git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/eval && git commit -m "evidence: investigator evaluation (${{ steps.ev.outcome }}) on snapshot of ingest run ${{ inputs.ingest_run_id }}" || echo "nothing to commit"
+          git add evidence/eval && git commit -m "evidence: investigator evaluation [${{ inputs.set }}] (${{ steps.ev.outcome }}) on snapshot of ingest run ${{ inputs.ingest_run_id }}" || echo "nothing to commit"
           git status --short | head -20
           pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
           test "$pushed" = 1 || { echo "::error::evidence push failed after 3 attempts"; exit 1; }

@@ -10,3 +10,6 @@ node_modules/
 .databricks/
 *.zip
 !evidence/**
+build/
+dist/
+*.egg-info/

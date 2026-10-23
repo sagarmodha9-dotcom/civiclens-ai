@@ -207,3 +207,64 @@ def test_budget_is_per_request_context_not_cumulative(snap, monkeypatch):
             [[("final_answer", {"facts": [], "interpretation": "done after six calls", "citations": [], "insufficient_evidence": True})]]
     answer, v, tr = ask(snap, scope, "dig deep", client=FakeClient(turns))
     assert len(tr.tool_log) == 6 and answer.interpretation == "done after six calls"
+
+
+def test_plain_text_reply_is_nudged_once_into_final_answer(snap):
+    """Eval E1/E5: the model answered in prose with no tool call; the loop ended with no structured answer."""
+    scope = Scope("028", 2023)
+    turns = [[], [("final_answer", {"facts": [], "interpretation": "Headcount is not in this data.", "citations": [], "insufficient_evidence": True})]]
+    client = FakeClient(turns)
+    answer, v, tr = ask(snap, scope, "How many employees does the top vendor have?", client=client)
+    assert answer.insufficient_evidence and answer.interpretation == "Headcount is not in this data."
+    assert "Reply only by calling final_answer" in json.dumps(client.last_kwargs["messages"])
+
+
+def test_totals_of_verified_facts_count_as_derived():
+    assert inv._derivable(100.0, [40.0, 60.0]) and inv._derivable(35.63e9, [6.7e9, 6.2e9, 7.0e9, 7.14e9, 8.59e9])
+    assert not inv._derivable(99.0, [40.0, 50.0])
+
+
+def test_count_facts_verify_against_row_count_only(snap):
+    scope = Scope("020", 2024)                                                 # synthetic tree has no Treasury rows -> empty result
+    rows = run_tool(snap, scope, "list_anomalies", {"detector": "large_award", "limit": 10})
+    assert rows == []
+    log = [{"id": "tu_1", "name": "list_anomalies", "args": {"detector": "large_award", "limit": 10}, "scope": scope.__dict__, "result": rows}]
+    none = FinalAnswer(facts=[inv.Fact(claim="No flagged large-award anomalies in scope", value=0, unit="", tool_call_id="tu_1", measure="count")],
+                       interpretation="The detector flagged no awards in this scope.", citations=[], insufficient_evidence=True)
+    v = verify(none, log)
+    assert v["ok"] and v["verified_facts"][0].get("count") is True
+    wrong = none.model_copy(update={"facts": [none.facts[0].model_copy(update={"value": 3})]})
+    assert not verify(wrong, log)["ok"]                                        # a count that is not the row count is rejected
+    scope2 = Scope("036", 2025)
+    rows2 = run_tool(snap, scope2, "aggregate_spend", {"group_by": "recipient", "limit": 5})
+    log2 = [{"id": "tu_2", "name": "aggregate_spend", "args": {"group_by": "recipient", "limit": 5}, "scope": scope2.__dict__, "result": rows2}]
+    not_a_count = FinalAnswer(facts=[inv.Fact(claim="awards", value=len(rows2), unit="", tool_call_id="tu_2", measure="awards")], interpretation="x", citations=[])
+    assert not verify(not_a_count, log2)["ok"]                                  # 'awards' is a column: its value must come from a row, not the row count
+
+
+def test_difference_and_total_declared_as_facts_verify_from_matching_rows(snap):
+    scope = Scope("036", 2026)
+    rows = run_tool(snap, scope, "year_over_year_recipients", {"limit": 5})
+    gamma = next(r for r in rows if r["recipient_name"] == "GAMMA INC")
+    cur, prior = float(gamma["obligations"]), float(gamma["prior_obligations"])
+    log = [{"id": "tu_1", "name": "year_over_year_recipients", "args": {"limit": 5}, "scope": scope.__dict__, "result": rows}]
+    ans = FinalAnswer(facts=[
+        inv.Fact(claim="GAMMA increase", value=cur - prior, unit="USD", tool_call_id="tu_1", measure="obligations_increase", entities=[gamma["recipient_uei"]]),
+        inv.Fact(claim="GAMMA FY2026", value=cur, unit="USD", tool_call_id="tu_1", measure="obligations", entities=[gamma["recipient_uei"]]),
+        inv.Fact(claim="all listed recipients combined", value=sum(float(r["obligations"]) for r in rows), unit="USD", tool_call_id="tu_1", measure="total_obligations")],
+        interpretation=f"GAMMA INC rose by ${(cur-prior)/1e6:.1f} million to ${cur/1e6:.1f} million.", citations=[])
+    v = verify(ans, log)
+    assert v["ok"] and any(f.get("derived") for f in v["verified_facts"] if f["measure"] == "obligations_increase")   # listed before its components
+    assert inv.ground_prose(ans, v, log) == []
+    bad = ans.model_copy(update={"facts": [ans.facts[0].model_copy(update={"value": cur - prior + 1_000_000})] + ans.facts[1:]})
+    assert not verify(bad, log)["ok"]
+
+
+def test_identifiers_and_row_numbers_in_prose_are_grounded_but_foreign_numbers_are_not(snap):
+    scope = Scope("036", 2026)
+    rows = run_tool(snap, scope, "aggregate_spend", {"group_by": "psc_class", "limit": 10})
+    log = [{"id": "tu_1", "name": "aggregate_spend", "args": {"group_by": "psc_class", "limit": 10}, "scope": scope.__dict__, "result": rows}]
+    ans = FinalAnswer(facts=[], interpretation="PSC class 70 (IT equipment) is one of the classes listed among the top 10. There were 12,345 widgets.", citations=[])
+    v = verify(ans, log)
+    bad = inv.ground_prose(ans, v, log)
+    assert bad == ["12,345"]                                                   # '70' is a PSC class in the rows, '10' is the tool's limit; 12,345 is from nowhere
