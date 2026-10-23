@@ -1,18 +1,85 @@
 {
  "stamp": {
-  "run_id": "39982507928",
-  "commit": "be3c52636d5d",
-  "utc": "2026-10-23T15:56:15+00:00",
-  "host": "https://dbc-b531337f-7f65.cloud.databricks.com/settings/user/developer/access-tokens?o=7474654994685709"
+  "run_id": "39995111579",
+  "commit": "7e92b3957701",
+  "utc": "2026-10-23T17:26:52+00:00",
+  "host": "https://dbc-b531337f-7f65.cloud.databricks.com",
+  "job_run_page_url": "https://dbc-b531337f-7f65.cloud.databricks.com/?o=7474654994685709#job/782112135411924/run/1106591618996542"
  },
- "catalog": null,
+ "catalog": "workspace",
  "steps": [
   {
-   "step": "script crashed",
-   "pass": false,
-   "http": null,
-   "note": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+   "step": "identity",
+   "pass": true,
+   "http": 200,
+   "note": "sagarmodha9@gmail.com"
+  },
+  {
+   "step": "catalogs",
+   "pass": true,
+   "http": 200,
+   "note": "catalogs=['workspace', 'samples', 'system']; chosen=workspace"
+  },
+  {
+   "step": "schema workspace.bronze",
+   "pass": true,
+   "http": 200,
+   "note": "created"
+  },
+  {
+   "step": "schema workspace.silver",
+   "pass": true,
+   "http": 200,
+   "note": "created"
+  },
+  {
+   "step": "schema workspace.gold",
+   "pass": true,
+   "http": 200,
+   "note": "created"
+  },
+  {
+   "step": "volume workspace.bronze.raw",
+   "pass": true,
+   "http": 200,
+   "note": "s3://dbstorage-prod-39ifewllok/uc/1393fe35-48d3-4c51-bced-acda1e2fc702/aebdc954-fade-4f36-95c4-8a7470eda8ba/__unitystorage/catalogs/1c662f1f-c096-4e76-8076-7267c5e68e2d/volumes/277c7e13-9c31-4569-8e9d-747ac6625ffc"
+  },
+  {
+   "step": "files PUT",
+   "pass": true,
+   "http": 204,
+   "note": ""
+  },
+  {
+   "step": "files GET round-trip",
+   "pass": true,
+   "http": 200,
+   "note": "content matches"
+  },
+  {
+   "step": "files DELETE",
+   "pass": true,
+   "http": 204,
+   "note": ""
+  },
+  {
+   "step": "jobs list",
+   "pass": true,
+   "http": 200,
+   "note": "0 job(s) visible"
+  },
+  {
+   "step": "notebook import",
+   "pass": true,
+   "http": 200,
+   "note": "/Users/sagarmodha9@gmail.com/civiclens-ai/_preflight"
+  },
+  {
+   "step": "job execution (serverless notebook, Delta table write+count)",
+   "pass": true,
+   "http": 200,
+   "note": "state=SUCCESS output=run_id=39995111579 rows=1 user=sagarmodha9@gmail.com url=https://dbc-b531337f-7f65.cloud.databricks.com/?o=7474654994685709#job/782112135411924/run/1106591618996542"
   }
  ],
- "pass": false
+ "pass": true
 }
