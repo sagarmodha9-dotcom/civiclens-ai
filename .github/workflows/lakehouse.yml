@@ -95,4 +95,5 @@ jobs:
         if: always()
         run: |
           git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/pipeline && git commit -m "evidence: databricks pipeline run" && git push || echo "nothing to commit"
+          git add evidence/pipeline && git commit -m "evidence: databricks pipeline run" || echo "nothing to commit"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push && break || sleep 10; done

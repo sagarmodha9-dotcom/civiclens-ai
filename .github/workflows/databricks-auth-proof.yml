@@ -42,5 +42,6 @@ jobs:
           jobs=$(curl -sS -o /dev/null -w '%{http_code}' -H "$H" "$DATABRICKS_HOST/api/2.1/jobs/list?limit=1"); echo "| Jobs API list | $jobs | |" >> $out
           cat $out
           git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/databricks && git commit -m "evidence: databricks auth proof" && git push || true
+          git add evidence/databricks && git commit -m "evidence: databricks auth proof" || true
+          for i in 1 2 3; do git pull --rebase -q origin main && git push && break || sleep 10; done
           [ "$code" = "200" ] && [ "$jobs" = "200" ]

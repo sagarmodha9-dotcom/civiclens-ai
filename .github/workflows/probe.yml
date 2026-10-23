@@ -8,8 +8,6 @@ on:
         description: "one agency, one FY only"
         type: boolean
         default: false
-  push:
-    paths: ["ingest/**", ".github/workflows/probe.yml"]
 permissions:
   contents: write
 concurrency: probe
@@ -43,7 +41,7 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add evidence/probe
           git commit -m "evidence: USAspending probe $(date -u +%Y-%m-%dT%H:%MZ) (exit ${{ steps.probe.outcome }})" || echo "nothing to commit"
-          git push
+          for i in 1 2 3; do git pull --rebase -q origin main && git push && break || sleep 10; done
       - name: Fail the job if the probe failed
         if: steps.probe.outcome != 'success'
         run: exit 1
