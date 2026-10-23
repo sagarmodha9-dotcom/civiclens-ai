@@ -20,8 +20,8 @@ test("walkthrough: overview → scope → anomaly lab → explanation → invest
   await page.mouse.wheel(0, 500); await pause(3000);
   await page.mouse.wheel(0, -500); await pause(1500);
 
-  await page.getByLabel("Agency").selectOption("036"); await pause(2500);
-  await page.getByLabel("Fiscal year").selectOption("2025"); await pause(3500);
+  await page.getByLabel("Agency", { exact: true }).selectOption("036"); await pause(2500);
+  await page.getByLabel("Fiscal year", { exact: true }).selectOption("2025"); await pause(3500);
   await page.screenshot({ path: shot("02-overview-va-fy2025") });
 
   await page.getByRole("link", { name: "Agency Explorer" }).first().click();

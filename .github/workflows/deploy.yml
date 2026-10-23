@@ -163,7 +163,7 @@ jobs:
         run: |
           npm ci >/dev/null && npx playwright install --with-deps chromium >/dev/null
           sleep 20
-          npx playwright test 2>&1 | tee ../e2e.log | tail -25
+          npx playwright test 2>&1 | tee ../e2e.log | tail -120
           cp test-results/results.json ../e2e-results.json
           python3 -c "import json,sys; st=json.load(open('../e2e-results.json'))['stats']; print(st); sys.exit(1 if (st.get('expected',0) < 10 or st.get('unexpected',0)) else 0)"
         continue-on-error: true
@@ -180,6 +180,16 @@ jobs:
           test -n "$v" && ffmpeg -loglevel error -y -i "$v" -vf "fps=24,scale=1280:-2" -c:v libx264 -crf 26 -preset slow -pix_fmt yuv420p -movflags +faststart ../docs/demo/civiclens-demo.mp4
           ls -la ../docs/demo ../docs/screenshots
           python3 -c "import os,sys; sz=os.path.getsize('../docs/demo/civiclens-demo.mp4'); print('mp4 bytes', sz); sys.exit(1 if sz > 20_000_000 else 0)"
+      - name: Upload e2e log, results and failure traces
+        if: always() && !inputs.skip_web
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-${{ github.run_id }}
+          path: |
+            e2e.log
+            e2e-results.json
+            web/test-results
+          if-no-files-found: ignore
       - name: Evidence
         if: always()
         run: |

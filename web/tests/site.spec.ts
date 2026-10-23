@@ -14,8 +14,8 @@ test("overview loads real numbers, snapshot version and no console errors", asyn
 
 test("scope filters propagate through URL, charts and the investigator scope", async ({ page }) => {
   await page.goto("/");
-  await page.getByLabel("Agency").selectOption("036");
-  await page.getByLabel("Fiscal year").selectOption("2025");
+  await page.getByLabel("Agency", { exact: true }).selectOption("036");
+  await page.getByLabel("Fiscal year", { exact: true }).selectOption("2025");
   await expect(page).toHaveURL(/agency=036/); await expect(page).toHaveURL(/fy=2025/);
   await page.getByRole("link", { name: "Anomaly Lab" }).first().click();
   await expect(page).toHaveURL(/anomalies\?.*agency=036/);
