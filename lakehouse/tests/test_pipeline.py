@@ -190,3 +190,26 @@ def test_source_fiscal_year_column_is_cross_checked_when_present(raw_tree, tmp_p
     meta = build_duckdb(raw_tree, tmp_path / "f.duckdb")
     chk = meta["dq"]["fiscal_year_matches_source_column"]
     assert chk["source_column_present"] and chk["mismatches_vs_action_date_fiscal_year"] == 1 and not chk["pass"] and not meta["dq"]["_all_pass"]
+
+
+def test_source_count_check_records_every_delta_and_applies_tolerance():
+    from civiclens_lakehouse.pipeline import source_count_check, SOURCE_COUNT_TOLERANCE
+    cells = [{"agency_code": "036", "fiscal_year": 2025, "rows_manifest": 100, "rows_total": 100, "api_count": 100},
+             {"agency_code": "036", "fiscal_year": 2025, "rows_manifest": 100, "rows_total": 100, "api_count": 100},   # second file, same cell
+             {"agency_code": "020", "fiscal_year": 2026, "rows_manifest": 2859, "rows_total": 2859, "api_count": 2865}]
+    r = source_count_check(cells)
+    assert r["cells"] == 2 and r["exact_cells"] == 1 and r["pass"] is True
+    assert r["inexact"] == [{"agency_code": "020", "fiscal_year": 2026, "rows": 2859, "api_count": 2865, "delta": -6,
+                             "delta_fraction": round(6 / 2865, 6), "exact": False}]
+    assert r["tolerance"] == SOURCE_COUNT_TOLERANCE == 0.005
+    bad = source_count_check([{"agency_code": "020", "fiscal_year": 2026, "rows_manifest": 2800, "rows_total": 2800, "api_count": 2865}])
+    assert bad["pass"] is False and bad["worst_delta_fraction"] > 0.02
+
+
+def test_dq_gate_includes_source_count_from_the_manifests(built):
+    con, meta = built
+    sc = meta["dq"]["source_count_within_tolerance"]
+    assert sc["pass"] is True and sc["cells"] >= 1 and sc["tolerance"] == 0.005
+    assert sc["exact_cells"] == sc["cells"] and sc["inexact"] == []      # synthetic manifests count exactly
+    from civiclens_lakehouse.pipeline import dq_checks
+    assert "source_count_within_tolerance" not in dq_checks(con)        # only when cells are supplied

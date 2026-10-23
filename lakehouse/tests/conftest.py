@@ -39,7 +39,8 @@ def write_cell(root: Path, agency: tuple, fy: int, rows: list[dict], run_id="202
     with open(d / name, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=REQUIRED_COLUMNS); w.writeheader(); w.writerows(rows)
     (d / "manifest.json").write_text(json.dumps({"run_id": run_id, "status": "complete", "agency_code": agency[0],
-        "agency_name": agency[1], "fiscal_year": fy, "files": [{"name": name, "kind": "prime_transactions", "rows": len(rows)}]}))
+        "agency_name": agency[1], "fiscal_year": fy, "api_count": len(rows), "rows_total": len(rows),
+        "files": [{"name": name, "kind": "prime_transactions", "rows": len(rows)}]}))
 
 
 @pytest.fixture

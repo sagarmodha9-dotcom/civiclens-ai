@@ -77,7 +77,9 @@ def main() -> int:
                                                  (f"\n\n```\n{f['trace']}\n```" if f.get('trace') else "") for f in failures]
     (rep / "report.md").write_text("\n".join(md) + "\n")
     print(f"\n{len(results)} ok, {len(failures)} failed, {total:,} prime transactions, {len(mism)} mismatches -> {rep}/report.md")
-    return 1 if failures or mism else 0
+    for r in mism:   # loadable, flagged; the pipeline's DQ gate applies the documented tolerance (docs/DECISIONS.md)
+        print(f"::warning::{r['agency_code']} FY{r['fiscal_year']}: file rows {r.get('rows_total')} != download/count {r.get('api_count')}")
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":

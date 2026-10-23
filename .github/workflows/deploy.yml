@@ -1,0 +1,136 @@
+name: deploy
+# Public deployment, pinned to a published snapshot version:
+#   API  -> Fly.io (one shared-cpu-1x machine, always on; image built with the snapshot baked in and sha256-verified)
+#   Web  -> Vercel (Next.js, NEXT_PUBLIC_API_URL pointed at the Fly app)
+# then smoke tests + the full Playwright e2e suite (desktop + mobile + axe) against the LIVE site, and a stamped
+# evidence/deploy/report.md (run id, commit, snapshot version, URLs, PASS/FAIL). Approved spend: Fly <= $5/month.
+# Secrets: FLY_API_TOKEN, VERCEL_TOKEN, ANTHROPIC_API_KEY (already set).
+on:
+  workflow_dispatch:
+    inputs:
+      snapshot_version:
+        description: "snapshot version to deploy (blank = snapshot/latest.json)"
+        default: ""
+      skip_web:
+        description: "deploy API only"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency: deploy
+env:
+  FLY_APP: civiclens-api
+  FLY_REGION: iad
+  VERCEL_PROJECT: civiclens-ai
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve snapshot
+        id: snap
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json, os
+          want = "${{ inputs.snapshot_version }}".strip()
+          m = json.load(open("snapshot/latest.json"))
+          if want and want != m["version"]:
+              raise SystemExit(f"requested {want} but snapshot/latest.json is {m['version']}; promote it first (publish-snapshot) or pass blank")
+          print(f"version={m['version']}"); print(f"file={m['file']}"); print(f"sha256={m['sha256']}")
+          print(f"url=https://github.com/${{ github.repository }}/releases/download/snapshot-{m['version']}/{m['file']}")
+          EOF
+          cat "$GITHUB_OUTPUT"
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Fly app, volume, secrets (idempotent)
+        env: { FLY_API_TOKEN: "${{ secrets.FLY_API_TOKEN }}" }
+        run: |
+          flyctl apps list | grep -q "^$FLY_APP" || flyctl apps create "$FLY_APP" --org personal
+          flyctl volumes list -a "$FLY_APP" | grep -q civiclens_ledger || flyctl volumes create civiclens_ledger -a "$FLY_APP" --region "$FLY_REGION" --size 1 --yes
+          flyctl secrets set -a "$FLY_APP" --stage ANTHROPIC_API_KEY="${{ secrets.ANTHROPIC_API_KEY }}" >/dev/null
+      - name: Deploy API (image built with the pinned snapshot)
+        env: { FLY_API_TOKEN: "${{ secrets.FLY_API_TOKEN }}" }
+        run: |
+          flyctl deploy . --config api/fly.toml --dockerfile api/Dockerfile --app "$FLY_APP" --remote-only --ha=false \
+            --build-arg SNAPSHOT_URL="${{ steps.snap.outputs.url }}" --build-arg SNAPSHOT_SHA256="${{ steps.snap.outputs.sha256 }}" \
+            --vm-size shared-cpu-1x --vm-memory 512
+      - name: API smoke (must serve exactly the pinned snapshot)
+        id: api
+        run: |
+          API="https://$FLY_APP.fly.dev"; echo "url=$API" >> "$GITHUB_OUTPUT"
+          for i in $(seq 1 20); do curl -fsS "$API/healthz" && break || sleep 6; done
+          python3 - "$API" "${{ steps.snap.outputs.version }}" <<'EOF'
+          import json, sys, urllib.request
+          api, want = sys.argv[1], sys.argv[2]
+          h = json.load(urllib.request.urlopen(api + "/healthz", timeout=20))
+          assert h["ok"] and h["snapshot_version"] == want, h
+          assert h.get("dq_all_pass") is True, h
+          r = urllib.request.urlopen(api + "/v1/overview", timeout=30)
+          assert r.headers.get("X-Snapshot-Version") == want, dict(r.headers)
+          o = json.load(r); print("overview keys:", list(o)[:8])
+          s = json.load(urllib.request.urlopen(api + "/v1/investigate/samples", timeout=20)); print("investigator live:", s.get("live"))
+          print("API OK", want)
+          EOF
+      - uses: actions/setup-node@v4
+        if: ${{ !inputs.skip_web }}
+        with: { node-version: "20" }
+      - name: Deploy web (Vercel, production)
+        if: ${{ !inputs.skip_web }}
+        id: web
+        env: { VERCEL_TOKEN: "${{ secrets.VERCEL_TOKEN }}" }
+        working-directory: web
+        run: |
+          npm i -g vercel@latest >/dev/null
+          vercel link --yes --project "$VERCEL_PROJECT" --token "$VERCEL_TOKEN"
+          vercel env rm NEXT_PUBLIC_API_URL production --yes --token "$VERCEL_TOKEN" >/dev/null 2>&1 || true
+          printf '%s' "${{ steps.api.outputs.url }}" | vercel env add NEXT_PUBLIC_API_URL production --token "$VERCEL_TOKEN"
+          URL=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN" 2>/dev/null | tail -1)
+          echo "deployment=$URL"
+          # stable production alias
+          ALIAS=$(vercel inspect "$URL" --token "$VERCEL_TOKEN" 2>&1 | grep -oE "https://[a-z0-9.-]*vercel.app" | grep -v "\-git-" | head -1 || true)
+          [ -n "$ALIAS" ] || ALIAS="$URL"
+          echo "url=$ALIAS" >> "$GITHUB_OUTPUT"; echo "site: $ALIAS"
+      - name: Point API CORS at the site
+        if: ${{ !inputs.skip_web }}
+        env: { FLY_API_TOKEN: "${{ secrets.FLY_API_TOKEN }}" }
+        run: flyctl secrets set -a "$FLY_APP" CIVICLENS_CORS="${{ steps.web.outputs.url }},https://$VERCEL_PROJECT.vercel.app"
+      - name: Live e2e (desktop + mobile + accessibility) against the public site
+        if: ${{ !inputs.skip_web }}
+        id: e2e
+        working-directory: web
+        env: { E2E_BASE_URL: "${{ steps.web.outputs.url }}" }
+        run: |
+          npm ci >/dev/null && npx playwright install --with-deps chromium >/dev/null
+          sleep 20
+          npx playwright test 2>&1 | tee ../e2e.log | tail -25
+        continue-on-error: true
+      - name: Evidence
+        if: always()
+        run: |
+          mkdir -p evidence/deploy
+          python3 - <<'EOF'
+          import json, os, datetime as dt, pathlib
+          res = {}
+          try:
+              r = json.load(open("web/test-results/results.json")); st = r.get("stats", {})
+              res = {"expected": st.get("expected"), "unexpected": st.get("unexpected"), "skipped": st.get("skipped"), "duration_ms": st.get("duration")}
+          except Exception as e: res = {"error": str(e)[:100]}
+          ok = "${{ steps.api.outcome }}" == "success" and ("${{ inputs.skip_web }}" == "true" or ("${{ steps.e2e.outcome }}" == "success" and not res.get("unexpected")))
+          rep = {"stamp": {"github_run_id": "${{ github.run_id }}", "commit": "${{ github.sha }}"[:12], "utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")},
+                 "snapshot_version": "${{ steps.snap.outputs.version }}", "api_url": "${{ steps.api.outputs.url }}", "site_url": "${{ steps.web.outputs.url }}",
+                 "api_smoke": "${{ steps.api.outcome }}", "web_deploy": "${{ steps.web.outcome }}", "e2e": "${{ steps.e2e.outcome }}", "e2e_results": res, "pass": ok,
+                 "cost_note": "Fly.io shared-cpu-1x 512MB always-on + 1GB volume (approved <= $5/mo); Vercel Hobby free; Anthropic capped at $10/mo in console, app budget $5/mo."}
+          pathlib.Path("evidence/deploy/report.json").write_text(json.dumps(rep, indent=1))
+          md = [f"# Deployment — **{'PASS' if ok else 'FAIL'}**", "",
+                f"GitHub run `{rep['stamp']['github_run_id']}` · commit `{rep['stamp']['commit']}` · {rep['stamp']['utc']} · snapshot `{rep['snapshot_version']}`", "",
+                f"- API: {rep['api_url']} — smoke {rep['api_smoke']} (healthz ok, snapshot version pinned, DQ pass, X-Snapshot-Version header)",
+                f"- Site: {rep['site_url']} — deploy {rep['web_deploy']}",
+                f"- Live e2e (Playwright desktop Chrome + Pixel 7 + axe WCAG 2.1 AA): {rep['e2e']} — {json.dumps(res)}",
+                f"- Cost: {rep['cost_note']}"]
+          pathlib.Path("evidence/deploy/report.md").write_text("\n".join(md) + "\n"); print("\n".join(md))
+          EOF
+          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
+          git add evidence/deploy && git commit -m "evidence: deployment run ${{ github.run_id }}" || echo "nothing to commit"
+          pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
+          test "$pushed" = 1 || { echo "::error::evidence push failed"; exit 1; }
+          python3 -c "import json,sys; sys.exit(0 if json.load(open('evidence/deploy/report.json'))['pass'] else 1)"

@@ -95,17 +95,22 @@ def main() -> int:
             report["R3"].append({"agency_code": code, "fiscal_year": int(fy), "available": False, "error": str(e)[:200]})
             print(f"R3 {code} FY{fy}: not available ({e})", flush=True)
     c.close()
-    r1_bad = [x for x in report["R1"] if x["delta"] not in (0, None)]
-    report["summary"] = {"cells": len(report["R1"]), "r1_mismatched_cells": len(r1_bad), "r2_sampled": len(report["R2"]),
+    R1_TOLERANCE = 0.005   # same tolerance as the pipeline DQ gate (docs/DECISIONS.md 2026-10-23, Treasury)
+    r1_inexact = [x for x in report["R1"] if x["delta"] not in (0, None)]
+    r1_over = [x for x in r1_inexact if abs(x["delta"]) / max(x["api_count_now"], 1) > R1_TOLERANCE]
+    report["summary"] = {"cells": len(report["R1"]), "r1_exact_cells": len(report["R1"]) - len(r1_inexact),
+                         "r1_inexact_cells": len(r1_inexact), "r1_over_tolerance_cells": len(r1_over), "r1_tolerance": R1_TOLERANCE,
+                         "r2_sampled": len(report["R2"]),
                          "r2_mismatches": mism, "r3_available": sum(1 for x in report["R3"] if x.get("available")),
                          "r3_nonzero_delta": sum(1 for x in report["R3"] if x.get("available") and abs(x["delta"]) >= 0.005),
-                         "pass": not r1_bad and mism == 0}
+                         "pass": not r1_over and mism == 0}
     (out / "report.json").write_text(json.dumps(report, indent=1, default=str))
     sm = report["summary"]
     md = [f"# Reconciliation against USAspending — {report['run_utc']}", "",
-          f"R1 completeness: {sm['cells']} cells, {sm['r1_mismatched_cells']} with a count delta. R2 window sums: {sm['r2_sampled']} sampled awards, "
+          f"R1 completeness: {sm['cells']} cells re-counted now, {sm['r1_exact_cells']} exact, {sm['r1_inexact_cells']} with a delta, "
+          f"{sm['r1_over_tolerance_cells']} beyond the {sm['r1_tolerance']:.1%} tolerance. R2 window sums: {sm['r2_sampled']} sampled awards, "
           f"{sm['r2_mismatches']} mismatches. R3 agency-year vs spending_over_time: {sm['r3_available']} available, {sm['r3_nonzero_delta']} with a non-zero delta. "
-          f"**{'PASS' if sm['pass'] else 'FAIL'}** (R1 and R2 must be exact; R3 is informational until its grain is confirmed).", "",
+          f"**{'PASS' if sm['pass'] else 'FAIL'}** (R2 must be exact to the cent; R1 deltas are listed and must stay within tolerance; R3 is informational until its grain is confirmed).", "",
           "| check | agency | FY | ours | API | delta / match |", "|---|---|---|---|---|---|"]
     for x in report["R1"]:
         md.append(f"| R1 count | {x['agency_code']} | {x['fiscal_year']} | {x['ours']:,} | {x['api_count_now']} | {x['delta']} |")

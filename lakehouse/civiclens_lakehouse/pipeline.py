@@ -77,7 +77,8 @@ def load_bronze_duckdb(con, raw_root: Path) -> dict:
                            f"{int(m['fiscal_year'])} AS _ingest_fiscal_year, '{f['name']}' AS _ingest_file "
                            f"FROM read_csv('{path}', header=true, all_varchar=true, sample_size=-1)")
             cells.append({"agency_code": m["agency_code"], "fiscal_year": m["fiscal_year"], "file": f["name"],
-                          "rows_manifest": f["rows"], "run_id": m["run_id"]})
+                          "rows_manifest": f["rows"], "run_id": m["run_id"], "api_count": m.get("api_count"),
+                          "rows_total": m.get("rows_total"), "status": m.get("status")})
     if not selects:
         raise FileNotFoundError(f"no prime-transactions files under {raw_root}")
     con.execute("CREATE OR REPLACE TABLE bronze_prime_transactions AS " + " UNION ALL BY NAME ".join(selects))
@@ -97,7 +98,31 @@ def run_sql_duckdb(con, name: str, params: dict | None = None) -> None:
             con.execute(s)
 
 
-def dq_checks(con) -> dict:
+SOURCE_COUNT_TOLERANCE = 0.005   # |zip rows - download/count| / count per cell; see docs/DECISIONS.md 2026-10-23 (Treasury)
+
+
+def source_count_check(cells: list[dict]) -> dict:
+    """Per cell: rows in the downloaded file vs the API's own count for the identical filter. Exact for 26/30 cells on
+    2026-10-23; Treasury FY2023-26 differed by 1-6 rows on fresh jobs minutes apart (upstream count endpoint vs
+    download generator on a refresh day). Deltas are recorded cell by cell; the gate fails past the tolerance."""
+    per_cell, worst = [], 0.0
+    seen = set()
+    for c in cells:
+        key = (c["agency_code"], c["fiscal_year"])
+        if key in seen or c.get("api_count") in (None, 0):
+            continue
+        seen.add(key)
+        rows, cnt = int(c.get("rows_total") or c["rows_manifest"]), int(c["api_count"])
+        frac = abs(rows - cnt) / cnt
+        worst = max(worst, frac)
+        per_cell.append({"agency_code": c["agency_code"], "fiscal_year": c["fiscal_year"], "rows": rows, "api_count": cnt,
+                         "delta": rows - cnt, "delta_fraction": round(frac, 6), "exact": rows == cnt})
+    return {"pass": worst <= SOURCE_COUNT_TOLERANCE, "tolerance": SOURCE_COUNT_TOLERANCE, "cells": len(per_cell),
+            "exact_cells": sum(1 for x in per_cell if x["exact"]), "worst_delta_fraction": round(worst, 6),
+            "inexact": [x for x in per_cell if not x["exact"]]}
+
+
+def dq_checks(con, cells: list[dict] | None = None) -> dict:
     """Data-quality gate. Every check returns pass/fail with the numbers; publish refuses on any fail."""
     q = lambda sql: con.execute(sql).fetchone()[0]  # noqa: E731
     bronze = q("SELECT COUNT(*) FROM bronze_prime_transactions")
@@ -133,6 +158,8 @@ def dq_checks(con) -> dict:
                    "WHERE TRY_CAST(b.action_date_fiscal_year AS INTEGER) IS NOT NULL AND TRY_CAST(b.action_date_fiscal_year AS INTEGER) <> s.fiscal_year")
     checks["fiscal_year_matches_source_column"] = {"pass": bad_src_fy == 0, "mismatches_vs_action_date_fiscal_year": bad_src_fy,
                                                    "source_column_present": has_src_fy}
+    if cells is not None:
+        checks["source_count_within_tolerance"] = source_count_check(cells)
     checks["_all_pass"] = all(v.get("pass", False) for k, v in checks.items() if not k.startswith("_"))
     return checks
 
@@ -159,7 +186,7 @@ def build_duckdb(raw_root: Path, db_path: Path, params: dict | None = None) -> d
     bronze = load_bronze_duckdb(con, raw_root)
     for name in ("silver_rejects.sql", "silver_contract_transactions.sql", "gold.sql", "anomalies.sql"):
         run_sql_duckdb(con, name, params)
-    dq = dq_checks(con)
+    dq = dq_checks(con, bronze["cells"])
     meta = {"built_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), "bronze": bronze,
             "params": params or PARAMS, "dq": dq, "anomaly_summary": anomaly_summary(con),
             "tables": {t: con.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in
