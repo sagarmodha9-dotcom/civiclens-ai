@@ -12,7 +12,8 @@ repo_root = Path(dbutils.notebook.entry_point.getDbutils().notebook().getContext
 sys.path.insert(0, f"/Workspace{repo_root}/lakehouse")
 from civiclens_lakehouse.pipeline import PARAMS, REQUIRED_COLUMNS, INGEST_COLUMNS, render
 
-CATALOG = "workspace"   # Free Edition: see 01_bronze.py
+dbutils.widgets.text("catalog", "workspace")
+CATALOG = dbutils.widgets.get("catalog") or "workspace"   # Free Edition: see 01_bronze.py
 NAMES = {"bronze_prime_transactions": f"{CATALOG}.bronze.prime_transactions",
          "silver_rejects": f"{CATALOG}.silver.rejects", "silver_contract_transactions": f"{CATALOG}.silver.contract_transactions",
          "gold_award_fy": f"{CATALOG}.gold.award_fy", "gold_agency_fy": f"{CATALOG}.gold.agency_fy",
@@ -51,4 +52,5 @@ dq = {
 dq["gold_equals_silver"] = abs(dq["silver_sum"] - dq["gold_award_sum"]) < 0.005
 print(json.dumps(dq, indent=1))
 assert dq["gold_equals_silver"], "Gold does not reconcile to Silver"
+dq["catalog"] = CATALOG
 dbutils.notebook.exit(json.dumps(dq))

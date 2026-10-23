@@ -14,6 +14,7 @@ env:
   DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
   DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
   REPO_PATH: /Workspace/Users/${{ secrets.DATABRICKS_USER }}/civiclens-ai
+concurrency: databricks
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -22,7 +23,20 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install -q databricks-cli==0.18.0 requests
+      - run: pip install -q requests duckdb
+      - name: Working catalog (from the preflight; Free Edition cannot create catalogs)
+        id: cat
+        run: |
+          c=$(cat evidence/databricks/catalog.txt 2>/dev/null || echo workspace); echo "catalog=$c" >> $GITHUB_OUTPUT; echo "catalog: $c"
+      - name: Build artifact of the same ingest run (for Databricks-vs-DuckDB reconciliation)
+        if: inputs.raw_artifact_run_id != ''
+        uses: actions/download-artifact@v4
+        with:
+          pattern: snapshot-*
+          path: build
+          merge-multiple: true
+          run-id: ${{ inputs.raw_artifact_run_id }}
+          github-token: ${{ github.token }}
       - name: Download raw artifact
         if: inputs.raw_artifact_run_id != ''
         uses: actions/download-artifact@v4
@@ -34,6 +48,7 @@ jobs:
           github-token: ${{ github.token }}
       - name: Upload raw cells to the Volume (Files API, one PUT per file)
         if: inputs.raw_artifact_run_id != ''
+        env: { CATALOG: "${{ steps.cat.outputs.catalog }}" }
         run: |
           set -e
           python3 - <<'PY'
@@ -43,13 +58,16 @@ jobs:
           for p in sorted(root.rglob("*")):
               if p.is_file() and (p.suffix in (".csv", ".json")):
                   rel = p.relative_to(root).as_posix()
-                  url = f"{host}/api/2.0/fs/files/Volumes/workspace/bronze/raw/{rel}?overwrite=true"
+                  url = f"{host}/api/2.0/fs/files/Volumes/{os.environ['CATALOG']}/bronze/raw/{rel}?overwrite=true"
                   with open(p, "rb") as f:
                       r = requests.put(url, headers={"Authorization": f"Bearer {tok}", "Content-Type": "application/octet-stream"}, data=f, timeout=600)
                   r.raise_for_status(); n += 1
           print(f"uploaded {n} files")
           PY
       - name: Sync repo into the workspace and run the job
+        id: job
+        env: { CATALOG: "${{ steps.cat.outputs.catalog }}" }
+        continue-on-error: true
         run: |
           set -e
           python3 - <<'PY'
@@ -69,7 +87,7 @@ jobs:
           for f in pathlib.Path("lakehouse/civiclens_lakehouse").rglob("*"):
               if f.is_file():
                   put(f"{repo_path}/lakehouse/{f.relative_to('lakehouse').as_posix()}", f.read_bytes(), "AUTO")
-          spec = json.loads(open("lakehouse/databricks/job.json").read().replace("${REPO_PATH}", repo_path))
+          spec = json.loads(open("lakehouse/databricks/job.json").read().replace("${REPO_PATH}", repo_path).replace("${CATALOG}", os.environ["CATALOG"]))
           jobs = requests.get(f"{host}/api/2.1/jobs/list", headers=H, params={"name": spec["name"]}, timeout=60).json().get("jobs", [])
           if jobs:
               job_id = jobs[0]["job_id"]; requests.post(f"{host}/api/2.1/jobs/reset", headers=H, json={"job_id": job_id, "new_settings": spec}, timeout=60).raise_for_status()
@@ -82,20 +100,61 @@ jobs:
               st = r["state"]; print(st.get("life_cycle_state"), st.get("result_state", ""), flush=True)
               if st["life_cycle_state"] in ("TERMINATED", "SKIPPED", "INTERNAL_ERROR"): break
               time.sleep(30)
-          out = {"job_id": job_id, "run_id": run_id, "run_page_url": r.get("run_page_url"), "state": st, "tasks": []}
+          out = {"stamp": {"github_run_id": os.environ.get("GITHUB_RUN_ID"), "commit": os.environ.get("GITHUB_SHA","")[:12],
+                           "utc": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(timespec="seconds"),
+                           "catalog": os.environ["CATALOG"], "ingest_run_id": "${{ inputs.raw_artifact_run_id }}"},
+                 "job_id": job_id, "run_id": run_id, "run_page_url": r.get("run_page_url"), "state": st, "tasks": []}
           for t in r.get("tasks", []):
               o = requests.get(f"{host}/api/2.1/jobs/runs/get-output", headers=H, params={"run_id": t["run_id"]}, timeout=60).json()
               out["tasks"].append({"task_key": t["task_key"], "state": t.get("state"), "notebook_output": o.get("notebook_output"), "error": o.get("error")})
+          # Databricks totals (from the notebook's exit JSON) vs the DuckDB build of the same raw data
+          dbx = {}
+          for t in out["tasks"]:
+              res = (t.get("notebook_output") or {}).get("result")
+              if t["task_key"] == "silver_gold_anomalies" and res:
+                  try: dbx = json.loads(res)
+                  except Exception: dbx = {"raw": res}
+          cmp = {}
+          if pathlib.Path("build/civiclens.duckdb").exists() and dbx.get("silver") is not None:
+              import duckdb
+              c = duckdb.connect("build/civiclens.duckdb", read_only=True)
+              duck = {"bronze": c.execute("SELECT COUNT(*) FROM bronze_prime_transactions").fetchone()[0],
+                      "silver": c.execute("SELECT COUNT(*) FROM silver_contract_transactions").fetchone()[0],
+                      "rejects": c.execute("SELECT COUNT(*) FROM silver_rejects").fetchone()[0],
+                      "silver_sum": float(c.execute("SELECT COALESCE(SUM(obligation),0) FROM silver_contract_transactions").fetchone()[0]),
+                      "gold_award_sum": float(c.execute("SELECT COALESCE(SUM(obligations),0) FROM gold_award_fy").fetchone()[0]),
+                      "flagged_large": c.execute("SELECT COUNT(*) FROM anomaly_large_award WHERE status='flagged'").fetchone()[0],
+                      "scored_large": c.execute("SELECT COUNT(*) FROM anomaly_large_award WHERE status IN ('flagged','normal')").fetchone()[0]}
+              for k, v in duck.items():
+                  dv = dbx.get(k)
+                  same = (abs(float(dv) - float(v)) < 0.005) if isinstance(v, float) else (dv == v)
+                  cmp[k] = {"databricks": dv, "duckdb": v, "match": bool(same)}
+          out["databricks_dq"] = dbx; out["vs_duckdb"] = cmp
+          ok = st.get("result_state") == "SUCCESS" and dbx.get("gold_equals_silver") is True and all(x["match"] for x in cmp.values())
+          out["pass"] = ok
           pathlib.Path("evidence/pipeline").mkdir(parents=True, exist_ok=True)
           json.dump(out, open("evidence/pipeline/databricks_run.json", "w"), indent=1)
-          print(json.dumps(out, indent=1)[:4000])
-          assert st.get("result_state") == "SUCCESS", st
+          md = [f"# Databricks lakehouse run — **{'PASS' if ok else 'FAIL'}**", "",
+                f"GitHub run `{out['stamp']['github_run_id']}` · commit `{out['stamp']['commit']}` · {out['stamp']['utc']} · catalog `{out['stamp']['catalog']}` · "
+                f"ingest run `{out['stamp']['ingest_run_id']}` · Databricks job {job_id} run {run_id} · state {st.get('result_state')} · [run page]({r.get('run_page_url')})", "",
+                "Tables: `{c}.bronze.prime_transactions`, `{c}.silver.contract_transactions`, `{c}.silver.rejects`, `{c}.gold.award_fy|agency_fy|recipient_agency_fy|psc_fy`, "
+                "`{c}.gold.anomaly_large_award|anomaly_concentration|anomaly_recipient_growth` (Delta, Unity Catalog).".format(c=out['stamp']['catalog']), "",
+                "| metric | Databricks (Spark, Delta) | DuckDB build of the same raw data | match |", "|---|---|---|---|"]
+          md += [f"| {k} | {v['databricks']} | {v['duckdb']} | {'yes' if v['match'] else 'NO'} |" for k, v in cmp.items()] or ["| (no DuckDB snapshot supplied; Databricks DQ only) | | | |"]
+          md += ["", f"Databricks in-job DQ: `{json.dumps(dbx)[:800]}`"]
+          for t in out["tasks"]:
+              if t.get("error"): md += ["", f"Task {t['task_key']} error: `{str(t['error'])[:500]}`"]
+          pathlib.Path("evidence/pipeline/databricks_run.md").write_text("\n".join(md) + "\n")
+          print("\n".join(md))
+          assert ok, st
           PY
       - name: Commit evidence
         if: always()
         run: |
           git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/pipeline && git commit -m "evidence: databricks pipeline run" || echo "nothing to commit"
+          git add evidence/pipeline && git commit -m "evidence: databricks pipeline run ${{ github.run_id }} (${{ steps.job.outcome }})" || echo "nothing to commit"
           git status --short | head -20
           pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
           test "$pushed" = 1 || { echo "::error::evidence push failed after 3 attempts"; exit 1; }
+      - if: steps.job.outcome != 'success'
+        run: exit 1

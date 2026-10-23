@@ -7,9 +7,11 @@
 import json
 from pyspark.sql import functions as F
 
-# Free Edition cannot create catalogs (no metastore storage root -> INVALID_STATE, see evidence/databricks/auth-proof.md),
-# so the lakehouse lives in the workspace catalog it ships with: workspace.bronze / silver / gold.
-CATALOG, VOL = "workspace", "/Volumes/workspace/bronze/raw"
+# Free Edition cannot create catalogs (no metastore storage root -> 400 INVALID_STATE, see evidence/databricks/preflight.md),
+# so the lakehouse lives in the catalog the workspace ships with (`workspace`), passed in as a job parameter.
+dbutils.widgets.text("catalog", "workspace")
+CATALOG = dbutils.widgets.get("catalog") or "workspace"
+VOL = f"/Volumes/{CATALOG}/bronze/raw"
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.bronze")
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.silver")
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.gold")
@@ -25,7 +27,7 @@ for agency_dir in manifests:
         prime = [f for f in m["files"] if f.get("kind") == "prime_transactions"]
         for f in prime:
             cells.append((m, f, files[f["name"]]))
-print(f"{len(cells)} prime files across cells")
+print(f"{len(cells)} prime files across cells in {CATALOG}")
 
 # COMMAND ----------
 spark.sql(f"""CREATE TABLE IF NOT EXISTS {CATALOG}.bronze.prime_transactions_meta (
