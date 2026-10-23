@@ -1,0 +1,13 @@
+# gitleaks configuration. Extends the default rules; the only allowlist entry is for USAspending public award
+# identifiers (CONT_AWD_<piid>_<agency>_<parent>_<agency>, CONT_IDV_...), which the generic-api-key rule matches
+# because they are long, high-entropy, underscore-separated tokens. They are public record keys, not credentials.
+# Review 2026-10-23 (run 40005517016): all 40 findings were award_key values in evidence/reconcile/report.json.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "USAspending award keys are public identifiers"
+regexTarget = "match"
+regexes = [
+  '''CONT_(AWD|IDV)_[A-Z0-9_\-]+''',
+]

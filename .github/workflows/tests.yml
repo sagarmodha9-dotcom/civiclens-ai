@@ -39,7 +39,7 @@ jobs:
         id: gitleaks
         run: |
           curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz | tar xz gitleaks
-          ./gitleaks git . --redact --log-opts="--all" --report-format json --report-path gitleaks.json --exit-code 2 -v 2>&1 | tail -5; echo "rc=$?"
+          ./gitleaks git . --config .gitleaks.toml --redact --log-opts="--all" --report-format json --report-path gitleaks.json --exit-code 2 -v 2>&1 | tail -5; echo "rc=$?"
           test -f gitleaks.json || echo "[]" > gitleaks.json
           python3 -c "import json; r=json.load(open('gitleaks.json')); print('findings:', len(r)); raise SystemExit(1 if r else 0)"
       - name: pip-audit (api, lakehouse, ingest)
@@ -50,7 +50,10 @@ jobs:
           python3 -c "import json; d=json.load(open('pip-audit.json')); v=[x for x in d.get('dependencies',[]) if x.get('vulns')]; print('vulnerable packages:', [(x['name'],x['version'],[y['id'] for y in x['vulns']]) for x in v]); raise SystemExit(1 if v else 0)"
       - name: npm audit (web, production deps, high+)
         id: npmaudit
-        run: cd web && npm ci --ignore-scripts >/dev/null && npm audit --omit=dev --audit-level=high --json > ../npm-audit.json; python3 -c "import json; d=json.load(open('npm-audit.json')); m=d.get('metadata',{}).get('vulnerabilities',{}); print(m); raise SystemExit(1 if (m.get('high',0)+m.get('critical',0)) else 0)"
+        run: |
+          cd web && npm ci --ignore-scripts >/dev/null
+          npm audit --omit=dev --audit-level=high --json > ../npm-audit.json || true
+          python3 -c "import json; d=json.load(open('../npm-audit.json')); m=d['metadata']['vulnerabilities']; print(m); raise SystemExit(1 if (m.get('high',0)+m.get('critical',0)) else 0)"
       - name: Security evidence
         if: always() && github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
