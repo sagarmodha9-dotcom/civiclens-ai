@@ -1,16 +1,17 @@
-# Anomaly engine validation — **FAIL**
+# Anomaly engine validation — **PASS**
 
-Snapshot `None` · commit `81f6527d1154` · 2026-10-23T18:48:47+00:00 · GitHub run `40006331782`
+Snapshot `unpublished build 2026-10-23T17:45:22+00:00 (ingest run 39997561946)` · sha256 `6b204f77d420c6da…` · commit `015d267d38a9` · 2026-10-23T19:07:41+00:00 · GitHub run `40008893734`
 
 ## 1. Independent re-implementation (Python/NumPy vs the pipeline's SQL)
 
 | detector | rows | flagged (pipeline) | flagged (recomputed) | identical flagged set | status mismatches | max rel. score diff | result |
 |---|---|---|---|---|---|---|---|
-| large_award | 46,458 | 157 | 157 | yes | 0 | 1.4e+00 | FAIL |
+| large_award | 46,497 | 157 | 157 | yes | 0 | 0.0e+00 | PASS |
 | concentration | 359 | 94 | 94 | yes | 0 | 6.7e-16 | PASS |
 | recipient_growth | 21,017 | 219 | 219 | yes | 0 | 0.0e+00 | PASS |
 
 Parameters: `{"baseline_fys": "2022,2023,2024,2025", "min_peer_n": 30, "z_threshold": 3.5, "hhi_threshold": 2500, "hhi_top_share": 50, "hhi_min_spend": 5000000, "growth_ratio": 3, "growth_min_delta": 2000000, "growth_min_base": 500000}`. Thresholds were not changed for this run.
+Row grain for large_award is the Gold award-year grain (award_key, PIID, fiscal year, agency, recipient UEI): 46,497 table rows, of which 39 are award-years that appear twice because the recipient UEI or PIID changed within the year; both rows are scored and both are compared (46,497 compared).
 
 ## 2. Source trace of representative flagged records
 

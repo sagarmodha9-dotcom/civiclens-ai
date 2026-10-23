@@ -1,9 +1,10 @@
 {
  "stamp": {
-  "snapshot_version": null,
-  "utc": "2026-10-23T18:48:47+00:00",
-  "commit": "81f6527d1154",
-  "github_run_id": "40006331782",
+  "snapshot_version": "unpublished build 2026-10-23T17:45:22+00:00 (ingest run 39997561946)",
+  "snapshot_sha256": "6b204f77d420c6da",
+  "utc": "2026-10-23T19:07:41+00:00",
+  "commit": "015d267d38a9",
+  "github_run_id": "40008893734",
   "params": {
    "baseline_fys": "2022,2023,2024,2025",
    "min_peer_n": 30,
@@ -16,25 +17,29 @@
    "growth_min_base": 500000
   }
  },
- "pass": false,
+ "pass": true,
  "recomputation": [
   {
    "detector": "large_award",
-   "rows_pipeline": 46458,
-   "rows_recomputed": 46458,
+   "rows_pipeline": 46497,
+   "rows_recomputed": 46497,
+   "rows_compared": 46497,
    "flagged_pipeline": 157,
    "flagged_recomputed": 157,
    "flagged_sets_identical": true,
    "status_mismatches": 0,
-   "max_relative_score_diff": 1.4068644303944433,
+   "max_relative_score_diff": 0.0,
    "rows_only_in_pipeline": 0,
    "rows_only_in_recompute": 0,
-   "pass": false
+   "pass": true,
+   "table_rows": 46497,
+   "award_years_with_two_rows": 39
   },
   {
    "detector": "concentration",
    "rows_pipeline": 359,
    "rows_recomputed": 359,
+   "rows_compared": 359,
    "flagged_pipeline": 94,
    "flagged_recomputed": 94,
    "flagged_sets_identical": true,
@@ -48,6 +53,7 @@
    "detector": "recipient_growth",
    "rows_pipeline": 21017,
    "rows_recomputed": 21017,
+   "rows_compared": 21017,
    "flagged_pipeline": 219,
    "flagged_recomputed": 219,
    "flagged_sets_identical": true,

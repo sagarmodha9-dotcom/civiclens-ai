@@ -1,1 +1,1 @@
-ingest_run_id=39997561946 validate_run_id=40006331782 outcome=failure
+ingest_run_id=39997561946 validate_run_id=40008893734 outcome=success
