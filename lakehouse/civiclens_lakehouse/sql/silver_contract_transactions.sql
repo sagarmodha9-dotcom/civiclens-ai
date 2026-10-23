@@ -9,7 +9,7 @@ WITH typed AS (
     contract_award_unique_key                                AS award_key,
     award_id_piid                                            AS piid,
     parent_award_id_piid                                     AS parent_piid,
-    CAST(modification_number AS VARCHAR)                     AS modification_number,
+    CAST(modification_number AS STRING)                      AS modification_number,
     TRY_CAST(action_date AS DATE)                            AS action_date,
     TRY_CAST(federal_action_obligation AS DECIMAL(18,2))     AS obligation,
     TRY_CAST(base_and_exercised_options_value AS DECIMAL(18,2)) AS base_and_exercised_options_value,

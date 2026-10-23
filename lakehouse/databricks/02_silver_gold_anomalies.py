@@ -10,7 +10,15 @@ import json, re, sys
 from pathlib import Path
 repo_root = Path(dbutils.notebook.entry_point.getDbutils().notebook().getContext().notebookPath().get()).parents[2]
 sys.path.insert(0, f"/Workspace{repo_root}/lakehouse")
-from civiclens_lakehouse.pipeline import PARAMS, REQUIRED_COLUMNS, INGEST_COLUMNS, render
+import time
+for attempt in range(1, 6):      # Workspace Files can return a transient EIO on first read from serverless (run 39996200492)
+    try:
+        from civiclens_lakehouse.pipeline import PARAMS, REQUIRED_COLUMNS, INGEST_COLUMNS, render
+        break
+    except OSError as e:
+        print(f"import attempt {attempt} failed: {e}"); time.sleep(5 * attempt)
+        if attempt == 5:
+            raise
 
 dbutils.widgets.text("catalog", "workspace")
 CATALOG = dbutils.widgets.get("catalog") or "workspace"   # Free Edition: see 01_bronze.py
@@ -22,8 +30,11 @@ NAMES = {"bronze_prime_transactions": f"{CATALOG}.bronze.prime_transactions",
          "anomaly_recipient_growth": f"{CATALOG}.gold.anomaly_recipient_growth"}
 
 def to_uc(sql: str) -> str:
+    """Map logical table names into Unity Catalog and the few type spellings that differ between DuckDB and Spark.
+    The SQL files are written in the common dialect (STRING, TRY_CAST, QUALIFY, MEDIAN); this is a safety net."""
     for k, v in NAMES.items():
         sql = re.sub(rf"\b{k}\b", v, sql)
+    sql = re.sub(r"\bAS VARCHAR\b", "AS STRING", sql, flags=re.I)
     return sql
 
 cols = [f.name for f in spark.table(NAMES["bronze_prime_transactions"]).schema]
