@@ -1,4 +1,4 @@
-# Databricks unattended-auth proof — 2026-10-23T13:11Z
+# Databricks unattended-auth proof — 2026-10-23T15:00Z
 
 host used: https://dbc-b531337f-7f65.cloud.databricks.com
 token shape: ok (dapi…)
