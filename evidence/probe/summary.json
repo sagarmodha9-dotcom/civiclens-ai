@@ -1,5 +1,5 @@
 {
- "run_utc": "2026-10-23T13:18:33+00:00",
+ "run_utc": "2026-10-23T14:15:28+00:00",
  "ok": true,
  "endpoints": {
   "last_updated": {
@@ -519,12 +519,12 @@
    "request": null,
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 224,
+   "elapsed_ms": 375,
    "response_keys": [
     "last_updated"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:33+00:00"
+   "started_utc": "2026-10-23T14:15:28+00:00"
   },
   {
    "method": "GET",
@@ -532,12 +532,12 @@
    "request": null,
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 94,
+   "elapsed_ms": 176,
    "response_keys": [
     "results"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:33+00:00"
+   "started_utc": "2026-10-23T14:15:28+00:00"
   },
   {
    "method": "POST",
@@ -581,7 +581,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 210,
+   "elapsed_ms": 91,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -593,7 +593,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:33+00:00"
+   "started_utc": "2026-10-23T14:15:29+00:00"
   },
   {
    "method": "POST",
@@ -637,7 +637,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 178,
+   "elapsed_ms": 1421,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -649,7 +649,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:34+00:00"
+   "started_utc": "2026-10-23T14:15:29+00:00"
   },
   {
    "method": "POST",
@@ -693,7 +693,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 204,
+   "elapsed_ms": 92,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -705,7 +705,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:34+00:00"
+   "started_utc": "2026-10-23T14:15:30+00:00"
   },
   {
    "method": "POST",
@@ -749,7 +749,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 166,
+   "elapsed_ms": 93,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -761,7 +761,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:34+00:00"
+   "started_utc": "2026-10-23T14:15:30+00:00"
   },
   {
    "method": "POST",
@@ -805,7 +805,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 176,
+   "elapsed_ms": 1813,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -817,7 +817,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:34+00:00"
+   "started_utc": "2026-10-23T14:15:30+00:00"
   },
   {
    "method": "POST",
@@ -861,7 +861,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 118,
+   "elapsed_ms": 1293,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -873,7 +873,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:34+00:00"
+   "started_utc": "2026-10-23T14:15:32+00:00"
   },
   {
    "method": "POST",
@@ -898,734 +898,6 @@
        "type": "awarding",
        "tier": "toptier",
        "name": "Department of Homeland Security"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 144,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:35+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2023-10-01",
-       "end_date": "2024-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of Homeland Security"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 139,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:35+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2024-10-01",
-       "end_date": "2025-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of Homeland Security"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 129,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:35+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2025-10-01",
-       "end_date": "2026-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of Homeland Security"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 135,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:35+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2021-10-01",
-       "end_date": "2022-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of Health and Human Services"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 362,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:35+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2022-10-01",
-       "end_date": "2023-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of Health and Human Services"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 169,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:35+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2023-10-01",
-       "end_date": "2024-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of Health and Human Services"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 122,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:36+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2024-10-01",
-       "end_date": "2025-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of Health and Human Services"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 126,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:36+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2025-10-01",
-       "end_date": "2026-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of Health and Human Services"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 139,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:36+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2021-10-01",
-       "end_date": "2022-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of the Treasury"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 121,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:36+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2022-10-01",
-       "end_date": "2023-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of the Treasury"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 116,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:36+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2023-10-01",
-       "end_date": "2024-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of the Treasury"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 117,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:36+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2024-10-01",
-       "end_date": "2025-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of the Treasury"
-      }
-     ],
-     "psc_codes": {
-      "require": [
-       [
-        "Service",
-        "D"
-       ],
-       [
-        "Product",
-        "70"
-       ]
-      ]
-     }
-    },
-    "spending_level": "transactions"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 105,
-   "response_keys": [
-    "calculated_count",
-    "calculated_transaction_count",
-    "maximum_limit",
-    "maximum_transaction_limit",
-    "messages",
-    "rows_gt_limit",
-    "spending_level",
-    "transaction_rows_gt_limit"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:18:36+00:00"
-  },
-  {
-   "method": "POST",
-   "url": "https://api.usaspending.gov/api/v2/download/count/",
-   "request": {
-    "filters": {
-     "time_period": [
-      {
-       "start_date": "2025-10-01",
-       "end_date": "2026-09-30",
-       "date_type": "action_date"
-      }
-     ],
-     "award_type_codes": [
-      "A",
-      "B",
-      "C",
-      "D"
-     ],
-     "agencies": [
-      {
-       "type": "awarding",
-       "tier": "toptier",
-       "name": "Department of the Treasury"
       }
      ],
      "psc_codes": {
@@ -1657,7 +929,735 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:36+00:00"
+   "started_utc": "2026-10-23T14:15:33+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2023-10-01",
+       "end_date": "2024-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Homeland Security"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 91,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:34+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2024-10-01",
+       "end_date": "2025-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Homeland Security"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 680,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:34+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2025-10-01",
+       "end_date": "2026-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Homeland Security"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 133,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:34+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Health and Human Services"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 156,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:34+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2022-10-01",
+       "end_date": "2023-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Health and Human Services"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 92,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:35+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2023-10-01",
+       "end_date": "2024-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Health and Human Services"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 92,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:35+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2024-10-01",
+       "end_date": "2025-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Health and Human Services"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 95,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:35+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2025-10-01",
+       "end_date": "2026-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of Health and Human Services"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 92,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:35+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2021-10-01",
+       "end_date": "2022-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of the Treasury"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 92,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:35+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2022-10-01",
+       "end_date": "2023-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of the Treasury"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 338,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:35+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2023-10-01",
+       "end_date": "2024-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of the Treasury"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 91,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:35+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2024-10-01",
+       "end_date": "2025-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of the Treasury"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 91,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:35+00:00"
+  },
+  {
+   "method": "POST",
+   "url": "https://api.usaspending.gov/api/v2/download/count/",
+   "request": {
+    "filters": {
+     "time_period": [
+      {
+       "start_date": "2025-10-01",
+       "end_date": "2026-09-30",
+       "date_type": "action_date"
+      }
+     ],
+     "award_type_codes": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "agencies": [
+      {
+       "type": "awarding",
+       "tier": "toptier",
+       "name": "Department of the Treasury"
+      }
+     ],
+     "psc_codes": {
+      "require": [
+       [
+        "Service",
+        "D"
+       ],
+       [
+        "Product",
+        "70"
+       ]
+      ]
+     }
+    },
+    "spending_level": "transactions"
+   },
+   "status": 200,
+   "attempts": 1,
+   "elapsed_ms": 91,
+   "response_keys": [
+    "calculated_count",
+    "calculated_transaction_count",
+    "maximum_limit",
+    "maximum_transaction_limit",
+    "messages",
+    "rows_gt_limit",
+    "spending_level",
+    "transaction_rows_gt_limit"
+   ],
+   "error": null,
+   "started_utc": "2026-10-23T14:15:36+00:00"
   },
   {
    "method": "POST",
@@ -1701,7 +1701,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 146,
+   "elapsed_ms": 92,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -1713,7 +1713,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:37+00:00"
+   "started_utc": "2026-10-23T14:15:36+00:00"
   },
   {
    "method": "POST",
@@ -1757,7 +1757,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 110,
+   "elapsed_ms": 91,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -1769,7 +1769,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:37+00:00"
+   "started_utc": "2026-10-23T14:15:36+00:00"
   },
   {
    "method": "POST",
@@ -1813,7 +1813,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 123,
+   "elapsed_ms": 953,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -1825,7 +1825,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:37+00:00"
+   "started_utc": "2026-10-23T14:15:36+00:00"
   },
   {
    "method": "POST",
@@ -1869,7 +1869,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 136,
+   "elapsed_ms": 92,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -1881,7 +1881,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:37+00:00"
+   "started_utc": "2026-10-23T14:15:37+00:00"
   },
   {
    "method": "POST",
@@ -1925,7 +1925,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 177,
+   "elapsed_ms": 90,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -1937,7 +1937,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:37+00:00"
+   "started_utc": "2026-10-23T14:15:37+00:00"
   },
   {
    "method": "POST",
@@ -1981,7 +1981,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 195,
+   "elapsed_ms": 281,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -1993,7 +1993,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:37+00:00"
+   "started_utc": "2026-10-23T14:15:37+00:00"
   },
   {
    "method": "POST",
@@ -2037,7 +2037,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 130,
+   "elapsed_ms": 235,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -2049,7 +2049,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:37+00:00"
+   "started_utc": "2026-10-23T14:15:37+00:00"
   },
   {
    "method": "POST",
@@ -2105,7 +2105,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:38+00:00"
+   "started_utc": "2026-10-23T14:15:38+00:00"
   },
   {
    "method": "POST",
@@ -2149,7 +2149,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 180,
+   "elapsed_ms": 92,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -2161,7 +2161,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:38+00:00"
+   "started_utc": "2026-10-23T14:15:38+00:00"
   },
   {
    "method": "POST",
@@ -2205,7 +2205,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 124,
+   "elapsed_ms": 1032,
    "response_keys": [
     "calculated_count",
     "calculated_transaction_count",
@@ -2217,7 +2217,7 @@
     "transaction_rows_gt_limit"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:38+00:00"
+   "started_utc": "2026-10-23T14:15:38+00:00"
   },
   {
    "method": "POST",
@@ -2283,7 +2283,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 1320,
+   "elapsed_ms": 1287,
    "response_keys": [
     "limit",
     "messages",
@@ -2292,7 +2292,7 @@
     "spending_level"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:38+00:00"
+   "started_utc": "2026-10-23T14:15:39+00:00"
   },
   {
    "method": "POST",
@@ -2360,7 +2360,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 1505,
+   "elapsed_ms": 91,
    "response_keys": [
     "limit",
     "messages",
@@ -2369,7 +2369,7 @@
     "spending_level"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:39+00:00"
+   "started_utc": "2026-10-23T14:15:40+00:00"
   },
   {
    "method": "POST",
@@ -2412,14 +2412,14 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 694,
+   "elapsed_ms": 2571,
    "response_keys": [
     "messages",
     "results",
     "spending_level"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:41+00:00"
+   "started_utc": "2026-10-23T14:15:40+00:00"
   },
   {
    "method": "POST",
@@ -2485,7 +2485,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 630,
+   "elapsed_ms": 91,
    "response_keys": [
     "limit",
     "messages",
@@ -2494,7 +2494,7 @@
     "spending_level"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:42+00:00"
+   "started_utc": "2026-10-23T14:15:43+00:00"
   },
   {
    "method": "GET",
@@ -2502,7 +2502,7 @@
    "request": null,
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 431,
+   "elapsed_ms": 92,
    "response_keys": [
     "account_obligations_by_defc",
     "account_outlays_by_defc",
@@ -2534,7 +2534,7 @@
     "type_description"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:42+00:00"
+   "started_utc": "2026-10-23T14:15:43+00:00"
   },
   {
    "method": "POST",
@@ -2548,13 +2548,13 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 91,
+   "elapsed_ms": 2732,
    "response_keys": [
     "page_metadata",
     "results"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:43+00:00"
+   "started_utc": "2026-10-23T14:15:43+00:00"
   },
   {
    "method": "POST",
@@ -2599,7 +2599,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 2161,
+   "elapsed_ms": 1189,
    "response_keys": [
     "download_request",
     "file_name",
@@ -2607,7 +2607,7 @@
     "status_url"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:43+00:00"
+   "started_utc": "2026-10-23T14:15:46+00:00"
   },
   {
    "method": "GET",
@@ -2617,7 +2617,7 @@
    },
    "status": 200,
    "attempts": 1,
-   "elapsed_ms": 105,
+   "elapsed_ms": 111,
    "response_keys": [
     "file_name",
     "file_url",
@@ -2629,51 +2629,7 @@
     "total_size"
    ],
    "error": null,
-   "started_utc": "2026-10-23T13:18:45+00:00"
-  },
-  {
-   "method": "GET",
-   "url": "https://api.usaspending.gov/api/v2/download/status/",
-   "request": {
-    "file_name": "PrimeTransactionsAndSubawards_2026-10-23_H13M18S44341830.zip"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 224,
-   "response_keys": [
-    "file_name",
-    "file_url",
-    "message",
-    "seconds_elapsed",
-    "status",
-    "total_columns",
-    "total_rows",
-    "total_size"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:19:00+00:00"
-  },
-  {
-   "method": "GET",
-   "url": "https://api.usaspending.gov/api/v2/download/status/",
-   "request": {
-    "file_name": "PrimeTransactionsAndSubawards_2026-10-23_H13M18S44341830.zip"
-   },
-   "status": 200,
-   "attempts": 1,
-   "elapsed_ms": 216,
-   "response_keys": [
-    "file_name",
-    "file_url",
-    "message",
-    "seconds_elapsed",
-    "status",
-    "total_columns",
-    "total_rows",
-    "total_size"
-   ],
-   "error": null,
-   "started_utc": "2026-10-23T13:19:15+00:00"
+   "started_utc": "2026-10-23T14:15:47+00:00"
   }
  ]
 }

@@ -1,4 +1,4 @@
-# USAspending probe — 2026-10-23T13:18:33+00:00
+# USAspending probe — 2026-10-23T14:15:28+00:00
 
 API last_updated: **10/23/2026**
 
