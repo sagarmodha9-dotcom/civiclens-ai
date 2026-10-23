@@ -146,5 +146,19 @@ def finish(out: Path, stamp: dict, steps: list[dict], catalog: str | None) -> in
     return 0 if ok else 1
 
 
+def _guarded() -> int:
+    """Any crash still produces a stamped report with the traceback as a FAIL row."""
+    try:
+        return main()
+    except Exception as e:  # noqa: BLE001
+        import traceback
+        out = Path(os.environ.get("PREFLIGHT_OUT", "evidence/databricks")); out.mkdir(parents=True, exist_ok=True)
+        stamp = {"run_id": os.environ.get("GITHUB_RUN_ID", "local"), "commit": os.environ.get("GITHUB_SHA", "local")[:12],
+                 "utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), "host": os.environ.get("DATABRICKS_HOST", "")}
+        tb = traceback.format_exc()[-1500:]
+        print(tb)
+        return finish(out, stamp, [{"step": "script crashed", "pass": False, "http": None, "note": f"{type(e).__name__}: {str(e)[:200]}"}], None)
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_guarded())

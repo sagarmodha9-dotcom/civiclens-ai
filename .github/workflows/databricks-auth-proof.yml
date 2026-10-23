@@ -28,12 +28,12 @@ jobs:
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
           git rm -q --ignore-unmatch evidence/databricks/auth-proof.md
-          python lakehouse/databricks/preflight.py --out evidence/databricks ${{ inputs.skip_job && '--skip-job' || '' }}
+          PREFLIGHT_OUT=evidence/databricks python lakehouse/databricks/preflight.py --out evidence/databricks ${{ inputs.skip_job && '--skip-job' || '' }}
         continue-on-error: true
       - name: Commit evidence
         if: always()
         run: |
-          cat evidence/databricks/preflight.md
+          cat evidence/databricks/preflight.md || echo '(no report written)'
           git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
           git add -A evidence/databricks && git commit -m "evidence: databricks preflight run ${{ github.run_id }} (${{ steps.pf.outcome }})" || echo "nothing to commit"
           git status --short | head -20
