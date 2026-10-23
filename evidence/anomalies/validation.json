@@ -1,0 +1,565 @@
+{
+ "stamp": {
+  "snapshot_version": null,
+  "utc": "2026-10-23T18:48:47+00:00",
+  "commit": "81f6527d1154",
+  "github_run_id": "40006331782",
+  "params": {
+   "baseline_fys": "2022,2023,2024,2025",
+   "min_peer_n": 30,
+   "z_threshold": 3.5,
+   "hhi_threshold": 2500,
+   "hhi_top_share": 50,
+   "hhi_min_spend": 5000000,
+   "growth_ratio": 3,
+   "growth_min_delta": 2000000,
+   "growth_min_base": 500000
+  }
+ },
+ "pass": false,
+ "recomputation": [
+  {
+   "detector": "large_award",
+   "rows_pipeline": 46458,
+   "rows_recomputed": 46458,
+   "flagged_pipeline": 157,
+   "flagged_recomputed": 157,
+   "flagged_sets_identical": true,
+   "status_mismatches": 0,
+   "max_relative_score_diff": 1.4068644303944433,
+   "rows_only_in_pipeline": 0,
+   "rows_only_in_recompute": 0,
+   "pass": false
+  },
+  {
+   "detector": "concentration",
+   "rows_pipeline": 359,
+   "rows_recomputed": 359,
+   "flagged_pipeline": 94,
+   "flagged_recomputed": 94,
+   "flagged_sets_identical": true,
+   "status_mismatches": 0,
+   "max_relative_score_diff": 6.746241755762244e-16,
+   "rows_only_in_pipeline": 0,
+   "rows_only_in_recompute": 0,
+   "pass": true
+  },
+  {
+   "detector": "recipient_growth",
+   "rows_pipeline": 21017,
+   "rows_recomputed": 21017,
+   "flagged_pipeline": 219,
+   "flagged_recomputed": 219,
+   "flagged_sets_identical": true,
+   "status_mismatches": 0,
+   "max_relative_score_diff": 0.0,
+   "rows_only_in_pipeline": 0,
+   "rows_only_in_recompute": 0,
+   "pass": true
+  }
+ ],
+ "source_trace": [
+  {
+   "detector": "large_award",
+   "award_key": "CONT_AWD_36C10B20F0069_3600_NNG15SD72B_8000",
+   "piid": "36C10B20F0069",
+   "fiscal_year": 2022,
+   "agency": "Department of Veterans Affairs",
+   "recipient": "COLOSSAL CONTRACTING LLC",
+   "psc": "7035",
+   "psc_description": "INFORMATION TECHNOLOGY SUPPORT EQUIPMENT",
+   "award_type": "DELIVERY ORDER",
+   "parent_piid": "NNG15SD72B",
+   "value": 119181357.39,
+   "score": 6.103,
+   "threshold": "3.5",
+   "peer_n": 306,
+   "baseline_median": 37992.9,
+   "peer_n_recomputed_from_table": 306,
+   "silver_transactions": 16,
+   "silver_sum": 119181357.39,
+   "silver_matches": true,
+   "bronze_rows_raw": 16,
+   "bronze_rows_deduped": 16,
+   "bronze_sum": 119181357.39,
+   "bronze_matches": true,
+   "first_action": "2021-12-15",
+   "last_action": "2022-09-27",
+   "modifications": 16,
+   "base_and_all_options_value": 0.0,
+   "award_years": [
+    [
+     2022,
+     119181357.39
+    ],
+    [
+     2023,
+     -29617193.35
+    ],
+    [
+     2024,
+     0.0
+    ],
+    [
+     2025,
+     -4097154.54
+    ]
+   ],
+   "permalink": "https://www.usaspending.gov/award/CONT_AWD_36C10B20F0069_3600_NNG15SD72B_8000/",
+   "pass": true
+  },
+  {
+   "detector": "large_award",
+   "award_key": "CONT_AWD_SS001730048_2800_GS35F110DA_4732",
+   "piid": "SS001730048",
+   "fiscal_year": 2022,
+   "agency": "Social Security Administration",
+   "recipient": "INTERNATIONAL BUSINESS MACHINES CORPORATION",
+   "psc": "7030",
+   "psc_description": "INFORMATION TECHNOLOGY SOFTWARE",
+   "award_type": "DELIVERY ORDER",
+   "parent_piid": "GS35F110DA",
+   "value": 58487500.0,
+   "score": 5.159,
+   "threshold": "3.5",
+   "peer_n": 62,
+   "baseline_median": 271988.87,
+   "peer_n_recomputed_from_table": 62,
+   "silver_transactions": 6,
+   "silver_sum": 58487500.0,
+   "silver_matches": true,
+   "bronze_rows_raw": 6,
+   "bronze_rows_deduped": 6,
+   "bronze_sum": 58487500.0,
+   "bronze_matches": true,
+   "first_action": "2021-12-22",
+   "last_action": "2022-09-28",
+   "modifications": 6,
+   "base_and_all_options_value": 62500.0,
+   "award_years": [
+    [
+     2022,
+     58487500.0
+    ],
+    [
+     2023,
+     48856500.0
+    ],
+    [
+     2024,
+     0.0
+    ],
+    [
+     2024,
+     41447792.16
+    ],
+    [
+     2025,
+     36028357.35
+    ],
+    [
+     2026,
+     36028357.35
+    ]
+   ],
+   "permalink": "https://www.usaspending.gov/award/CONT_AWD_SS001730048_2800_GS35F110DA_4732/",
+   "pass": true
+  },
+  {
+   "detector": "large_award",
+   "award_key": "CONT_AWD_1332KP23CNEEJ0001_1330_-NONE-_-NONE-",
+   "piid": "1332KP23CNEEJ0001",
+   "fiscal_year": 2023,
+   "agency": "Department of Commerce",
+   "recipient": "PERATON INC.",
+   "psc": "DG11",
+   "psc_description": "IT AND TELECOM - NETWORK: SATELLITE COMMUNICATIONS AND TELECOM ACCESS SERVICES",
+   "award_type": "DEFINITIVE CONTRACT",
+   "parent_piid": null,
+   "value": 92130533.55,
+   "score": 4.844,
+   "threshold": "3.5",
+   "peer_n": 187,
+   "baseline_median": 46816.33,
+   "peer_n_recomputed_from_table": 187,
+   "silver_transactions": 3,
+   "silver_sum": 92130533.55,
+   "silver_matches": true,
+   "bronze_rows_raw": 3,
+   "bronze_rows_deduped": 3,
+   "bronze_sum": 92130533.55,
+   "bronze_matches": true,
+   "first_action": "2023-02-17",
+   "last_action": "2023-08-09",
+   "modifications": 3,
+   "base_and_all_options_value": 399288379.0,
+   "award_years": [
+    [
+     2023,
+     92130533.55
+    ],
+    [
+     2024,
+     88649575.0
+    ],
+    [
+     2025,
+     27985471.72
+    ],
+    [
+     2026,
+     144489460.45
+    ]
+   ],
+   "permalink": "https://www.usaspending.gov/award/CONT_AWD_1332KP23CNEEJ0001_1330_-NONE-_-NONE-/",
+   "pass": true
+  },
+  {
+   "detector": "large_award",
+   "award_key": "CONT_AWD_2032H521F00374_2050_47QTCK18D0044_4732",
+   "piid": "2032H521F00374",
+   "fiscal_year": 2022,
+   "agency": "Department of the Treasury",
+   "recipient": "MAXIMUS FEDERAL SERVICES, INC.",
+   "psc": "DH10",
+   "psc_description": "IT AND TELECOM - PLATFORM AS A SERVICE: DATABASE, MAINFRAME, MIDDLEWARE",
+   "award_type": "DELIVERY ORDER",
+   "parent_piid": "47QTCK18D0044",
+   "value": 30539724.33,
+   "score": 4.483,
+   "threshold": "3.5",
+   "peer_n": 58,
+   "baseline_median": 84751.7,
+   "peer_n_recomputed_from_table": 58,
+   "silver_transactions": 16,
+   "silver_sum": 30539724.33,
+   "silver_matches": true,
+   "bronze_rows_raw": 16,
+   "bronze_rows_deduped": 16,
+   "bronze_sum": 30539724.33,
+   "bronze_matches": true,
+   "first_action": "2021-12-06",
+   "last_action": "2022-09-28",
+   "modifications": 16,
+   "base_and_all_options_value": 74946092.28,
+   "award_years": [
+    [
+     2022,
+     30539724.33
+    ],
+    [
+     2023,
+     29473564.41
+    ],
+    [
+     2024,
+     22517022.55
+    ],
+    [
+     2025,
+     -2759829.23
+    ]
+   ],
+   "permalink": "https://www.usaspending.gov/award/CONT_AWD_2032H521F00374_2050_47QTCK18D0044_4732/",
+   "pass": true
+  },
+  {
+   "detector": "large_award",
+   "award_key": "CONT_AWD_70T03022F7667N011_7013_47QTCK18D0009_4732",
+   "piid": "70T03022F7667N011",
+   "fiscal_year": 2022,
+   "agency": "Department of Homeland Security",
+   "recipient": "CACI, INC. - FEDERAL",
+   "psc": "DE01",
+   "psc_description": "IT AND TELECOM - END USER: HELP DESK; TIER 1-2, WORKSPACE, PRINT, OUTPUT, PRODUCTIVITY TOOLS (LABOR)",
+   "award_type": "DELIVERY ORDER",
+   "parent_piid": "47QTCK18D0009",
+   "value": 68513984.09,
+   "score": 3.982,
+   "threshold": "3.5",
+   "peer_n": 408,
+   "baseline_median": 1715.4,
+   "peer_n_recomputed_from_table": 408,
+   "silver_transactions": 7,
+   "silver_sum": 68513984.09,
+   "silver_matches": true,
+   "bronze_rows_raw": 7,
+   "bronze_rows_deduped": 7,
+   "bronze_sum": 68513984.09,
+   "bronze_matches": true,
+   "first_action": "2022-04-06",
+   "last_action": "2022-09-26",
+   "modifications": 7,
+   "base_and_all_options_value": 39531018.24,
+   "award_years": [
+    [
+     2022,
+     68513984.09
+    ],
+    [
+     2023,
+     0.0
+    ],
+    [
+     2026,
+     -1419187.43
+    ]
+   ],
+   "permalink": "https://www.usaspending.gov/award/CONT_AWD_70T03022F7667N011_7013_47QTCK18D0009_4732/",
+   "pass": true
+  },
+  {
+   "detector": "large_award",
+   "award_key": "CONT_AWD_75N92022F00065_7529_GS00F029DA_4732",
+   "piid": "75N92022F00065",
+   "fiscal_year": 2025,
+   "agency": "Department of Health and Human Services",
+   "recipient": "DELOITTE & TOUCHE LLP",
+   "psc": "DG01",
+   "psc_description": "IT AND TELECOM - NETWORK SUPPORT SERVICES (LABOR)",
+   "award_type": "DELIVERY ORDER",
+   "parent_piid": "GS00F029DA",
+   "value": 22436356.9,
+   "score": 3.592,
+   "threshold": "3.5",
+   "peer_n": 168,
+   "baseline_median": 40968.72,
+   "peer_n_recomputed_from_table": 168,
+   "silver_transactions": 6,
+   "silver_sum": 22436356.9,
+   "silver_matches": true,
+   "bronze_rows_raw": 6,
+   "bronze_rows_deduped": 6,
+   "bronze_sum": 22436356.9,
+   "bronze_matches": true,
+   "first_action": "2024-12-06",
+   "last_action": "2025-08-22",
+   "modifications": 6,
+   "base_and_all_options_value": 6500000.0,
+   "award_years": [
+    [
+     2022,
+     10018372.08
+    ],
+    [
+     2023,
+     18363265.47
+    ],
+    [
+     2024,
+     18729885.52
+    ],
+    [
+     2025,
+     22436356.9
+    ],
+    [
+     2026,
+     18000682.34
+    ]
+   ],
+   "permalink": "https://www.usaspending.gov/award/CONT_AWD_75N92022F00065_7529_GS00F029DA_4732/",
+   "pass": true
+  },
+  {
+   "detector": "concentration",
+   "agency": "Social Security Administration",
+   "psc_class2": "DK",
+   "fiscal_year": 2024,
+   "cell_total": 75064416.0,
+   "silver_total_positive_recipients": 75064416.0,
+   "n_recipients": 1,
+   "n_recipients_silver": 1,
+   "hhi": 10000.0,
+   "hhi_from_silver": 10000.0,
+   "top_share": 100.0,
+   "top_recipient": "FOUR POINTS TECHNOLOGY, L.L.C.",
+   "top_recipient_from_silver": "FOUR POINTS TECHNOLOGY, L.L.C.",
+   "top_recipient_silver_obligations": 75064416.0,
+   "prior_hhi": 10000.0,
+   "hhi_change": 0.0,
+   "pass": true
+  },
+  {
+   "detector": "concentration",
+   "agency": "Social Security Administration",
+   "psc_class2": "DC",
+   "fiscal_year": 2023,
+   "cell_total": 49558257.3,
+   "silver_total_positive_recipients": 49558257.3,
+   "n_recipients": 1,
+   "n_recipients_silver": 1,
+   "hhi": 10000.0,
+   "hhi_from_silver": 10000.0,
+   "top_share": 100.0,
+   "top_recipient": "AVAYA FEDERAL SOLUTIONS, INC",
+   "top_recipient_from_silver": "AVAYA FEDERAL SOLUTIONS, INC",
+   "top_recipient_silver_obligations": 49558257.3,
+   "prior_hhi": 9083.980615397933,
+   "hhi_change": 916.0193846020666,
+   "pass": true
+  },
+  {
+   "detector": "concentration",
+   "agency": "Social Security Administration",
+   "psc_class2": "DK",
+   "fiscal_year": 2022,
+   "cell_total": 23743221.0,
+   "silver_total_positive_recipients": 23743221.0,
+   "n_recipients": 1,
+   "n_recipients_silver": 1,
+   "hhi": 10000.0,
+   "hhi_from_silver": 10000.0,
+   "top_share": 100.0,
+   "top_recipient": "FOUR POINTS TECHNOLOGY, L.L.C.",
+   "top_recipient_from_silver": "FOUR POINTS TECHNOLOGY, L.L.C.",
+   "top_recipient_silver_obligations": 23743221.0,
+   "prior_hhi": null,
+   "hhi_change": null,
+   "pass": true
+  },
+  {
+   "detector": "concentration",
+   "agency": "Social Security Administration",
+   "psc_class2": "DK",
+   "fiscal_year": 2023,
+   "cell_total": 41273166.58,
+   "silver_total_positive_recipients": 41273166.58,
+   "n_recipients": 1,
+   "n_recipients_silver": 1,
+   "hhi": 10000.0,
+   "hhi_from_silver": 10000.0,
+   "top_share": 100.0,
+   "top_recipient": "FOUR POINTS TECHNOLOGY, L.L.C.",
+   "top_recipient_from_silver": "FOUR POINTS TECHNOLOGY, L.L.C.",
+   "top_recipient_silver_obligations": 41273166.58,
+   "prior_hhi": 10000.0,
+   "hhi_change": 0.0,
+   "pass": true
+  },
+  {
+   "detector": "recipient_growth",
+   "recipient": "AT&T ENTERPRISES, LLC",
+   "agency": "Department of Veterans Affairs",
+   "fiscal_year": 2023,
+   "value": 306255305.14,
+   "baseline_prior_year": 1544585.18,
+   "ratio": 198.28,
+   "delta": 304710719.96,
+   "silver_current_sum": 306255305.14,
+   "silver_prior_sum": 1544585.18,
+   "silver_transactions": 32,
+   "awards": 2,
+   "largest_awards": [
+    {
+     "award_key": "CONT_AWD_36C10A20F0309_3600_GS00Q17NSD3000_4732",
+     "piid": "36C10A20F0309",
+     "obligations": 302630735.78,
+     "award_type_code": "C",
+     "permalink": "https://www.usaspending.gov/award/CONT_AWD_36C10A20F0309_3600_GS00Q17NSD3000_4732/"
+    },
+    {
+     "award_key": "CONT_AWD_36C10A19F0321_3600_GS00Q17NSD3000_4732",
+     "piid": "36C10A19F0321",
+     "obligations": 3624569.36,
+     "award_type_code": "C",
+     "permalink": "https://www.usaspending.gov/award/CONT_AWD_36C10A19F0321_3600_GS00Q17NSD3000_4732/"
+    }
+   ],
+   "pass": true
+  },
+  {
+   "detector": "recipient_growth",
+   "recipient": "THUNDERCAT TECHNOLOGY, LLC",
+   "agency": "Department of Veterans Affairs",
+   "fiscal_year": 2026,
+   "value": 294650671.54,
+   "baseline_prior_year": 58110725.51,
+   "ratio": 5.07,
+   "delta": 236539946.03,
+   "silver_current_sum": 294650671.54,
+   "silver_prior_sum": 58110725.51,
+   "silver_transactions": 87,
+   "awards": 66,
+   "largest_awards": [
+    {
+     "award_key": "CONT_AWD_36C10B26F0287_3600_NNG15SD26B_8000",
+     "piid": "36C10B26F0287",
+     "obligations": 221952278.4,
+     "award_type_code": "C",
+     "permalink": "https://www.usaspending.gov/award/CONT_AWD_36C10B26F0287_3600_NNG15SD26B_8000/"
+    },
+    {
+     "award_key": "CONT_AWD_36C10B26F0436_3600_NNG15SD26B_8000",
+     "piid": "36C10B26F0436",
+     "obligations": 9441132.0,
+     "award_type_code": "C",
+     "permalink": "https://www.usaspending.gov/award/CONT_AWD_36C10B26F0436_3600_NNG15SD26B_8000/"
+    }
+   ],
+   "pass": true
+  },
+  {
+   "detector": "recipient_growth",
+   "recipient": "SPREZZATURA MANAGEMENT CONSULTING, LLC",
+   "agency": "Department of Veterans Affairs",
+   "fiscal_year": 2026,
+   "value": 251133804.21,
+   "baseline_prior_year": 22606376.48,
+   "ratio": 11.11,
+   "delta": 228527427.73,
+   "silver_current_sum": 251133804.21,
+   "silver_prior_sum": 22606376.48,
+   "silver_transactions": 14,
+   "awards": 5,
+   "largest_awards": [
+    {
+     "award_key": "CONT_AWD_36C10B24F0365_3600_47QTCA24D0013_4732",
+     "piid": "36C10B24F0365",
+     "obligations": 209172487.38,
+     "award_type_code": "C",
+     "permalink": "https://www.usaspending.gov/award/CONT_AWD_36C10B24F0365_3600_47QTCA24D0013_4732/"
+    },
+    {
+     "award_key": "CONT_AWD_36C10B26F0125_3600_47QTCA24D0013_4732",
+     "piid": "36C10B26F0125",
+     "obligations": 24959446.56,
+     "award_type_code": "C",
+     "permalink": "https://www.usaspending.gov/award/CONT_AWD_36C10B26F0125_3600_47QTCA24D0013_4732/"
+    }
+   ],
+   "pass": true
+  },
+  {
+   "detector": "recipient_growth",
+   "recipient": "COUNTERTRADE PRODUCTS, INC.",
+   "agency": "Department of the Treasury",
+   "fiscal_year": 2025,
+   "value": 225421548.37,
+   "baseline_prior_year": 10695482.96,
+   "ratio": 21.08,
+   "delta": 214726065.41,
+   "silver_current_sum": 225421548.37,
+   "silver_prior_sum": 10695482.96,
+   "silver_transactions": 16,
+   "awards": 9,
+   "largest_awards": [
+    {
+     "award_key": "CONT_AWD_2032H325F00025_2001_NNG15SC05B_8000",
+     "piid": "2032H325F00025",
+     "obligations": 197640415.45,
+     "award_type_code": "C",
+     "permalink": "https://www.usaspending.gov/award/CONT_AWD_2032H325F00025_2001_NNG15SC05B_8000/"
+    },
+    {
+     "award_key": "CONT_AWD_2032H523F00083_2050_NNG15SC65B_8000",
+     "piid": "2032H523F00083",
+     "obligations": 25564229.14,
+     "award_type_code": "C",
+     "permalink": "https://www.usaspending.gov/award/CONT_AWD_2032H523F00083_2050_NNG15SC65B_8000/"
+    }
+   ],
+   "pass": true
+  }
+ ]
+}
