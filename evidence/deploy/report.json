@@ -1,8 +1,8 @@
 {
  "stamp": {
-  "github_run_id": "40020401068",
-  "commit": "e24b1a2787d2",
-  "utc": "2026-10-23T20:41:46+00:00"
+  "github_run_id": "40107731658",
+  "commit": "5382f808314f",
+  "utc": "2026-10-24T15:42:16+00:00"
  },
  "snapshot_version": "v20261023-1",
  "api_url": "https://civiclens-api.fly.dev",
@@ -14,7 +14,7 @@
   "expected": 17,
   "unexpected": 0,
   "skipped": 1,
-  "duration_ms": 18405.03
+  "duration_ms": 19847.239
  },
  "pass": true,
  "api_access_checks": {
