@@ -1,0 +1,37 @@
+{
+ "recorded_utc": "2026-10-24T16:37:03.240Z",
+ "chapters": [
+  {
+   "t": 0,
+   "label": "Overview — six agencies, FY2022–FY2026, every number from one published SQL query"
+  },
+  {
+   "t": 9.4,
+   "label": "Scope filters live in the URL — Veterans Affairs, FY2025"
+  },
+  {
+   "t": 15.5,
+   "label": "Agency Explorer — recipients, PSC mix, year-over-year movers"
+  },
+  {
+   "t": 20.7,
+   "label": "Anomaly Lab — flagged awards with score, threshold and peer group"
+  },
+  {
+   "t": 25,
+   "label": "Why? — the exact comparison behind one flag, traced to raw transactions"
+  },
+  {
+   "t": 35.1,
+   "label": "AI Investigator — the model plans, SQL computes, the server verifies every number"
+  },
+  {
+   "t": 60.3,
+   "label": "Methodology — the SQL behind each endpoint, reconciliation and anomaly math"
+  },
+  {
+   "t": 73.6,
+   "label": "civiclens-ai-smoky.vercel.app · github.com/sagarmodha9-dotcom/civiclens-ai"
+  }
+ ]
+}
