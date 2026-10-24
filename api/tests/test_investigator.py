@@ -434,3 +434,39 @@ def test_row_count_fact_named_recipients_verifies(snap):
     assert verify(FinalAnswer(facts=[f], interpretation="x", citations=[]), log)["ok"]                        # X1 (run 40111814189)
     wrong = f.model_copy(update={"value": len(rows) + 1})
     assert not verify(FinalAnswer(facts=[wrong], interpretation="x", citations=[]), log)["ok"]
+
+
+def test_recipient_growth_anomaly_baseline_may_be_cited_as_prior_fiscal_year(snap):
+    """Holdout H11 (run 40113051727): the recipient_growth row's baseline IS the prior fiscal year's obligations; a fact for FY-1 citing
+    that call was rejected as 'fiscal year not in that tool call'. Same rule as the year-over-year tool; FY-2 still fails."""
+    scope = Scope("036", 2026)
+    rows = run_tool(snap, scope, "list_anomalies", {"detector": "recipient_growth", "limit": 10})
+    assert rows, "synthetic tree plants a growth anomaly"
+    r = rows[0]
+    log = [{"id": "tu_1", "name": "list_anomalies", "args": {"detector": "recipient_growth", "limit": 10}, "scope": scope.__dict__, "result": rows}]
+    base = inv.Fact(claim="prior year", value=float(r["baseline"]), unit="USD", tool_call_id="tu_1", measure="prior_obligations", entities=[r["recipient_uei"]], fiscal_years=[2025])
+    assert verify(FinalAnswer(facts=[base], interpretation="x", citations=[]), log)["ok"]
+    assert not verify(FinalAnswer(facts=[base.model_copy(update={"fiscal_years": [2024]})], interpretation="x", citations=[]), log)["ok"]
+
+
+def test_truncated_reply_is_retried_with_a_fact_cap_instead_of_drifting_to_zero_facts(snap):
+    """M3/M4 (run 40113049929): open questions produced a final_answer too long for the output limit; the cut-off JSON was invalid and the
+    retry came back with facts=[] and 34 ungrounded numbers. A max_tokens stop now gets an explicit 'shorter answer' turn."""
+    scope = Scope("036", 2025)
+
+    class TruncatingClient(FakeClient):
+        def create(self, **kw):
+            resp = super().create(**kw)
+            resp.stop_reason = "max_tokens" if self.calls == 2 else "end_turn"
+            return resp
+    turns = [
+        [("aggregate_spend", {"group_by": "recipient", "limit": 5})],
+        [("final_answer", {"facts": [], "interpretation": "cut off mid", "citations": []})],          # arrives truncated
+        [("final_answer", {"facts": [{"claim": "top", "value": 250000000.0, "unit": "USD", "tool_call_id": "tu_1_0", "measure": "obligations", "entities": [], "fiscal_years": [2025]}],
+                           "interpretation": "GIANT CORP received $250.0 million.", "citations": []})],
+    ]
+    client = TruncatingClient(turns)
+    answer, v, tr = ask(snap, scope, "anything weird?", client=client)
+    assert tr.truncated == 1 and len(answer.facts) == 1 and v["ok"] and not tr.regenerated
+    turns_text = json.dumps(client.last_kwargs["messages"], default=str)       # the shared messages list, after the run
+    assert "at most 12 facts" in turns_text and "cut off by the output limit" in turns_text

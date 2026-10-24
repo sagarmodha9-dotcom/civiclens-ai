@@ -39,6 +39,7 @@ router = APIRouter()
 
 MODEL = os.environ.get("CIVICLENS_MODEL", "claude-haiku-4-5")
 MAX_TOOL_CALLS = 8
+MAX_OUTPUT_TOKENS = 4000      # a final_answer with a dozen facts is ~1,500 tokens; 1,500 total truncated open-question answers (eval M3/M4)
 MAX_INPUT_TOKENS = 10_000          # per request (context size)
 MAX_TOTAL_INPUT_TOKENS = 120_000   # per question, all requests summed (cost guard, ~$0.12 on Haiku)
 PER_IP_PER_HOUR = int(os.environ.get("CIVICLENS_PER_IP_PER_HOUR", "8"))
@@ -69,8 +70,9 @@ Rules you must follow:
 - A count of rows ("no flagged anomalies", "6 recipients flagged") is a fact too: measure "count", value = the number of rows the tool returned.
 - Each fact holds ONE value: a number, or one identifier string copied from a row (award key, UEI, PSC class, agency code). Never a range
   ("2022-2026"), a date you composed, or a sentence; a span of years is two facts or the list of fiscal_years on one fact.
-- For an open question ("anything unusual?", "trend?") run the tools and declare facts for every number you rely on (counts per detector,
-  top values, scores). An answer about data with no facts is incomplete.
+- For an open question ("anything unusual?", "trend?") run the tools, then pick at most 12 numbers that carry the answer (counts per
+  detector, the top values, one score/threshold pair) and declare exactly those as facts; do not state any other number in prose.
+  An answer about data with no facts is incomplete.
 - A difference, total or share you compute from tool numbers must be its own fact with a measure naming the arithmetic ("increase", "total", "share").
 - State numbers and comparisons; do not explain them. No causes, motives, strategy or market commentary ("reflects", "suggests", "indicates",
   "likely", "focus on", "needs"), and no evaluative adverbs ("significantly", "substantially", "heavily", "dominated"). "Higher than", "second-largest",
@@ -299,7 +301,8 @@ def verify(answer: FinalAnswer, log: list[dict]) -> dict:
         if f.fiscal_years:
             call_text = json.dumps(t["args"]) + json.dumps(t["scope"])
             scope_fy = (t.get("scope") or {}).get("fiscal_year")
-            prior_ok = t["name"] == "year_over_year_recipients" and scope_fy          # its prior_obligations column is FY-1 by definition
+            prior_ok = bool(scope_fy) and (t["name"] == "year_over_year_recipients"                          # prior_obligations is FY-1 by definition
+                                           or (t["name"] == "list_anomalies" and (t.get("args") or {}).get("detector") == "recipient_growth"))   # baseline is FY-1 (holdout H11)
             fy_ok = all(str(fy) in call_text or any(abs(n - fy) < 0.5 for n in _nums(t["result"])) or (prior_ok and fy == int(scope_fy) - 1)
                         for fy in f.fiscal_years)
             if not fy_ok:
@@ -507,6 +510,7 @@ class Trace:
     input_tokens: int = 0
     output_tokens: int = 0
     regenerated: bool = False
+    truncated: int = 0                                     # model replies cut off by the output limit (each is retried once with a cap on facts)
 
 
 def _client():
@@ -542,13 +546,23 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
         calls = 0
         while calls <= MAX_TOOL_CALLS:
             emit({"stage": "model", "attempt": attempt + 1, "tool_calls_so_far": len(tr.tool_log)})
-            resp = client.messages.create(model=MODEL, max_tokens=1500, system=SYSTEM, tools=TOOLS, messages=messages)
+            resp = client.messages.create(model=MODEL, max_tokens=MAX_OUTPUT_TOKENS, system=SYSTEM, tools=TOOLS, messages=messages)
             last_in = getattr(resp.usage, "input_tokens", 0)
             tr.input_tokens += last_in; tr.output_tokens += getattr(resp.usage, "output_tokens", 0)
             if last_in > MAX_INPUT_TOKENS * 3 or tr.input_tokens > MAX_TOTAL_INPUT_TOKENS:
                 break
             tool_uses = [b for b in resp.content if getattr(b, "type", "") == "tool_use"]
             messages.append({"role": "assistant", "content": [b.model_dump() if hasattr(b, "model_dump") else b for b in resp.content]})
+            if getattr(resp, "stop_reason", None) == "max_tokens":
+                # The answer was cut off mid-JSON (open questions tempt the model into 20+ facts; eval M3/M4). A truncated tool_use is not
+                # a usable final_answer, so say so and ask for a shorter one rather than letting the retry drift to zero facts.
+                tr.truncated += 1
+                messages.append({"role": "user", "content": [*({"type": "tool_result", "tool_use_id": tu.id, "content": "cut off by the output limit; not received", "is_error": True} for tu in tool_uses),
+                                                             {"type": "text", "text": "Your reply exceeded the output limit and was cut off. Call final_answer again with at most 12 facts (the numbers "
+                                                                                       "your interpretation actually uses) and an interpretation under 120 words."}]})
+                if tr.truncated > 2:
+                    break
+                continue
             if not tool_uses:
                 if not nudged:        # plain-text reply (eval E1/E5): ask once for the structured answer, then give up
                     nudged = True

@@ -91,3 +91,17 @@ date; ISO dates are exempt from grounding like month-name dates; "recipients/ret
 when the value equals the row count; an answer with tool rows but no facts regenerates once with an explicit request for facts;
 the prompt states that a fact holds one value. No reference, threshold or tolerance changed. A3 (a 22.4% share the server could
 not derive from the cited call) is left as a model arithmetic error pending the next run.
+
+## Investigator, third pass after runs 40113049929 / 40113051727 (2026-10-24)
+
+Regression 35/40 verified · 34/40 judge; holdout 23/24 · 18/24. Diagnosed from the result files:
+- **M3, M4** — open questions ("anything weird?", "trend?"): the model drafted a `final_answer` with 20+ facts, the reply hit the
+  1,500-token output limit, the cut-off tool call was invalid, and the retry came back with *no* facts and every number in prose
+  stripped (34 and 12 ungrounded tokens). Decision: output budget 4,000 tokens; a `max_tokens` stop is answered with an explicit
+  "shorter answer, at most 12 facts" turn instead of a silent retry; the prompt caps facts at 12 for open questions.
+- **H11, W1** — a prior-year fact citing the `recipient_growth` anomaly row was rejected ("fiscal year not in that tool call")
+  although that row's `baseline` is the prior fiscal year by definition. Decision: the FY-1 rule that already applied to the
+  year-over-year tool applies to that detector's rows too; FY-2 still fails (unit test).
+- **N6** — a derived share cited a tool id that does not exist; the id remap only recovers facts whose value sits in a row, and a
+  share has no row. Left as a model error: inventing a tool id is exactly what verification should refuse.
+No reference values, thresholds or tolerances changed.
