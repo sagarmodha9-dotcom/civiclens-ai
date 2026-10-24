@@ -87,7 +87,7 @@ function Investigator() {
                   {a.citations.map((c) => <a key={c} className={`chip ${v?.bad_citations.includes(c) ? "chip-warn" : ""}`} href={`https://www.usaspending.gov/award/${encodeURIComponent(c)}/`} target="_blank" rel="noreferrer">{c} ↗</a>)}
                   {!a.citations.length && <span className="text-mist-500">No award-level citations in this answer.</span>}
                 </div>
-                <div className="mt-3 text-xs text-mist-500">Tools: {res.tool_log?.map((t) => `${t.name}(${Object.entries(t.args).map(([k, val]) => `${k}=${val}`).join(", ")})`).join(" → ") || "none"}{res.usage && ` · ${res.usage.input_tokens + res.usage.output_tokens} tokens · $${res.usage.usd.toFixed(4)}`}{res.cached && " · cached"}{res.usage?.regenerated && " · regenerated once after verification"}</div>
+                <div className="mt-3 text-xs text-mist-500">Tools: {res.tool_log?.filter((t) => !t.id.startsWith("ctx_")).map((t) => `${t.name}(${Object.entries(t.args).map(([k, val]) => `${k}=${val}`).join(", ")})`).join(" → ") || "none"}{res.tool_log?.some((t) => t.id.startsWith("ctx_")) && " · context: active scope" }{res.tool_log?.some((t) => t.id === "ctx_selected_anomaly") && " + selected anomaly"}{res.usage && ` · ${res.usage.input_tokens + res.usage.output_tokens} tokens · $${res.usage.usd.toFixed(4)}`}{res.cached && " · cached"}{res.usage?.regenerated && " · regenerated once after verification"}</div>
               </Panel>
             </>
           )}

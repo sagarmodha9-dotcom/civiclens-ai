@@ -67,6 +67,10 @@ Rules you must follow:
 - For anomaly facts (value, score, threshold, peer_n, baseline_median) put the award_key in `entities` so each number stays tied to the award it describes.
   The peer group size is measure "peer_n" (not "count"); baseline median is "baseline_median"; the detector score is "score".
 - A count of rows ("no flagged anomalies", "6 recipients flagged") is a fact too: measure "count", value = the number of rows the tool returned.
+- Each fact holds ONE value: a number, or one identifier string copied from a row (award key, UEI, PSC class, agency code). Never a range
+  ("2022-2026"), a date you composed, or a sentence; a span of years is two facts or the list of fiscal_years on one fact.
+- For an open question ("anything unusual?", "trend?") run the tools and declare facts for every number you rely on (counts per detector,
+  top values, scores). An answer about data with no facts is incomplete.
 - A difference, total or share you compute from tool numbers must be its own fact with a measure naming the arithmetic ("increase", "total", "share").
 - State numbers and comparisons; do not explain them. No causes, motives, strategy or market commentary ("reflects", "suggests", "indicates",
   "likely", "focus on", "needs"), and no evaluative adverbs ("significantly", "substantially", "heavily", "dominated"). "Higher than", "second-largest",
@@ -243,7 +247,7 @@ def _column_sums(rows: Any) -> list[float]:
     return list(sums.values())
 
 
-_COUNT_MEASURES = ("count", "anomal", "flagged", "rows", "results", "matches", "number", "n_")
+_COUNT_MEASURES = ("count", "anomal", "flagged", "rows", "results", "matches", "number", "n_", "recipients", "returned", "listed", "entries", "items")
 
 
 def _is_count_fact(f, subset: Any) -> bool:
@@ -366,11 +370,16 @@ _DATE_DAY = re.compile(r"\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|d
                        r"|\b(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\b", re.I)
 
 
+_ISO_DATE = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
+
+
 def _date_day_spans(text: str) -> list[tuple[int, int]]:
     spans = []
     for m in _DATE_DAY.finditer(text or ""):
         g = 1 if m.group(1) else 2
         spans.append((m.start(g), m.end(g)))
+    for m in _ISO_DATE.finditer(text or ""):                 # "2026-09-30" is a date, not three numbers (eval E5)
+        spans.append((m.start(), m.end()))
     return spans
 _STATS_PHRASES = re.compile(r"(standard deviations?|percentile|sigma|confidence interval|p-value)", re.I)   # never returned by a tool
 
@@ -522,7 +531,9 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
     tr.context.append({"id": "ctx_scope", "name": "dashboard_scope", "args": {}, "scope": scope.__dict__,
                         "result": {"agency_code": scope.agency_code, "agency_name": AGENCIES.get(scope.agency_code or "", None),
                                    "fiscal_year": scope.fiscal_year, "psc_class": scope.psc_class2, "recipient_uei": scope.recipient_uei,
-                                   "psc_classes_in_scope": ["D", "70"], "snapshot_version": s.version}})
+                                   "psc_classes_in_scope": ["D", "70"], "snapshot_version": s.version,
+                                   "fiscal_years_in_snapshot": [2022, 2023, 2024, 2025, 2026], "latest_fiscal_year_end": "2026-09-30",
+                                   "note": "FY2026 is preliminary (ended 2026-09-30; subject to reporting lag)"}})
     if selected_anomaly:
         tr.context.append({"id": "ctx_selected_anomaly", "name": "selected_anomaly", "args": {}, "scope": scope.__dict__, "result": selected_anomaly})
     final: FinalAnswer | None = None
@@ -575,14 +586,18 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
         if not final.facts and not final.insufficient_evidence and prose_numbers(final.interpretation):
             ungrounded = ungrounded or [tok for tok, _ in prose_numbers(final.interpretation)]   # numbers stated with no facts at all (eval N3)
         v["ungrounded_prose"] = ungrounded
-        if (v["ok"] and not ungrounded) or attempt == 1:
+        rows_seen = any(t["result"] for t in tr.tool_log if not (isinstance(t["result"], dict) and "error" in t["result"]))
+        no_facts_after_tools = not final.facts and not final.insufficient_evidence and rows_seen      # eval M3/N3: an answer about data with nothing checkable
+        v["no_facts_after_tools"] = no_facts_after_tools
+        if (v["ok"] and not ungrounded and not no_facts_after_tools) or attempt == 1:
             break
         tr.regenerated = True
         emit({"stage": "regenerate", "unverified_facts": len(v["unverified_facts"]), "ungrounded_numbers": len(ungrounded)})
         messages.append({"role": "user", "content": "Verification failed: " + json.dumps({"unverified_facts": v["unverified_facts"], "bad_citations": v["bad_citations"],
                                                                                         "numbers_in_prose_without_a_fact": ungrounded,
                                                                                         "facts_returned": len(final.facts)}, default=str)[:3000] +
-                         ("\nYou returned NO facts. " if not final.facts else "") +
+                         ("\nYou returned NO facts although tools returned rows: declare at least the numbers your answer rests on (counts of flagged rows "
+                          "with measure 'count', the top values, the score/threshold/peer_n of any anomaly you mention), each with its tool_call_id. " if not final.facts else "") +
                          "\nEvery fact must reference the tool_call_id whose rows contain that exact number for those entities and fiscal years. Every number in "
                          "interpretation/limits must be one of your facts (or a share/ratio of two facts declared as a fact). Call final_answer again."})
         final = None

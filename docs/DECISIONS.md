@@ -80,3 +80,14 @@ dollars exactly, so a changed amount can never hide inside the tolerance. Unit-t
 (`ingest/tests/test_reconcile.py`). Treasury's residual deltas are re-checked by the weekly scheduled ingest; the counts are
 recorded per cell and per run, never widened. The Monday ingest now also dispatches the Databricks lakehouse run (with DuckDB
 parity) and the anomaly re-validation on its own artifact; nothing in the chain can promote a snapshot or deploy.
+
+## Investigator, second pass after run 40111814189 (2026-10-24)
+
+Regression 34/40 (holdout 24/24): N5, E3, W3, W5 fixed; new misses were E5 (the model cited the scope record for the fiscal-year end
+date, which the record did not carry, and "30" inside `2026-09-30` was read as a number), X1 (a correct row count named "recipients"),
+M3 and N3 (tools ran, prose had no numbers, zero facts — nothing checkable, and the "no facts" rule only fired when prose had numbers),
+N1 (a composed string "2022-2026" as a fact value). Decisions: the scope record carries the fiscal years in the snapshot and the FY-end
+date; ISO dates are exempt from grounding like month-name dates; "recipients/returned/listed/entries/items" count as count measures
+when the value equals the row count; an answer with tool rows but no facts regenerates once with an explicit request for facts;
+the prompt states that a fact holds one value. No reference, threshold or tolerance changed. A3 (a 22.4% share the server could
+not derive from the cited call) is left as a model arithmetic error pending the next run.

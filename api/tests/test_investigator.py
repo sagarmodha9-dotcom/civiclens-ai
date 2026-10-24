@@ -383,7 +383,7 @@ def test_ask_emits_progress_events_only_as_they_happen(snap):
     scope = Scope("036", 2025)
     turns = [
         [("aggregate_spend", {"group_by": "recipient", "limit": 5})],
-        [("final_answer", {"facts": [], "interpretation": "No numbers here.", "citations": []})],
+        [("final_answer", {"facts": [], "interpretation": "The tools hold no rows for this.", "citations": [], "insufficient_evidence": True})],
     ]
     seen = []
     ask(snap, scope, "who got the most?", client=FakeClient(turns), on_event=seen.append)
@@ -403,3 +403,34 @@ def test_stream_endpoint_sends_progress_then_the_same_result(client, monkeypatch
     assert events[0][0] == "progress" and events[0][1]["stage"] == "queued"
     assert events[-1][0] == "result" and {k: v for k, v in events[-1][1].items() if k != "cached"} == {k: v for k, v in plain.items() if k != "cached"}
     assert client.post("/v1/investigate/stream", json={"question": "hi"}).status_code == 422
+
+
+def test_iso_dates_are_not_data_claims_and_scope_record_carries_the_fiscal_year_end():
+    assert inv.prose_numbers("The snapshot ends 2026-09-30; FY2027 has no rows.") == []        # E5 (run 40111814189): "30" was stripped
+    assert [t for t, _ in inv.prose_numbers("30 awards on 2026-09-30")] == ["30"]
+
+
+def test_tools_ran_but_no_facts_declared_triggers_regeneration(snap):
+    """M3/N3 (runs 40020404463, 40111814189): six tool calls, prose with no numbers, facts=[] — nothing a reader can check.
+    The server now asks once for facts; a second empty answer is returned as is (and fails the eval on its references)."""
+    scope = Scope("036", 2025)
+    turns = [[("list_anomalies", {"detector": "large_award", "limit": 10})],
+             [("final_answer", {"facts": [], "interpretation": "Several awards look unusual relative to their peers.", "citations": []})],
+             [("final_answer", {"facts": [{"claim": "flagged large awards", "value": 1, "unit": "rows", "tool_call_id": "tu_1_0", "measure": "count", "entities": [], "fiscal_years": []}],
+                                "interpretation": "One award is flagged relative to its peers.", "citations": []})]]
+    answer, v, tr = ask(snap, scope, "anything weird?", client=FakeClient(turns))
+    assert tr.regenerated and len(answer.facts) == 1 and v["ok"]
+    # a refusal with no tool rows does not regenerate
+    turns = [[("final_answer", {"facts": [], "interpretation": "Not in this data.", "citations": [], "insufficient_evidence": True})]]
+    answer, v, tr = ask(snap, scope, "headcount?", client=FakeClient(turns))
+    assert not tr.regenerated
+
+
+def test_row_count_fact_named_recipients_verifies(snap):
+    scope = Scope("036", 2025)
+    rows = run_tool(snap, scope, "aggregate_spend", {"group_by": "recipient", "limit": 5})
+    log = [{"id": "tu_1", "name": "aggregate_spend", "args": {"group_by": "recipient", "limit": 5}, "scope": scope.__dict__, "result": rows}]
+    f = inv.Fact(claim="Top recipients returned", value=len(rows), unit="rows", tool_call_id="tu_1", measure="recipients", entities=[], fiscal_years=[2025])
+    assert verify(FinalAnswer(facts=[f], interpretation="x", citations=[]), log)["ok"]                        # X1 (run 40111814189)
+    wrong = f.model_copy(update={"value": len(rows) + 1})
+    assert not verify(FinalAnswer(facts=[wrong], interpretation="x", citations=[]), log)["ok"]
