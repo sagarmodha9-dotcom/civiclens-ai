@@ -29,6 +29,39 @@ from .client import ApiError, UsaSpendingClient, contract_filters, fy_window
 from .probe import AGENCIES
 
 
+
+R1_TOLERANCE = 0.005   # same tolerance as the pipeline DQ gate (docs/DECISIONS.md 2026-10-23, Treasury)
+
+
+def summarize(report: dict, mism: int) -> dict:
+    """Fills report["summary"] (and per-cell R3 flags) and returns it. Pure, so the gate is unit-tested.
+
+    R3 grain, confirmed 2026-10-24 on the v20261023-1 data (docs/DECISIONS.md): spending_over_time with spending_level=transactions,
+    grouped by month and summed over the fiscal-year window, equals the sum of transaction obligations for the same filter —
+    to the cent on every cell whose R1 row count was exact (26/30), and off only on the cells whose row count was short (4/30).
+    So R3 is a gate with two rules: (a) |delta| within the same 0.5% tolerance as R1; (b) coupled exactness — a cell whose
+    row count matches exactly must also match in dollars exactly; a dollar difference without a row difference means a
+    changed amount, which the tolerance must not absorb."""
+    r1_inexact = [x for x in report["R1"] if x["delta"] not in (0, None)]
+    r1_over = [x for x in r1_inexact if abs(x["delta"]) / max(x["api_count_now"], 1) > R1_TOLERANCE]
+    r1_exact_cells = {(x["agency_code"], int(x["fiscal_year"])) for x in report["R1"] if x["delta"] == 0}
+    r3_avail = [x for x in report["R3"] if x.get("available")]
+    r3_over = [x for x in r3_avail if abs(x["delta"]) / max(abs(x["api_spending_over_time"]), 1.0) > R1_TOLERANCE]
+    r3_coupled = [x for x in r3_avail if (x["agency_code"], int(x["fiscal_year"])) in r1_exact_cells and abs(x["delta"]) >= 0.005]
+    for x in r3_avail:
+        x["within_tolerance"] = x not in r3_over
+        x["coupled_exact_violation"] = x in r3_coupled
+        x["row_count_short"] = (x["agency_code"], int(x["fiscal_year"])) not in r1_exact_cells
+    report["summary"] = {"cells": len(report["R1"]), "r1_exact_cells": len(report["R1"]) - len(r1_inexact),
+                         "r1_inexact_cells": len(r1_inexact), "r1_over_tolerance_cells": len(r1_over), "r1_tolerance": R1_TOLERANCE,
+                         "r2_sampled": len(report["R2"]),
+                         "r2_mismatches": mism, "r3_available": len(r3_avail),
+                         "r3_nonzero_delta": sum(1 for x in r3_avail if abs(x["delta"]) >= 0.005),
+                         "r3_over_tolerance_cells": len(r3_over), "r3_coupled_exact_violations": len(r3_coupled),
+                         "r3_grain": "spending_over_time, spending_level=transactions, group=month, summed over the FY window (confirmed 2026-10-24)",
+                         "pass": not r1_over and mism == 0 and not r3_over and not r3_coupled}
+    return report["summary"]
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--raw", default="data/raw")
@@ -95,22 +128,17 @@ def main() -> int:
             report["R3"].append({"agency_code": code, "fiscal_year": int(fy), "available": False, "error": str(e)[:200]})
             print(f"R3 {code} FY{fy}: not available ({e})", flush=True)
     c.close()
-    R1_TOLERANCE = 0.005   # same tolerance as the pipeline DQ gate (docs/DECISIONS.md 2026-10-23, Treasury)
-    r1_inexact = [x for x in report["R1"] if x["delta"] not in (0, None)]
-    r1_over = [x for x in r1_inexact if abs(x["delta"]) / max(x["api_count_now"], 1) > R1_TOLERANCE]
-    report["summary"] = {"cells": len(report["R1"]), "r1_exact_cells": len(report["R1"]) - len(r1_inexact),
-                         "r1_inexact_cells": len(r1_inexact), "r1_over_tolerance_cells": len(r1_over), "r1_tolerance": R1_TOLERANCE,
-                         "r2_sampled": len(report["R2"]),
-                         "r2_mismatches": mism, "r3_available": sum(1 for x in report["R3"] if x.get("available")),
-                         "r3_nonzero_delta": sum(1 for x in report["R3"] if x.get("available") and abs(x["delta"]) >= 0.005),
-                         "pass": not r1_over and mism == 0}
+    mism_count = mism
+    summarize(report, mism_count)
     (out / "report.json").write_text(json.dumps(report, indent=1, default=str))
     sm = report["summary"]
     md = [f"# Reconciliation against USAspending — {report['run_utc']}", "",
           f"R1 completeness: {sm['cells']} cells re-counted now, {sm['r1_exact_cells']} exact, {sm['r1_inexact_cells']} with a delta, "
           f"{sm['r1_over_tolerance_cells']} beyond the {sm['r1_tolerance']:.1%} tolerance. R2 window sums: {sm['r2_sampled']} sampled awards, "
-          f"{sm['r2_mismatches']} mismatches. R3 agency-year vs spending_over_time: {sm['r3_available']} available, {sm['r3_nonzero_delta']} with a non-zero delta. "
-          f"**{'PASS' if sm['pass'] else 'FAIL'}** (R2 must be exact to the cent; R1 deltas are listed and must stay within tolerance; R3 is informational until its grain is confirmed).", "",
+          f"{sm['r2_mismatches']} mismatches. R3 agency-year vs spending_over_time: {sm['r3_available']} available, {sm['r3_nonzero_delta']} with a non-zero delta, "
+          f"{sm['r3_over_tolerance_cells']} beyond tolerance, {sm['r3_coupled_exact_violations']} dollar differences on cells whose row count was exact. "
+          f"**{'PASS' if sm['pass'] else 'FAIL'}** (R2 must be exact to the cent; R1 and R3 deltas must stay within {sm['r1_tolerance']:.1%}; a cell with an exact row count must "
+          f"also match in dollars exactly; R3 grain: {sm['r3_grain']}).", "",
           "| check | agency | FY | ours | API | delta / match |", "|---|---|---|---|---|---|"]
     for x in report["R1"]:
         md.append(f"| R1 count | {x['agency_code']} | {x['fiscal_year']} | {x['ours']:,} | {x['api_count_now']} | {x['delta']} |")
@@ -120,7 +148,8 @@ def main() -> int:
         md.append(f"| R2 award `{x['award_key']}` | {x['agency_code']} | {x['fiscal_year']} | {x['ours_n']} tx, ${x['ours_sum']:,.2f} | {x['api_n']} tx, ${x['api_sum']:,.2f} (lifetime ${x['api_lifetime_total_obligation_label_only']}) | {'match' if x['match'] else 'MISMATCH'} |")
     for x in report["R3"]:
         if x.get("available"):
-            md.append(f"| R3 agency-year | {x['agency_code']} | {x['fiscal_year']} | ${x['ours']:,.2f} | ${x['api_spending_over_time']:,.2f} | {x['delta']:,.2f} |")
+            flag = " (row count short — see R1)" if x.get("row_count_short") and abs(x["delta"]) >= 0.005 else (" **DOLLARS DIFFER ON AN EXACT CELL**" if x.get("coupled_exact_violation") else "")
+            md.append(f"| R3 agency-year | {x['agency_code']} | {x['fiscal_year']} | ${x['ours']:,.2f} | ${x['api_spending_over_time']:,.2f} | {x['delta']:,.2f}{flag} |")
         else:
             md.append(f"| R3 agency-year | {x['agency_code']} | {x['fiscal_year']} | | not available | {x.get('error','')[:60]} |")
     (out / "report.md").write_text("\n".join(md) + "\n")

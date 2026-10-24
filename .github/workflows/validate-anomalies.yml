@@ -33,9 +33,6 @@ jobs:
         if: always()
         run: |
           echo "ingest_run_id=${{ inputs.ingest_run_id }} validate_run_id=${{ github.run_id }} outcome=${{ steps.val.outcome }}" > evidence/anomalies/run.txt
-          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/anomalies && git commit -m "evidence: anomaly engine validation (${{ steps.val.outcome }}) on snapshot of ingest run ${{ inputs.ingest_run_id }}" || echo "nothing to commit"
-          pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
-          test "$pushed" = 1 || { echo "::error::evidence push failed after 3 attempts"; exit 1; }
+          scripts/commit_evidence.sh "evidence: anomaly engine validation (${{ steps.val.outcome }}) on snapshot of ingest run ${{ inputs.ingest_run_id }}" evidence/anomalies
       - if: steps.val.outcome != 'success'
         run: exit 1

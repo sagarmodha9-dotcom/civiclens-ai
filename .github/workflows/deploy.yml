@@ -28,6 +28,27 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+      - name: Require a green `tests` workflow for this exact commit
+        # Unit, web build, local browser tests and the security gate must have passed on the commit being deployed. An in-progress
+        # run is waited for (up to 25 min); a failed or missing run blocks the deploy. Nothing reaches Fly/Vercel on red tests.
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          for i in $(seq 1 50); do
+            runs=$(gh run list --workflow tests.yml --commit "$GITHUB_SHA" --json status,conclusion,databaseId -L 5)
+            n=$(echo "$runs" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))")
+            if [ "$n" = "0" ]; then echo "no tests run for $GITHUB_SHA yet"; sleep 30; continue; fi
+            state=$(echo "$runs" | python3 -c "
+          import json,sys; rs=json.load(sys.stdin)
+          done=[r for r in rs if r['status']=='completed']
+          print('pending' if len(done)<len(rs) else ('success' if all(r['conclusion']=='success' for r in done) else 'failure'))")
+            echo "tests for $GITHUB_SHA: $state ($runs)"
+            case "$state" in
+              success) exit 0 ;;
+              failure) echo "::error::tests workflow failed for this commit; fix it before deploying"; exit 1 ;;
+              *) sleep 30 ;;
+            esac
+          done
+          echo "::error::tests workflow did not finish within 25 minutes"; exit 1
       - name: Resolve snapshot
         id: snap
         run: |
@@ -145,6 +166,10 @@ jobs:
           checks["unknown_agency_rejected_422"] = st == 422
           st, h, b = call("/v1/overview", "DELETE")
           checks["no_write_methods_405"] = st == 405
+          st, h, _ = call("/v1/investigate/stream", "POST", data=b'{"question": "x"}', headers={"Content-Type": "application/json"})
+          checks["stream_validates_input_422"] = st == 422                      # the SSE variant enforces the same schema as the JSON one
+          st, h, _ = call("/v1/investigate/stream", "DELETE")
+          checks["stream_no_write_methods_405"] = st == 405
           st, h, b = call("/v1/sql"); checks["published_sql_readable"] = st == 200 and b"SELECT" in b
           st, h, _ = call("/healthz"); hl = {k.lower(): v for k, v in h.items()}
           checks["security_headers"] = hl.get("x-content-type-options") == "nosniff" and "x-snapshot-version" in hl
@@ -177,10 +202,28 @@ jobs:
           mkdir -p ../docs/screenshots ../docs/demo
           npx playwright test demo.spec.ts demo-mobile.spec.ts --project=desktop 2>&1 | tail -12
           # ubuntu-latest (Ubuntu 26 image) no longer ships ffmpeg: run 40017627662 exited 127 after recording the walkthrough
-          command -v ffmpeg >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null; }
+          { command -v ffmpeg >/dev/null && test -f /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf; } || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core >/dev/null; }
           ffmpeg -version | head -1
           v=$(find test-results -name "*.webm" | head -1); echo "video: $v"
-          test -n "$v" && ffmpeg -loglevel error -y -i "$v" -vf "fps=24,scale=1280:-2" -c:v libx264 -crf 26 -preset slow -pix_fmt yuv420p -movflags +faststart ../docs/demo/civiclens-demo.mp4
+          # Burn the chapter labels the walkthrough recorded (docs/demo/chapters.json) into the video as captions. Each label is shown
+          # from the moment that section actually started until the next one; the last runs to the end. No label is invented here.
+          python3 - <<'PY' > caption_filter.txt
+          import json, pathlib
+          ch = json.loads(pathlib.Path("../docs/demo/chapters.json").read_text())["chapters"] if pathlib.Path("../docs/demo/chapters.json").exists() else []
+          font = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+          def esc(t): return t.replace("\\", "\\\\").replace("'", "\u2019").replace(":", "\\:").replace(",", "\\,").replace("[", "(").replace("]", ")").replace(";", "\\;")
+          parts = ["fps=24,scale=1280:-2"]
+          for i, c in enumerate(ch):
+              end = ch[i + 1]["t"] if i + 1 < len(ch) else 1e9
+              parts.append(f"drawtext=fontfile={font}:expansion=none:text='{esc(c['label'])}':fontsize=22:fontcolor=white:box=1:boxcolor=black@0.55:boxborderw=14:x=24:y=h-th-28:enable='between(t\\,{c['t']}\\,{end})'")
+          print(",".join(parts))
+          PY
+          echo "filter: $(cut -c1-200 caption_filter.txt)…"
+          test -n "$v" && ffmpeg -loglevel error -y -i "$v" -vf "$(cat caption_filter.txt)" -c:v libx264 -crf 26 -preset slow -pix_fmt yuv420p -movflags +faststart ../docs/demo/civiclens-demo.mp4
+          ffprobe -v error -show_entries format=duration:stream=codec_name,width,height -of default=nw=1 ../docs/demo/civiclens-demo.mp4
+          # 20-second, 640px GIF preview for the README (GitHub does not autoplay MP4); palette pass keeps it small and legible.
+          ffmpeg -loglevel error -y -t 20 -i ../docs/demo/civiclens-demo.mp4 -vf "fps=8,scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=5" ../docs/demo/civiclens-demo-preview.gif
+          python3 -c "import os,sys; sz=os.path.getsize('../docs/demo/civiclens-demo-preview.gif'); print('gif bytes', sz); sys.exit(1 if sz > 8_000_000 else 0)"
           ls -la ../docs/demo ../docs/screenshots
           python3 -c "import os,sys; sz=os.path.getsize('../docs/demo/civiclens-demo.mp4'); print('mp4 bytes', sz); sys.exit(1 if sz > 20_000_000 else 0)"
       - name: Upload e2e log, results and failure traces
@@ -206,7 +249,10 @@ jobs:
           except Exception as e: res = {"error": str(e)[:100]}
           sec = json.load(open("api_access_checks.json")) if pathlib.Path("api_access_checks.json").exists() else {}
           e2e_ok = "${{ steps.e2e.outcome }}" == "success" and (res.get("expected") or 0) >= 10 and not res.get("unexpected")   # tests must actually have run
-          ok = "${{ steps.api.outcome }}" == "success" and ("${{ inputs.skip_web }}" == "true" or (e2e_ok and "${{ steps.apisec.outcome }}" == "success"))
+          demo_ok = "${{ steps.demo.outcome }}" == "success" and pathlib.Path("docs/demo/civiclens-demo.mp4").exists() and pathlib.Path("docs/demo/civiclens-demo.mp4").stat().st_size > 100_000
+          # PASS needs every release gate: pinned API, access-control smoke, >=10 live browser tests with 0 failures, and a playable demo
+          # (run 40017627662 was reported PASS with no video; the demo is a declared deliverable, so its absence now fails the release).
+          ok = "${{ steps.api.outcome }}" == "success" and ("${{ inputs.skip_web }}" == "true" or (e2e_ok and "${{ steps.apisec.outcome }}" == "success" and demo_ok))
           rep = {"stamp": {"github_run_id": "${{ github.run_id }}", "commit": "${{ github.sha }}"[:12], "utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")},
                  "snapshot_version": "${{ steps.snap.outputs.version }}", "api_url": "${{ steps.api.outputs.url }}", "site_url": "${{ steps.web.outputs.url }}",
                  "api_smoke": "${{ steps.api.outcome }}", "web_deploy": "${{ steps.web.outcome }}", "e2e": "${{ steps.e2e.outcome }}", "e2e_results": res, "pass": ok,
@@ -225,9 +271,5 @@ jobs:
                 f"- Cost: {rep['cost_note']}"]
           pathlib.Path("evidence/deploy/report.md").write_text("\n".join(md) + "\n"); print("\n".join(md))
           EOF
-          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/deploy; git add docs/demo docs/screenshots 2>/dev/null || true
-          git commit -m "evidence: deployment run ${{ github.run_id }} (+demo, screenshots)" || echo "nothing to commit"
-          pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
-          test "$pushed" = 1 || { echo "::error::evidence push failed"; exit 1; }
+          scripts/commit_evidence.sh "evidence: deployment run ${{ github.run_id }} (+demo, screenshots)" evidence/deploy docs/demo docs/screenshots
           python3 -c "import json,sys; sys.exit(0 if json.load(open('evidence/deploy/report.json'))['pass'] else 1)"

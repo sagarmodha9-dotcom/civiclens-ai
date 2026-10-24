@@ -14,7 +14,7 @@ export function FyBars({ data, prelimFy = 2026 }: { data: { fiscal_year: number;
           <XAxis dataKey="fiscal_year" tickFormatter={(v) => `FY${String(v).slice(2)}`} {...axis} />
           <YAxis tickFormatter={(v) => usd(v)} width={64} {...axis} />
           <Tooltip {...tip} formatter={(v) => [usd(Number(v), false), "Obligations"]} labelFormatter={(l) => `FY${l}${Number(l) === prelimFy ? " (preliminary)" : ""}`} />
-          <Bar dataKey="obligations" radius={[6, 6, 0, 0]}>
+          <Bar dataKey="obligations" radius={[6, 6, 0, 0]} isAnimationActive={false}>
             {data.map((d) => <Cell key={d.fiscal_year} fill={d.fiscal_year === prelimFy ? "#f2b544" : "#5aa9ff"} fillOpacity={d.fiscal_year === prelimFy ? 0.7 : 0.9} />)}
           </Bar>
         </BarChart>
@@ -32,7 +32,7 @@ export function HBars({ data, nameKey, valueKey, onClick, height = 280 }: { data
           <XAxis type="number" tickFormatter={(v) => usd(v)} {...axis} />
           <YAxis type="category" dataKey={nameKey} width={170} tickFormatter={(v) => String(v).length > 24 ? `${String(v).slice(0, 23)}…` : String(v)} {...axis} />
           <Tooltip {...tip} formatter={(v) => [usd(Number(v), false), "Obligations"]} />
-          <Bar dataKey={valueKey} fill="#5aa9ff" radius={[0, 6, 6, 0]} onClick={(d) => onClick?.(d as unknown as Record<string, unknown>)} cursor={onClick ? "pointer" : undefined} />
+          <Bar dataKey={valueKey} fill="#5aa9ff" radius={[0, 6, 6, 0]} isAnimationActive={false} onClick={(d) => onClick?.(d as unknown as Record<string, unknown>)} cursor={onClick ? "pointer" : undefined} />
         </BarChart>
       </ResponsiveContainer>
     </div>

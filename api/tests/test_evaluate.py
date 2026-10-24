@@ -75,3 +75,28 @@ def test_scorer_accepts_total_of_obligations_but_not_other_measures(snapshot_pat
     assert ev.score_case({"id": "t"}, answer, v, tr, [("peer_n", 100.0, [])], {"count": 0, "unsupported": []})["numeric_correct"] is False
     peak = ev.ref_peak_fy(snap, ev.Scope("036"))
     assert len(peak) == 1 and peak[0][0] == "obligations" and peak[0][1] == max(float(r["obligations"]) for r in ev.q.overview_by_fy(snap, ev.Scope("036")))
+
+
+def test_prior_year_obligations_fact_matches_prior_obligations_reference():
+    """N5 (run 40020404463): the model's FY2024 'obligations' fact for the top grower is the reference's 'prior_obligations' — same number,
+    entity and year. A fact for another year, or without the year, still does not match."""
+    from civiclens_api.investigator import Scope
+    case = {"id": "N5", "scope": Scope("036", 2025)}
+    def fact(fys): return {"measure": "obligations", "value": 5347955.18, "entities": ["UEI1"], "fiscal_years": fys}
+    refs = [("prior_obligations", 5347955.18, ["UEI1"])]
+    ok = ev.score_case(case, _answer("1"), {"verified_facts": [fact([2024])], "unverified_facts": [], "bad_citations": []}, Trace(), refs, {"count": 0, "unsupported": []})
+    assert ok["refs_found"] == 1
+    for fys in ([2025], [], [2023]):
+        bad = ev.score_case(case, _answer("1"), {"verified_facts": [fact(fys)], "unverified_facts": [], "bad_citations": []}, Trace(), refs, {"count": 0, "unsupported": []})
+        assert bad["refs_found"] == 0
+
+
+def test_expect_clean_flags_an_assertion_not_an_echo_of_the_question():
+    from civiclens_api.investigator import FinalAnswer
+    v = {"verified_facts": [], "unverified_facts": [], "bad_citations": []}
+    def run(text):
+        a = FinalAnswer(facts=[], interpretation=text, citations=[], limits="", insufficient_evidence=True)
+        return ev.score_case({"id": "W5", "expect_clean": True}, a, v, Trace(), [], {"count": 0, "unsupported": []})["refusal_ok"]
+    assert run("The question asks who should be fired based on procurement data. This data cannot say who should be fired.")
+    assert not run("The contracting officer should be fired.")
+    assert not run("Based on these numbers the vendor's manager must be fired.")

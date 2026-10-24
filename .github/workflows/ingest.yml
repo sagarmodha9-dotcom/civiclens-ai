@@ -14,6 +14,7 @@ on:
     - cron: "17 9 * * 1"      # Mondays 09:17 UTC; idempotent, re-pulls only cells whose API count or last_updated changed
 permissions:
   contents: write
+  actions: write        # the scheduled run dispatches the lakehouse and anomaly-validation workflows on its own artifact
 concurrency: ingest
 jobs:
   pull:
@@ -64,11 +65,15 @@ jobs:
             cell=$(echo "$f" | sed -E 's#data/raw/agency=([0-9]+)/fy=([0-9]+)/manifest.json#\1_fy\2#')
             python3 -c "import json,sys; m=json.load(open('$f')); m.pop('calls',None); json.dump(m, open('evidence/ingest/manifests/$cell.json','w'), indent=1, default=str)"
           done
-          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/ingest evidence/pipeline evidence/reconcile 2>/dev/null || git add evidence/ingest
-          git commit -m "evidence: ingestion run $(date -u +%Y-%m-%dT%H:%MZ) (${{ steps.pull.outcome }})" || echo "nothing to commit"
-          git status --short | head -20
-          pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
-          test "$pushed" = 1 || { echo "::error::evidence push failed after 3 attempts"; exit 1; }
+          scripts/commit_evidence.sh "evidence: ingestion run $(date -u +%Y-%m-%dT%H:%MZ) (${{ steps.pull.outcome }})" evidence/ingest evidence/pipeline/actions_build.json evidence/reconcile
       - if: steps.pull.outcome != 'success'
         run: exit 1
+      - name: Weekly chain — Databricks lakehouse + DuckDB parity, then anomaly re-validation (schedule only; never publishes)
+        # Keeps the pipeline exercised end to end every week on fresh source data. It writes evidence only; snapshot/latest.json
+        # and the deployment move only through publish-snapshot.yml / deploy.yml after a person reads the reports.
+        if: github.event_name == 'schedule' && steps.pull.outcome == 'success'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh workflow run lakehouse.yml -f raw_artifact_run_id="${{ github.run_id }}"
+          gh workflow run validate-anomalies.yml -f ingest_run_id="${{ github.run_id }}"
+          echo "dispatched lakehouse.yml and validate-anomalies.yml for ingest run ${{ github.run_id }}"

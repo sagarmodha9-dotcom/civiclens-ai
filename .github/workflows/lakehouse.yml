@@ -174,10 +174,6 @@ jobs:
       - name: Commit evidence
         if: always()
         run: |
-          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/pipeline && git commit -m "evidence: databricks pipeline run ${{ github.run_id }} (${{ steps.job.outcome }})" || echo "nothing to commit"
-          git status --short | head -20
-          pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
-          test "$pushed" = 1 || { echo "::error::evidence push failed after 3 attempts"; exit 1; }
+          scripts/commit_evidence.sh "evidence: databricks pipeline run ${{ github.run_id }} (${{ steps.job.outcome }})" evidence/pipeline/databricks_run.json evidence/pipeline/databricks_run.md
       - if: steps.job.outcome != 'success'
         run: exit 1

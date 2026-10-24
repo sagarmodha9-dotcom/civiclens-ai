@@ -259,7 +259,11 @@ def test_difference_and_total_declared_as_facts_verify_from_matching_rows(snap):
         inv.Fact(claim="all listed recipients combined", value=sum(float(r["obligations"]) for r in rows), unit="USD", tool_call_id="tu_1", measure="total_obligations")],
         interpretation=f"GAMMA INC rose by ${(cur-prior)/1e6:.1f} million to ${cur/1e6:.1f} million.", citations=[])
     v = verify(ans, log)
-    assert v["ok"] and any(f.get("derived") for f in v["verified_facts"] if f["measure"] == "obligations_increase")   # listed before its components
+    assert v["ok"] and all(not f.get("derived") for f in v["verified_facts"] if f["measure"] == "obligations_increase")   # the tool returns `increase` itself (2026-10-24)
+    # the derived path still carries facts the rows do not contain: strip `increase`/`ratio` and the difference must verify as derived
+    bare = [{k: r[k] for k in r if k not in ("increase", "ratio")} for r in rows]
+    v2 = verify(ans, [{**log[0], "result": bare}])
+    assert v2["ok"] and any(f.get("derived") for f in v2["verified_facts"] if f["measure"] == "obligations_increase")
     assert inv.ground_prose(ans, v, log) == []
     bad = ans.model_copy(update={"facts": [ans.facts[0].model_copy(update={"value": cur - prior + 1_000_000})] + ans.facts[1:]})
     assert not verify(bad, log)["ok"]
@@ -342,3 +346,60 @@ def test_calendar_dates_are_not_data_claims():
     assert toks == []
     toks = [t for t, _ in inv.prose_numbers("September obligations were 30 awards and 30% of the year")]
     assert toks == ["30", "30%"]                                                   # a count or share after a month name is still a claim
+
+
+def test_context_records_make_scope_and_selected_anomaly_citable(snap):
+    """Run 40020404463 E3/W3/M3: numbers the server itself put in front of the model (scope agency code, the selected anomaly's
+    score/threshold/peer_n, the PSC classes in scope) were stripped as ungrounded because no tool_call_id produced them.
+    They are now context records in the log — verified and grounded through the same path as tool rows, never bypassed."""
+    scope = Scope("075", 2025)
+    sel = {"award_key": "AW1", "value": 22400000.0, "score": 3.59, "threshold": 3.5, "peer_n": 168, "baseline_median": 400000.0}
+    turns = [[("final_answer", {
+        "facts": [{"claim": "score", "value": 3.59, "unit": "score", "tool_call_id": "ctx_selected_anomaly", "measure": "score", "entities": ["AW1"], "fiscal_years": []},
+                  {"claim": "peer group", "value": 168, "unit": "awards", "tool_call_id": "ctx_selected_anomaly", "measure": "peer_n", "entities": ["AW1"], "fiscal_years": []}],
+        "interpretation": "The selected award scored 3.59 against a threshold of 3.5 in a peer group of 168 awards at agency 075 (PSC classes D and 70). "
+                          "This data does not support any characterisation of conduct.",
+        "citations": []})]]
+    answer, v, tr = ask(snap, scope, "Is the flagged award wasteful?", selected_anomaly=sel, client=FakeClient(turns))
+    assert v["ok"] and v["ungrounded_prose"] == [] and not tr.regenerated and v.get("prose_sentences_removed", 0) == 0
+    assert [t["id"] for t in tr.context] == ["ctx_scope", "ctx_selected_anomaly"] and all(t["name"] != "dashboard_scope" for t in tr.tool_log)
+    # a number that is in neither the context nor any tool row is still ungrounded
+    turns = [[("final_answer", {"facts": [], "interpretation": "Peer group of 999 awards.", "citations": [], "insufficient_evidence": True})]] * 2
+    answer, v, tr = ask(snap, scope, "anything?", selected_anomaly=sel, client=FakeClient(turns))
+    assert v["ungrounded_prose"] == ["999"]
+
+
+def test_yoy_tool_returns_increase_and_ratio_and_defines_growth(snap):
+    scope = Scope("036", 2026)
+    rows = run_tool(snap, scope, "year_over_year_recipients", {"limit": 5})
+    assert rows and all({"increase", "ratio", "prior_obligations"} <= set(r) for r in rows)
+    assert all(abs(r["increase"] - (r["obligations"] - r["prior_obligations"])) < 0.01 for r in rows)
+    assert rows == sorted(rows, key=lambda r: -r["increase"])
+    desc = next(t["description"] for t in inv.TOOLS if t["name"] == "year_over_year_recipients")
+    assert "increase = obligations - prior_obligations" in desc and "ratio" in desc
+
+
+def test_ask_emits_progress_events_only_as_they_happen(snap):
+    scope = Scope("036", 2025)
+    turns = [
+        [("aggregate_spend", {"group_by": "recipient", "limit": 5})],
+        [("final_answer", {"facts": [], "interpretation": "No numbers here.", "citations": []})],
+    ]
+    seen = []
+    ask(snap, scope, "who got the most?", client=FakeClient(turns), on_event=seen.append)
+    stages = [e["stage"] for e in seen]
+    assert stages == ["model", "tool", "model", "verify"], stages            # one event per real step, in the order they ran
+    assert seen[1]["tool"] == "aggregate_spend"
+
+
+def test_stream_endpoint_sends_progress_then_the_same_result(client, monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    body = {"question": "Which recipients received the most?", "agency": "036", "fy": 2025}
+    plain = client.post("/v1/investigate", json=body).json()
+    with client.stream("POST", "/v1/investigate/stream", json=body) as r:
+        assert r.status_code == 200 and r.headers["content-type"].startswith("text/event-stream")
+        text = "".join(r.iter_text())
+    events = [(ln.split(": ", 1)[1], json.loads(nxt.split(": ", 1)[1])) for ln, nxt in zip(text.splitlines(), text.splitlines()[1:]) if ln.startswith("event: ")]
+    assert events[0][0] == "progress" and events[0][1]["stage"] == "queued"
+    assert events[-1][0] == "result" and {k: v for k, v in events[-1][1].items() if k != "cached"} == {k: v for k, v in plain.items() if k != "cached"}
+    assert client.post("/v1/investigate/stream", json={"question": "hi"}).status_code == 422

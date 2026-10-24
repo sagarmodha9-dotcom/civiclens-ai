@@ -94,3 +94,24 @@ test("mobile layout has no horizontal scroll and nav is reachable", async ({ pag
   await page.getByRole("link", { name: "Anomaly Lab" }).first().click();
   await expect(page.getByRole("heading", { name: "Anomaly Lab" })).toBeVisible();
 });
+
+test("overview explains itself in plain language and remembers when it is hidden", async ({ page }) => {
+  await page.goto("/");
+  const h = page.getByRole("heading", { name: "What am I looking at?" });
+  await expect(h).toBeVisible();
+  await expect(page.getByText(/A flag is a comparison, not an accusation/)).toBeVisible();
+  await page.getByRole("button", { name: "Hide" }).click();
+  await expect(page.getByText(/A flag is a comparison, not an accusation/)).toHaveCount(0);
+  await page.reload();
+  await expect(h).toBeVisible();
+  await expect(page.getByRole("button", { name: "Show" })).toBeVisible();      // choice persisted in this browser only
+});
+
+test("investigator names the mode honestly when live AI is off or paused, and marks cached answers", async ({ page }) => {
+  await page.goto("/investigator?agency=036&fy=2025");
+  await page.getByLabel("Your question").fill("Which recipients received the most IT obligations?");
+  await page.getByRole("button", { name: "Ask" }).click();
+  // Against the local API without a key the stream returns status=unavailable; against production it answers or is rate-limited.
+  const outcome = page.getByText(/Live AI is off|Live questions paused|Facts \(computed by SQL|Cached answer\./).first();
+  await expect(outcome).toBeVisible({ timeout: 90_000 });
+});

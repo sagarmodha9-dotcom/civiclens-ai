@@ -40,6 +40,37 @@ export async function postJSON<T>(path: string, body: unknown): Promise<T> {
 
 export const fetcher = <T,>(path: string) => getJSON<T>(path);
 
+export type Progress = { stage: "queued" | "model" | "tool" | "verify" | "regenerate"; tool?: string; args?: Record<string, unknown>; attempt?: number; t: number };
+
+/** POST with server-sent events: `onProgress` fires for each step the server reports as it happens; resolves with the final result.
+ *  Falls back to the plain JSON endpoint if the stream cannot be read (older proxies, no ReadableStream). */
+export async function postStream<T>(path: string, body: unknown, onProgress: (p: Progress) => void): Promise<T> {
+  const r = await fetch(`${API}${path}`, { method: "POST", headers: { "Content-Type": "application/json", Accept: "text/event-stream" }, body: JSON.stringify(body) });
+  if (!r.ok) {
+    let detail = r.statusText;
+    try { detail = (await r.json()).detail ?? detail; } catch { /* ignore */ }
+    throw new ApiError(r.status, typeof detail === "string" ? detail : JSON.stringify(detail));
+  }
+  if (!r.body) return postJSON<T>(path.replace(/\/stream$/, ""), body);
+  const reader = r.body.getReader(); const dec = new TextDecoder();
+  let buf = ""; let result: T | null = null;
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let idx: number;
+    while ((idx = buf.indexOf("\n\n")) >= 0) {
+      const chunk = buf.slice(0, idx); buf = buf.slice(idx + 2);
+      const ev = /^event: (\w+)/m.exec(chunk)?.[1]; const data = /^data: (.*)$/m.exec(chunk)?.[1];
+      if (!ev || !data) continue;
+      if (ev === "progress") onProgress(JSON.parse(data) as Progress);
+      else if (ev === "result") result = JSON.parse(data) as T;
+    }
+  }
+  if (result == null) throw new ApiError(502, "the answer stream ended without a result");
+  return result;
+}
+
 export const AGENCIES: Record<string, string> = {
   "036": "Veterans Affairs", "070": "Homeland Security", "075": "Health & Human Services",
   "020": "Treasury", "013": "Commerce", "028": "Social Security Administration",
@@ -77,7 +108,7 @@ export type Anomaly = { detector: string; award_key?: string; piid?: string; fis
 export type AnomalyDetail = Anomaly & { award_years: { fiscal_year: number; obligations: number; transactions: number; deobligations: number }[];
   transactions: { transaction_key: string; action_date: string; fiscal_year: number; modification_number: string; obligation: number; action_type: string; psc: string; awarding_sub_agency_name: string; usaspending_permalink: string }[];
   peer_group_sample: { award_key: string; piid: string; recipient_name: string; value: number; score: number | null; status: string }[] };
-export type Investigation = { status: "ok" | "unavailable" | "limited"; reason?: string; cached?: boolean; mode?: string; model?: string; snapshot_version?: string;
+export type Investigation = { status: "ok" | "unavailable" | "limited" | "error"; reason?: string; cached?: boolean; mode?: "live" | "cached" | "disabled" | "limited" | string; model?: string; snapshot_version?: string;
   answer?: { facts: { claim: string; value: number | string; unit: string; tool_call_id: string; measure: string; entities: string[]; fiscal_years: number[] }[]; interpretation: string; citations: string[]; limits: string; insufficient_evidence: boolean };
   verification?: { verified_facts: unknown[]; unverified_facts: { claim: string; why: string }[]; bad_citations: string[]; ok: boolean };
   tool_log?: { id: string; name: string; args: Record<string, unknown> }[]; usage?: { input_tokens: number; output_tokens: number; usd: number; regenerated: boolean } };

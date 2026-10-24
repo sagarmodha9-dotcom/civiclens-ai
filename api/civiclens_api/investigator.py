@@ -85,6 +85,11 @@ Rules you must follow:
 - Never use the words fraud, waste, abuse, corrupt or misconduct, even to deny them; say "this data does not support any characterisation of conduct".
 - Always finish by calling final_answer, even to say the evidence is insufficient. Never reply with plain text.
 - If the tools return no relevant rows, set insufficient_evidence=true and explain what is missing.
+- The user message also carries context records with ids ctx_scope (the active scope: agency code, fiscal year, PSC classes in scope) and,
+  when an anomaly is selected on screen, ctx_selected_anomaly (its value, score, threshold, peer group size, baseline). Numbers taken from
+  them are facts with that tool_call_id, exactly like tool rows. Do not restate the question's wording in your answer.
+- Do not define or explain terms, measures or codes (what outlays are, what a PSC class covers, why a value changed). If the question asks
+  for a measure the tools do not have, say only that it is not in this data. Context belongs in limits and must carry no numbers.
 - Keep interpretation under 180 words."""
 
 
@@ -136,7 +141,7 @@ class FinalAnswer(BaseModel):
 
 TOOLS: list[dict] = [
     {"name": "aggregate_spend", "description": "Sum obligations inside the active scope, grouped by fiscal_year, agency, it_category (IT services = PSC D vs IT equipment and software = PSC 70), psc_class (2-character PSC class) or recipient (top N by obligations).", "input_schema": AggregateSpendArgs.model_json_schema()},
-    {"name": "year_over_year_recipients", "description": "Recipients in scope with this year's and prior year's obligations at the same agency, sorted by increase.", "input_schema": YoyRecipientsArgs.model_json_schema()},
+    {"name": "year_over_year_recipients", "description": "Recipients in scope with this fiscal year's obligations (obligations), the prior fiscal year's obligations at the same agency (prior_obligations), their difference (increase = obligations - prior_obligations, dollars) and their ratio (ratio = obligations / prior_obligations). Only recipients with prior-year obligations appear. Rows are sorted by increase, largest first: 'grew the most / fastest' means the first row by increase unless the question asks for a ratio or percentage, in which case rank by ratio and say so. Report prior_obligations with the prior fiscal year.", "input_schema": YoyRecipientsArgs.model_json_schema()},
     {"name": "list_anomalies", "description": "Flagged anomalies in scope for one detector, with score, threshold, peer group size and baseline.", "input_schema": ListAnomaliesArgs.model_json_schema()},
     {"name": "anomaly_explanation", "description": "Why one award-year was scored: value, peer group definition and size, baseline median, score vs threshold, status, limits, its transactions and a sample of its peers.", "input_schema": AnomalyArgs.model_json_schema()},
     {"name": "award_detail", "description": "One award's fiscal-year rollups and its transactions (dates, modifications, obligations).", "input_schema": AwardArgs.model_json_schema()},
@@ -489,6 +494,7 @@ class Ledger:
 @dataclass
 class Trace:
     tool_log: list[dict] = field(default_factory=list)
+    context: list[dict] = field(default_factory=list)      # server-generated records (scope, selected anomaly): citable, never executed
     input_tokens: int = 0
     output_tokens: int = 0
     regenerated: bool = False
@@ -499,19 +505,32 @@ def _client():
     return anthropic.Anthropic()
 
 
-def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | None = None, client=None) -> tuple[FinalAnswer, dict, Trace]:
+def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | None = None, client=None, on_event=None) -> tuple[FinalAnswer, dict, Trace]:
+    """on_event(dict) is called when something actually happens (a model turn starts, a tool runs, verification starts, a regeneration
+    starts) so a UI can show truthful progress; it is never called ahead of the event it describes."""
     client = client or _client()
+    emit = on_event or (lambda e: None)
     scope_txt = json.dumps({"agency": scope.agency_code, "agency_name": AGENCIES.get(scope.agency_code or "", None),
                             "fiscal_year": scope.fiscal_year, "psc_class": scope.psc_class2, "recipient_uei": scope.recipient_uei,
                             "selected_anomaly": selected_anomaly, "snapshot_version": s.version,
                             "note": "FY2026 is preliminary (ended 2026-09-30; subject to reporting lag)"})
     messages = [{"role": "user", "content": f"Active dashboard scope (JSON): {scope_txt}\n\nQuestion: {question[:600]}"}]
     tr = Trace()
+    # Server-generated context records: the scope and the anomaly selected on screen are data the server put in front of the model,
+    # so they are citable like tool rows (same verify/ground path; nothing bypasses it). Before 2026-10-24 numbers from them had no
+    # tool_call_id and were stripped as ungrounded (eval E3, M3, W3).
+    tr.context.append({"id": "ctx_scope", "name": "dashboard_scope", "args": {}, "scope": scope.__dict__,
+                        "result": {"agency_code": scope.agency_code, "agency_name": AGENCIES.get(scope.agency_code or "", None),
+                                   "fiscal_year": scope.fiscal_year, "psc_class": scope.psc_class2, "recipient_uei": scope.recipient_uei,
+                                   "psc_classes_in_scope": ["D", "70"], "snapshot_version": s.version}})
+    if selected_anomaly:
+        tr.context.append({"id": "ctx_selected_anomaly", "name": "selected_anomaly", "args": {}, "scope": scope.__dict__, "result": selected_anomaly})
     final: FinalAnswer | None = None
     nudged = False
     for attempt in range(2):
         calls = 0
         while calls <= MAX_TOOL_CALLS:
+            emit({"stage": "model", "attempt": attempt + 1, "tool_calls_so_far": len(tr.tool_log)})
             resp = client.messages.create(model=MODEL, max_tokens=1500, system=SYSTEM, tools=TOOLS, messages=messages)
             last_in = getattr(resp.usage, "input_tokens", 0)
             tr.input_tokens += last_in; tr.output_tokens += getattr(resp.usage, "output_tokens", 0)
@@ -536,6 +555,7 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
                     results.append({"type": "tool_result", "tool_use_id": tu.id, "content": "received"})
                     break
                 calls += 1
+                emit({"stage": "tool", "tool": tu.name, "args": tu.input})
                 try:
                     out = run_tool(s, scope, tu.name, tu.input)
                     tr.tool_log.append({"id": tu.id, "name": tu.name, "args": tu.input, "scope": scope.__dict__, "result": out})
@@ -549,14 +569,16 @@ def ask(s: q.Snapshot, scope: Scope, question: str, selected_anomaly: dict | Non
         if final is None:
             final = FinalAnswer(interpretation="The investigator did not produce a structured answer.", insufficient_evidence=True,
                                 limits="No final_answer was returned within the tool-call budget.")
-        v = verify(final, tr.tool_log)
-        ungrounded = ground_prose(final, v, tr.tool_log, question)
+        emit({"stage": "verify", "facts": len(final.facts)})
+        v = verify(final, tr.context + tr.tool_log)
+        ungrounded = ground_prose(final, v, tr.context + tr.tool_log, question)
         if not final.facts and not final.insufficient_evidence and prose_numbers(final.interpretation):
             ungrounded = ungrounded or [tok for tok, _ in prose_numbers(final.interpretation)]   # numbers stated with no facts at all (eval N3)
         v["ungrounded_prose"] = ungrounded
         if (v["ok"] and not ungrounded) or attempt == 1:
             break
         tr.regenerated = True
+        emit({"stage": "regenerate", "unverified_facts": len(v["unverified_facts"]), "ungrounded_numbers": len(ungrounded)})
         messages.append({"role": "user", "content": "Verification failed: " + json.dumps({"unverified_facts": v["unverified_facts"], "bad_citations": v["bad_citations"],
                                                                                         "numbers_in_prose_without_a_fact": ungrounded,
                                                                                         "facts_returned": len(final.facts)}, default=str)[:3000] +
@@ -639,8 +661,7 @@ def samples():
             "model": MODEL, "limits": {"per_ip_per_hour": PER_IP_PER_HOUR, "global_per_day": GLOBAL_PER_DAY}}
 
 
-@router.post("/investigate")
-def investigate(req: AskRequest, request: Request):
+def _investigate_core(req: AskRequest, request: Request, on_event=None) -> dict:
     s = _snapshot()
     scope = Scope(req.agency, req.fy, req.psc, req.recipient)
     if req.agency and req.agency not in AGENCIES:
@@ -649,7 +670,7 @@ def investigate(req: AskRequest, request: Request):
     key = hashlib.sha256(json.dumps([s.version, scope.__dict__, sel, req.question.strip().lower()]).encode()).hexdigest()[:24]
     cached = _cache_get(key)
     if cached:
-        return {**cached, "cached": True}
+        return {**cached, "cached": True, "mode": "cached"}
     if not os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("CIVICLENS_INVESTIGATOR", "on") != "on":
         return {"status": "unavailable", "reason": "live AI investigation is disabled on this deployment; cached sample answers only",
                 "cached": False, "mode": "disabled"}
@@ -657,11 +678,52 @@ def investigate(req: AskRequest, request: Request):
     now = time.time()
     blocked = _get_ledger().check(ip, now)
     if blocked:
-        return {"status": "limited", "reason": blocked, "cached": False}
-    answer, v, tr = ask(s, scope, req.question, sel)
+        return {"status": "limited", "reason": blocked, "cached": False, "mode": "limited"}
+    answer, v, tr = ask(s, scope, req.question, sel, on_event=on_event)
     usd = _get_ledger().record(ip, now, tr.input_tokens, tr.output_tokens)
-    out = {"status": "ok", "answer": answer.model_dump(), "verification": v, "tool_log": [{k: t[k] for k in ("id", "name", "args")} for t in tr.tool_log],
+    out = {"status": "ok", "answer": answer.model_dump(), "verification": v, "tool_log": [{k: t[k] for k in ("id", "name", "args")} for t in tr.context + tr.tool_log],
            "usage": {"input_tokens": tr.input_tokens, "output_tokens": tr.output_tokens, "usd": round(usd, 5), "regenerated": tr.regenerated},
-           "model": MODEL, "snapshot_version": s.version, "scope": scope.__dict__}
+           "model": MODEL, "snapshot_version": s.version, "scope": scope.__dict__, "mode": "live"}
     _cache_put(key, out)
     return {**out, "cached": False}
+
+
+@router.post("/investigate")
+def investigate(req: AskRequest, request: Request):
+    return _investigate_core(req, request)
+
+
+@router.post("/investigate/stream")
+def investigate_stream(req: AskRequest, request: Request):
+    """Same work as /investigate, delivered as server-sent events: `progress` events as the model turn / tool run / verification /
+    regeneration actually happen, then one `result` event with the full response. Nothing is emitted before it occurs."""
+    import queue
+    from fastapi.responses import StreamingResponse
+    events: "queue.Queue[tuple[str, dict] | None]" = queue.Queue()
+
+    def work():
+        try:
+            out = _investigate_core(req, request, on_event=lambda e: events.put(("progress", {**e, "t": round(time.time(), 3)})))
+            events.put(("result", out))
+        except HTTPException as e:
+            events.put(("result", {"status": "error", "reason": str(e.detail), "http_status": e.status_code}))
+        except Exception as e:  # noqa: BLE001
+            events.put(("result", {"status": "error", "reason": f"{type(e).__name__}"}))
+        finally:
+            events.put(None)
+
+    threading.Thread(target=work, daemon=True).start()
+
+    def gen():
+        yield f"event: progress\ndata: {json.dumps({'stage': 'queued', 't': round(time.time(), 3)})}\n\n"
+        while True:
+            try:
+                item = events.get(timeout=15)
+            except queue.Empty:
+                yield ": keep-alive\n\n"; continue
+            if item is None:
+                break
+            name, data = item
+            yield f"event: {name}\ndata: {json.dumps(data, default=str)}\n\n"
+
+    return StreamingResponse(gen(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})

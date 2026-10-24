@@ -39,3 +39,44 @@ untraceable to any tool result, and the sentence was stripped. Decision: a 1–2
 name ("September 30", "Oct. 1", "30 September") is exempt from grounding; a count or percentage after a month name
 ("September obligations were 30 awards", "30%") is still checked (`test_calendar_dates_are_not_data_claims`). C1's stripped
 "39%" was a share the model computed without declaring it as a fact — that strip is correct and the case stays failed.
+
+## Investigator: context records, growth definition, scorer precision (2026-10-24)
+
+Regression run 40020404463 had five server-verification failures. Diagnosis from `evidence/eval/results.json`, not from the summary:
+- **E3, M3, W3** — the stripped numbers were the scope's agency code, the PSC class "70", and the selected anomaly's value / score /
+  threshold / peer group size. The server itself put those in front of the model, but no tool call produced them, so no fact could
+  cite them and the grounding pass removed the sentences. Decision: the scope and the selected anomaly are now *context records*
+  (`ctx_scope`, `ctx_selected_anomaly`) in `Trace.context`, verified and grounded through the same code path as tool rows and shown
+  to the judge. Nothing bypasses verification; `tool_log` (which tools ran) is unchanged.
+- **N5** — the model's facts were correct (same recipient, same two numbers, right years); the reference called the prior-year value
+  `prior_obligations` while the model called it `obligations` for FY2024. Decision: the scorer accepts a verified `obligations` fact
+  whose fiscal year is FY-1 of the scope as that reference; any other year or no year still fails. The tool now also returns
+  `increase` and `ratio` and its description defines what "grew the most" means, so the model and the reference measure the same thing.
+- **W5** — the model echoed the question ("the question asks who should be fired") and the `expect_clean` check matched the echo.
+  Decision: the check flags an assertion ("X should be fired") and not a quotation or denial; the prompt also says not to restate the
+  question. No reference value or threshold changed. Prompt additions: no definitions/explanations of terms or codes (judge-only
+  misses E4, H02, H06, H09), context in `limits` carries no numbers.
+
+## CI: one evidence-commit script, local browser tests before deploy, demo is a release gate (2026-10-24)
+
+- Nine workflows each carried their own `git pull --rebase` retry loop; the eval race on 2026-10-23 showed the pattern loses
+  wholesale-replaced report files. `scripts/commit_evidence.sh <msg> <paths…>` snapshots only the paths a run owns, resets to
+  `origin/main`, restores them, commits and pushes with backoff. Paths were narrowed to files where two workflows share a
+  directory (`evidence/pipeline/actions_build.json` for ingest vs `databricks_run.*` for lakehouse; per-set files for eval).
+- `tests.yml` gains `web-e2e`: the full Playwright suite (desktop, Pixel 7, axe) against a local build on a synthetic snapshot,
+  with the same gate as production (≥ 10 expected, 0 unexpected). `deploy.yml` now refuses to start unless the `tests`
+  workflow is green for the exact commit, so a UI or security regression cannot reach Fly/Vercel.
+- The deployment report's PASS now also requires a playable demo video (> 100 KB); run 40017627662 had been reported PASS
+  without one. The access-control smoke checks the new `/v1/investigate/stream` endpoint for schema validation and read-only methods.
+
+## Reconciliation: R3 is a gate; weekly pipeline chain (2026-10-24)
+
+R3 (Gold agency-year obligations vs USAspending `spending_over_time`) had been informational "until its grain is confirmed".
+On the v20261023-1 data it matches to the cent on all 26 cells whose R1 row count is exact and differs only on the four
+Treasury cells whose row count is 1–6 short (−$63,172, −$122,213, −$81,714, +$9,545 against $2.2–3.2B). That confirms the grain
+(`spending_level=transactions`, monthly, summed over the FY) and that the deltas are the missing rows, not a different measure.
+Decision: R3 is now a gate with the R1 tolerance (0.5%) plus a coupled rule — a cell with an exact row count must match in
+dollars exactly, so a changed amount can never hide inside the tolerance. Unit-tested on the committed report
+(`ingest/tests/test_reconcile.py`). Treasury's residual deltas are re-checked by the weekly scheduled ingest; the counts are
+recorded per cell and per run, never widened. The Monday ingest now also dispatches the Databricks lakehouse run (with DuckDB
+parity) and the anomaly re-validation on its own artifact; nothing in the chain can promote a snapshot or deploy.

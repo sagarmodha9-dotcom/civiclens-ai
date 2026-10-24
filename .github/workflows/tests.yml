@@ -26,6 +26,52 @@ jobs:
       - run: cd web && npm run typecheck
       - run: cd web && npm run build
         env: { NEXT_PUBLIC_API_URL: "https://civiclens-api.fly.dev" }
+  web-e2e:
+    # Browser tests against a LOCAL build on every push/PR (desktop Chrome + Pixel 7 + axe), on a synthetic snapshot, so a UI
+    # regression fails here before deploy.yml ever touches production. The gate is the same as the live one: at least 10
+    # expected tests must run and none may fail — a run with 0 tests is a failure, not a pass.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20", cache: npm, cache-dependency-path: web/package-lock.json }
+      - run: pip install -e "ingest" -e "lakehouse[test]" -e "api"
+      - name: Synthetic snapshot (DQ gate must pass)
+        run: PYTHONPATH=lakehouse/tests python scripts/make_e2e_snapshot.py build/e2e.duckdb
+      - name: Start API
+        run: |
+          (cd api && CIVICLENS_SNAPSHOT=../build/e2e.duckdb nohup python -m uvicorn civiclens_api.main:app --port 8000 > ../api.log 2>&1 &)
+          for i in $(seq 1 30); do curl -sf localhost:8000/healthz && break || sleep 1; done
+          curl -sf localhost:8000/healthz
+      - name: Build and start web
+        working-directory: web
+        env: { NEXT_PUBLIC_API_URL: "http://localhost:8000" }
+        run: |
+          npm ci
+          npm run build
+          (nohup npx next start -p 3000 > ../web.log 2>&1 &)
+          for i in $(seq 1 30); do curl -sf -o /dev/null localhost:3000/ && break || sleep 1; done
+          curl -sf -o /dev/null localhost:3000/
+      - name: Playwright (desktop + mobile + axe) against the local build
+        working-directory: web
+        env: { E2E_BASE_URL: "http://localhost:3000", E2E_API_URL: "http://localhost:8000" }
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test 2>&1 | tee ../e2e-local.log | tail -40
+          python3 -c "import json,sys; st=json.load(open('test-results/results.json'))['stats']; print(st); sys.exit(1 if (st.get('expected',0) < 10 or st.get('unexpected',0)) else 0)"
+      - name: Upload local e2e log, results and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-local-${{ github.run_id }}
+          path: |
+            e2e-local.log
+            api.log
+            web.log
+            web/test-results
+          if-no-files-found: ignore
   security:
     runs-on: ubuntu-latest
     steps:
@@ -84,10 +130,7 @@ jobs:
                 "read-only tools only (no SQL tool, no network, no writes), and all secrets provided via GitHub Actions secrets / Fly secrets — never in source."]
           pathlib.Path("evidence/security/report.md").write_text("\n".join(md) + "\n"); print("\n".join(md))
           PY
-          git config user.name civiclens-bot; git config user.email actions@users.noreply.github.com
-          git add evidence/security && git commit -m "evidence: security gate run ${{ github.run_id }}" || echo "nothing to commit"
-          pushed=0; for i in 1 2 3; do git pull --rebase --autostash -q origin main && git push && pushed=1 && break || sleep 10; done
-          test "$pushed" = 1 || { echo "::error::evidence push failed"; exit 1; }
+          scripts/commit_evidence.sh "evidence: security gate run ${{ github.run_id }}" evidence/security
       - uses: actions/upload-artifact@v4
         if: always()
         with:

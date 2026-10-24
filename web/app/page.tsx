@@ -1,5 +1,5 @@
 "use client";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import useSWR from "swr";
 import { Shell } from "@/components/Shell";
@@ -25,6 +25,7 @@ function OverviewPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Federal IT procurement, with the evidence attached</h1>
         <p className="text-mist-400 mt-1 max-w-3xl">Prime contract obligations for IT services and equipment (PSC D and 70) at six civilian agencies, built from USAspending transaction records through a Databricks Bronze → Silver → Gold pipeline. Every number below is reproducible from one published SQL query.</p>
       </div>
+      <Explainer />
       {error && <ErrorState error={error} retry={() => mutate()} />}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <Kpi label="Obligations in scope" value={isLoading ? <span className="skeleton inline-block h-7 w-28" /> : usd(total)} sub={scope.fy ? `FY${scope.fy}` : "FY2022–FY2026 (2026 preliminary)"} />
@@ -63,6 +64,29 @@ function OverviewPage() {
         <Link href="/methodology" className="panel p-4 hover:border-signal/50"><div className="font-medium">Methodology →</div><div className="text-mist-400 mt-1">Definitions, pipeline, reconciliation results, anomaly math, AI limits, and the SQL behind each figure.</div></Link>
       </div>
     </>
+  );
+}
+
+function Explainer() {
+  // Plain-language orientation for non-technical visitors. Open on a first visit; the choice is remembered per browser only.
+  const [open, setOpen] = useState(true);
+  useEffect(() => { try { if (localStorage.getItem("civiclens.explainer") === "closed") setOpen(false); } catch { /* storage unavailable */ } }, []);
+  const toggle = () => { setOpen((o) => { try { localStorage.setItem("civiclens.explainer", o ? "closed" : "open"); } catch { /* ignore */ } return !o; }); };
+  return (
+    <section className="panel p-4 mb-6" aria-labelledby="explainer-h">
+      <div className="flex items-center justify-between gap-3">
+        <h2 id="explainer-h" className="text-sm font-semibold text-mist-100">What am I looking at?</h2>
+        <button className="ghost text-xs" onClick={toggle} aria-expanded={open} aria-controls="explainer-body">{open ? "Hide" : "Show"}</button>
+      </div>
+      {open && (
+        <div id="explainer-body" className="mt-3 grid md:grid-cols-4 gap-4 text-sm text-mist-300">
+          <div><div className="font-medium text-mist-100 mb-1">The data</div>Every IT contract transaction the federal government reported to USAspending.gov for six civilian agencies, fiscal years 2022–2026 (Oct–Sep). About 110,000 records, pulled directly from the source and re-counted against it.</div>
+          <div><div className="font-medium text-mist-100 mb-1">The numbers</div>“Obligations” are dollars the government committed on contracts, not dollars paid out. An award is one contract; an award-year is that contract’s activity in one fiscal year. Use the filters above to narrow to an agency, a year, or a product class.</div>
+          <div><div className="font-medium text-mist-100 mb-1">The flags</div>“Flagged anomalies” are awards, recipients or categories that are statistically unusual next to comparable ones — an award far larger than its peers, one vendor holding most of a category, a vendor growing several-fold in a year. A flag is a comparison, not an accusation; click “Why?” in the Anomaly Lab to see exactly what it was compared with.</div>
+          <div><div className="font-medium text-mist-100 mb-1">The AI Investigator</div>Ask a question in plain English. The AI decides which of the dashboard’s own queries to run; the server then re-checks every number it states against those query results and removes anything it cannot trace. It will not guess, go outside the data, or call spending wasteful or fraudulent.</div>
+        </div>
+      )}
+    </section>
   );
 }
 

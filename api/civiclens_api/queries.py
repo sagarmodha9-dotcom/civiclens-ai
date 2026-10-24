@@ -87,7 +87,9 @@ SQL = {
     "psc_mix": """SELECT psc_class2, MAX(psc_example_description) AS description, SUM(obligations) AS obligations, SUM(awards) AS awards
                   FROM gold_psc_fy{where} GROUP BY psc_class2 ORDER BY obligations DESC LIMIT ?""",
     "yoy_recipients": """SELECT c.recipient_uei, MAX(c.recipient_name) AS recipient_name, SUM(c.obligations) AS obligations,
-                         SUM(p.obligations) AS prior_obligations
+                         SUM(p.obligations) AS prior_obligations,
+                         SUM(c.obligations) - SUM(p.obligations) AS increase,
+                         CASE WHEN SUM(p.obligations) > 0 THEN ROUND(SUM(c.obligations) / SUM(p.obligations), 4) END AS ratio
                          FROM gold_recipient_agency_fy c LEFT JOIN gold_recipient_agency_fy p
                            ON p.recipient_uei = c.recipient_uei AND p.awarding_agency_code = c.awarding_agency_code AND p.fiscal_year = c.fiscal_year - 1
                          {where} GROUP BY c.recipient_uei HAVING SUM(p.obligations) IS NOT NULL ORDER BY SUM(c.obligations) - SUM(p.obligations) DESC LIMIT ?""",

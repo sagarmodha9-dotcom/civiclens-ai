@@ -1,10 +1,10 @@
 "use client";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { Shell } from "@/components/Shell";
 import { Empty, ErrorState, Loading, Panel } from "@/components/ui";
-import { AGENCIES, fetcher, postJSON, usd, type Investigation } from "@/lib/api";
+import { AGENCIES, fetcher, postStream, usd, type Investigation, type Progress } from "@/lib/api";
 import { useScope } from "@/lib/scope";
 
 function Investigator() {
@@ -16,10 +16,21 @@ function Investigator() {
   const [busy, setBusy] = useState(false);
   const [res, setRes] = useState<Investigation | null>(null);
   const [err, setErr] = useState<unknown>(null);
+  const [steps, setSteps] = useState<Progress[]>([]);
+  const [elapsed, setElapsed] = useState(0);
+  const t0 = useRef(0);
+  useEffect(() => {
+    if (!busy) return;
+    t0.current = Date.now(); setElapsed(0);
+    const id = setInterval(() => setElapsed(Math.round((Date.now() - t0.current) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, [busy]);
   async function ask(question: string) {
-    setBusy(true); setErr(null); setRes(null); setQ(question);
+    setBusy(true); setErr(null); setRes(null); setQ(question); setSteps([]);
     try {
-      const r = await postJSON<Investigation>("/v1/investigate", { question, agency: scope.agency, fy: scope.fy, psc: scope.psc, recipient: scope.recipient, selected_award_key: selectedAward, selected_fy: selectedAward ? scope.fy : undefined });
+      const r = await postStream<Investigation>("/v1/investigate/stream",
+        { question, agency: scope.agency, fy: scope.fy, psc: scope.psc, recipient: scope.recipient, selected_award_key: selectedAward, selected_fy: selectedAward ? scope.fy : undefined },
+        (p) => setSteps((prev) => [...prev, p]));
       setRes(r);
     } catch (e) { setErr(e); } finally { setBusy(false); }
   }
@@ -42,9 +53,19 @@ function Investigator() {
             </form>
             <div className="mt-3 flex flex-wrap gap-2">{(samples?.questions ?? []).map((s) => <button key={s} className="chip hover:border-signal/60" onClick={() => ask(s)} disabled={busy}>{s}</button>)}</div>
           </Panel>
-          {busy && <Panel><Loading rows={6} /><p className="text-xs text-mist-500 mt-2">Running tools against the snapshot, then verifying the answer…</p></Panel>}
+          {busy && <Panel title={<span>Working <span className="text-xs text-mist-500 font-normal ml-2">{elapsed}s · live answers usually take 10–40 s</span></span>}>
+            <ProgressList steps={steps} />
+          </Panel>}
           {err != null && <ErrorState error={err} />}
-          {res && res.status !== "ok" && <Panel><Empty>{res.reason}</Empty></Panel>}
+          {res && res.status !== "ok" && <Panel title={res.status === "limited" ? "Live questions paused" : res.status === "unavailable" ? "Live AI is off" : "Something went wrong"}>
+            <p className="text-sm text-mist-300">{res.reason}</p>
+            <p className="text-xs text-mist-500 mt-2">{res.status === "limited" ? "Rate limits protect a fixed monthly budget. Questions that have already been asked on this snapshot (including the sample questions) are served from cache and still work." : res.status === "unavailable" ? "Sample questions that were answered earlier are still served from cache." : "Please try again in a moment."}</p>
+          </Panel>}
+          {res?.status === "ok" && res.cached && (
+            <div role="status" className="rounded-lg border border-amber/40 bg-amber/5 px-4 py-3 text-sm">
+              <span className="font-medium text-amber">Cached answer.</span> <span className="text-mist-300">This exact question was asked before in this scope on snapshot {res.snapshot_version}; you are seeing that stored answer, not a newly generated one. The data has not changed, so the numbers are the same the model would compute now.</span>
+            </div>
+          )}
           {res?.status === "ok" && a && (
             <>
               <Panel title="Facts (computed by SQL, verified)" action={v && <span className={`chip ${v.ok ? "chip-ok" : "chip-warn"}`}>{v.ok ? "all facts verified" : `${v.unverified_facts.length} unverified`}</span>}>
@@ -87,4 +108,35 @@ function Investigator() {
     </>
   );
 }
+const STAGE_LABEL: Record<Progress["stage"], string> = {
+  queued: "Request received",
+  model: "Model is planning which queries to run",
+  tool: "Running query",
+  verify: "Server is verifying every fact against the query results",
+  regenerate: "Verification found a problem — asking the model to correct it",
+};
+const TOOL_LABEL: Record<string, string> = {
+  aggregate_spend: "aggregate_spend (sum obligations in scope)", year_over_year_recipients: "year_over_year_recipients (this year vs prior year)",
+  list_anomalies: "list_anomalies (flagged awards in scope)", anomaly_explanation: "anomaly_explanation (peer group and baseline)",
+  award_detail: "award_detail (one award, all years)", search_awards: "search_awards (find an award)",
+};
+function ProgressList({ steps }: { steps: Progress[] }) {
+  // Only steps the server has reported are shown; the last one is the step in progress. Nothing here is a timer or a guess.
+  const shown = steps.length ? steps : [{ stage: "queued", t: 0 } as Progress];
+  return (
+    <ol className="text-sm space-y-1.5" aria-live="polite" aria-label="Progress">
+      {shown.map((p, i) => {
+        const last = i === shown.length - 1;
+        const label = p.stage === "tool" ? `${STAGE_LABEL.tool}: ${TOOL_LABEL[p.tool ?? ""] ?? p.tool}` : p.stage === "model" && (p.attempt ?? 1) > 1 ? "Model is revising its answer" : STAGE_LABEL[p.stage] ?? p.stage;
+        return (
+          <li key={i} className={`flex items-start gap-2 ${last ? "text-mist-100" : "text-mist-500"}`}>
+            <span aria-hidden="true" className={`mt-1 inline-block h-2 w-2 rounded-full ${last ? "bg-signal animate-pulse" : "bg-mint"}`} />
+            <span>{label}{last ? "…" : ""}</span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 export default function Page() { return <Shell><Suspense fallback={<Loading rows={8} />}><Investigator /></Suspense></Shell>; }

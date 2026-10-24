@@ -10,9 +10,16 @@ test.use({ viewport: { width: 1280, height: 720 }, video: { mode: "on", size: { 
 
 const shot = (name: string) => `../docs/screenshots/${name}.png`;
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// Chapter markers written as the walkthrough actually reaches each section; the deploy workflow burns them into the MP4 as
+// captions (ffmpeg drawtext), so the labels are timed by what happened, not by a script.
+import { writeFileSync, mkdirSync } from "node:fs";
+const chapters: { t: number; label: string }[] = [];
+let t0 = 0;
+const mark = (label: string) => chapters.push({ t: Math.round((Date.now() - t0) / 100) / 10, label });
 
 test("walkthrough: overview → scope → anomaly lab → explanation → investigator → methodology", async ({ page }) => {
   test.setTimeout(300_000);
+  t0 = Date.now(); mark("Overview — six agencies, FY2022–FY2026, every number from one published SQL query");
   await page.goto("/");
   await expect(page.locator(".kpi .value").first()).not.toHaveText("…", { timeout: 20_000 });
   await pause(4000);
@@ -20,23 +27,28 @@ test("walkthrough: overview → scope → anomaly lab → explanation → invest
   await page.mouse.wheel(0, 500); await pause(3000);
   await page.mouse.wheel(0, -500); await pause(1500);
 
+  mark("Scope filters live in the URL — Veterans Affairs, FY2025");
   await page.getByLabel("Agency", { exact: true }).selectOption("036"); await pause(2500);
   await page.getByLabel("Fiscal year", { exact: true }).selectOption("2025"); await pause(3500);
   await page.screenshot({ path: shot("02-overview-va-fy2025") });
 
+  mark("Agency Explorer — recipients, PSC mix, year-over-year movers");
   await page.getByRole("link", { name: "Agency Explorer" }).first().click();
   await expect(page.locator(".tbl tbody tr").first()).toBeVisible({ timeout: 20_000 }); await pause(5000);
   await page.screenshot({ path: shot("03-agency") });
 
+  mark("Anomaly Lab — flagged awards with score, threshold and peer group");
   await page.getByRole("link", { name: "Anomaly Lab" }).first().click();
   await expect(page.getByText(/Flagged in scope: \d+/)).toBeVisible({ timeout: 20_000 }); await pause(4000);
   await page.screenshot({ path: shot("04-anomaly-lab") });
+  mark("Why? — the exact comparison behind one flag, traced to raw transactions");
   const why = page.getByRole("button", { name: "Why?" }).first();
   await why.click();
   await expect(page.getByText("Why this award-year was scored")).toBeVisible(); await pause(2000);
   await page.getByText("Why this award-year was scored").scrollIntoViewIfNeeded(); await pause(8000);
   await page.screenshot({ path: shot("05-anomaly-explanation") });
 
+  mark("AI Investigator — the model plans, SQL computes, the server verifies every number");
   await page.getByRole("link", { name: "AI Investigator" }).first().click();
   await expect(page.getByText(/scope: Veterans Affairs · FY2025/)).toBeVisible({ timeout: 20_000 }); await pause(3000);
   const q = "Which VA recipient grew fastest in FY2025 versus FY2024, and by how much?";
@@ -48,11 +60,15 @@ test("walkthrough: overview → scope → anomaly lab → explanation → invest
   await page.screenshot({ path: shot("06-investigator"), fullPage: true });
   await page.mouse.wheel(0, 600); await pause(6000);
 
+  mark("Methodology — the SQL behind each endpoint, reconciliation and anomaly math");
   await page.getByRole("link", { name: "Methodology" }).first().click();
   await expect(page.getByText("The SQL behind each endpoint")).toBeVisible({ timeout: 20_000 }); await pause(3000);
   const d = page.locator("details", { hasText: "anomalies_large" }).first();
   await d.locator("summary").click(); await pause(5000);
   await page.screenshot({ path: shot("07-methodology") });
   await page.mouse.wheel(0, 900); await pause(5000);
+  mark("civiclens-ai-smoky.vercel.app · github.com/sagarmodha9-dotcom/civiclens-ai");
   await page.goto("/"); await pause(3000);
+  mkdirSync("../docs/demo", { recursive: true });
+  writeFileSync("../docs/demo/chapters.json", JSON.stringify({ recorded_utc: new Date().toISOString(), chapters }, null, 1));
 });

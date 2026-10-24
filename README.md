@@ -1,13 +1,54 @@
 # CivicLens AI — Federal IT Spending Intelligence & Investigation
 
-**Live site:** https://civiclens-ai-smoky.vercel.app · **API:** https://civiclens-api.fly.dev · **Snapshot:** `v20261023-1` · **Release commit:** `e24b1a2`
+**Where did $109.8 billion of federal IT contract money go, what looks statistically unusual, and can an AI explain it without making anything up?**
 
-Real U.S. federal IT procurement records (USAspending.gov, six agencies, FY2022–FY2026) transformed on Databricks
-(Bronze → Silver → Gold Delta tables on Unity Catalog), scored by an explainable anomaly engine, published as an immutable
-versioned snapshot behind a FastAPI service and a Next.js site — with an AI investigator that can only state numbers the
-server re-finds in the SQL it ran, and cites the award ids it used.
+CivicLens answers that on real USAspending.gov records for six civilian agencies (FY2022–FY2026): a Databricks lakehouse, an
+explainable anomaly engine that was independently re-validated, and a Claude-powered investigator whose every number is
+re-verified by the server against the SQL it ran. Every claim in this README links to the CI run that produced it.
+
+<p>
+<a href="https://civiclens-ai-smoky.vercel.app"><b>▶ Open the live site</b></a> (no login) ·
+<a href="docs/demo/civiclens-demo.mp4"><b>Watch the 2-minute demo</b></a> (recorded automatically on every deploy) ·
+<a href="docs/ACCEPTANCE.md"><b>Acceptance report</b></a> · <a href="docs/DECISIONS.md">Design decisions</a>
+</p>
+
+<table>
+<tr>
+<td width="50%"><a href="docs/screenshots/01-overview.png"><img src="docs/screenshots/01-overview.png" alt="Overview: obligations in scope, award-years, top recipient share, flagged anomalies, obligations by fiscal year and by agency"></a><br><sub><b>Overview</b> — $109.83B across 68,587 award-years, with every KPI reproducible from one published SQL query.</sub></td>
+<td width="50%"><a href="docs/screenshots/04-anomaly-lab.png"><img src="docs/screenshots/04-anomaly-lab.png" alt="Anomaly Lab: flagged awards with detector, score, threshold and peer group size, and a Why? button per row"></a><br><sub><b>Anomaly Lab</b> — each flag carries its peer group, baseline, score and threshold; “Why?” traces it to raw transactions.</sub></td>
+</tr>
+<tr>
+<td><a href="docs/screenshots/06-investigator.png"><img src="docs/screenshots/06-investigator.png" alt="AI Investigator: facts table computed by SQL and verified, interpretation kept separate, citations to USAspending award pages"></a><br><sub><b>AI Investigator</b> — facts (verified), interpretation and limits are kept apart; award ids link to USAspending.</sub></td>
+<td><a href="docs/demo/civiclens-demo.mp4"><img src="docs/demo/civiclens-demo-preview.gif" alt="20-second preview of the automated demo recording"></a><br><sub><b>Demo preview</b> — first 20 s of the captioned walkthrough; the full MP4 is in <code>docs/demo/</code>.</sub></td>
+</tr>
+</table>
+
+## Try it in two minutes
+
+1. Open **https://civiclens-ai-smoky.vercel.app**. Pick *Veterans Affairs* and *FY2025* in the scope bar — the URL changes, every panel follows.
+2. **Anomaly Lab** → click **Why?** on the top row: the peer group, the median it was compared with, the score and the threshold, and the raw transactions behind the number.
+3. **AI Investigator** → ask *“Which VA recipient grew the most in FY2025 versus FY2024, and by how much?”* Watch the progress steps (they are real server events), then read the **Facts** table: every row names the query that produced it and was re-checked by the server before you saw it.
+4. **Methodology** → the SQL behind each endpoint, the reconciliation against USAspending, and the anomaly math.
+
+Live answers take 10–40 s and are rate-limited (8 per hour per visitor, 120 per day) to stay inside a fixed monthly budget; questions
+that were asked before are served from cache and say so.
+
+## Why it is built this way
+
+- **Numbers you can audit, not a chatbot.** The model never writes a number the server cannot find in the rows of the tool call it
+  cites; sentences with untraceable numbers are removed before the answer is shown. Reference values in the evaluation are computed
+  by SQL at run time, never hard-coded, and the holdout set was written independently and never tuned on.
+- **Anomalies are comparisons, not accusations.** Three deterministic detectors (robust z-score on award size, HHI recipient
+  concentration, year-over-year growth) with their peer group and baseline attached; an independent NumPy re-implementation reproduces
+  the flagged sets exactly. The investigator refuses conduct language by construction.
+- **One SQL, two engines.** The same Bronze → Silver → Gold SQL runs on Databricks serverless (Delta, Unity Catalog) and on DuckDB; row
+  counts, rejects, flags and total obligations agree to the cent. The published snapshot is an immutable, sha256-verified release asset.
+- **Evidence is produced by the pipeline, not written by hand.** Ingest manifests, reconciliation against the source, Databricks parity,
+  anomaly validation, evaluation results, security scans and live browser tests are all committed by the workflows that ran them.
 
 ![architecture](docs/architecture.svg)
+
+**Live site:** https://civiclens-ai-smoky.vercel.app · **API:** https://civiclens-api.fly.dev · **Snapshot:** `v20261023-1` · **Release commit:** `__RELEASE_COMMIT__`
 
 ## What a reviewer can verify in five minutes
 
