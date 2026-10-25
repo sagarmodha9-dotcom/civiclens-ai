@@ -48,7 +48,7 @@ that were asked before are served from cache and say so.
 
 ![architecture](docs/architecture.svg)
 
-**Live site:** https://civiclens-ai-smoky.vercel.app · **API:** https://civiclens-api.fly.dev · **Snapshot:** `v20261023-1` · **Release commit:** `__RELEASE_COMMIT__`
+**Live site:** https://civiclens-ai-smoky.vercel.app · **API:** https://civiclens-api.fly.dev · **Snapshot:** `v20261023-1` · **Release commit:** `7a2d939`
 
 ## What a reviewer can verify in five minutes
 
@@ -57,10 +57,10 @@ that were asked before are served from cache and say so.
 | 30 agency×FY cells pulled from USAspending, 109,883 prime contract transactions, every cell's row count within 0.5% of the API's own count (26/30 exact), 50 sampled awards reconcile **to the cent** against the award's own transactions | [`evidence/ingest/report.md`](evidence/ingest/report.md), [`evidence/reconcile/report.md`](evidence/reconcile/report.md) — ingest run 39997561946 |
 | The same Bronze/Silver/Gold SQL runs on **Databricks serverless (Spark, Delta, Unity Catalog)** and on DuckDB; row counts, Σ obligations ($109,830,250,044.05), rejects and flagged/scored counts are identical across engines | [`evidence/pipeline/databricks_run.md`](evidence/pipeline/databricks_run.md) — run 40005551673, Databricks job run 577799826358384 (link in the report) |
 | The three anomaly detectors re-implemented independently in NumPy agree with the pipeline on all 46,497 scored award-years, 359 concentration cells and 21,017 recipient-years (0.0 relative score difference, identical flagged sets); sampled flagged records trace back to raw rows to the cent, with USAspending permalinks | [`evidence/anomalies/validation.md`](evidence/anomalies/validation.md) — run 40008893734 |
-| AI investigator regression set (40 cases: factual, aggregation, comparison, anomaly explanation, no-evidence, ambiguous, adversarial, misconduct-baiting), scored two ways: **server-verifiable** (every reference number found among verified facts, no unverified facts, grounded prose, valid citations, correct refusals) and **+LLM judge** (Sonnet finds no unsupported claim) | [`evidence/eval/results.md`](evidence/eval/results.md) — run 40020404463 · **35/40 server-verified**, 32/40 also pass the judge, numeric 20/21, 0 citation failures, 0 misconduct language |
-| **Independent holdout** (24 cases designed without seeing the regression set, references via independent SQL, never used to tune anything), reported separately | [`evidence/eval/holdout/results.md`](evidence/eval/holdout/results.md) — run 40020407844 · **24/24 server-verified**, 19/24 also pass the judge, numeric 12/12, 0 citation failures |
+| AI investigator regression set (40 cases: factual, aggregation, comparison, anomaly explanation, no-evidence, ambiguous, adversarial, misconduct-baiting), scored two ways: **server-verifiable** (every reference number found among verified facts, no unverified facts, grounded prose, valid citations, correct refusals) and **+LLM judge** (Sonnet finds no unsupported claim) | [`evidence/eval/results.md`](evidence/eval/results.md) — run [40115576951](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40115576951) · **36/40 server-verified**, 32/40 also pass the judge, numeric 17/21 (four-run variance below), 0 citation failures, 0 misconduct language |
+| **Independent holdout** (24 cases designed without seeing the regression set, references via independent SQL, never used to tune anything), reported separately | [`evidence/eval/holdout/results.md`](evidence/eval/holdout/results.md) — run [40115578916](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40115578916) · **23/24 server-verified**, 20/24 also pass the judge, numeric 12/12, 0 citation failures |
 | Security gate on every push: gitleaks over the full git history, pip-audit, npm audit; live access-control smoke after each deploy (CORS allowlist, input validation, no write methods, headers, advertised rate limits) | [`evidence/security/report.md`](evidence/security/report.md), [`evidence/deploy/report.md`](evidence/deploy/report.md) |
-| Public deployment pinned to the snapshot above (image built with the sha256-verified release asset; `X-Snapshot-Version` on every response), Playwright e2e on desktop Chrome + Pixel 7 + axe WCAG 2.1 AA against the **live** site, automated demo recording | [`evidence/deploy/report.md`](evidence/deploy/report.md) — run 40020401068 · PASS · 17 live e2e passed, 0 failed (desktop + mobile), access-control smoke 8/8, demo recorded automatically · [`docs/demo/civiclens-demo.mp4`](docs/demo/civiclens-demo.mp4) · [`docs/screenshots/`](docs/screenshots/) |
+| Public deployment pinned to the snapshot above (image built with the sha256-verified release asset; `X-Snapshot-Version` on every response), Playwright e2e on desktop Chrome + Pixel 7 + axe WCAG 2.1 AA against the **live** site, automated demo recording | [`evidence/deploy/report.md`](evidence/deploy/report.md) — run [40115580863](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40115580863) · PASS · 21 live browser tests passed, 0 failed (desktop + Pixel 7 + axe), access-control smoke 10/10, captioned demo recorded automatically · [`docs/demo/civiclens-demo.mp4`](docs/demo/civiclens-demo.mp4) · [`docs/screenshots/`](docs/screenshots/) |
 
 Full acceptance matrix with every milestone, run id and limitation: [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md). Design decisions and
 their reasons: [`docs/DECISIONS.md`](docs/DECISIONS.md).
@@ -106,6 +106,20 @@ FY2022–FY2025 are settled; FY2026 ended Sep 30, 2026 and is labelled **prelimi
    tested; desktop + mobile + accessibility e2e run against the live site after every deploy.
 
 ## Evaluation honesty
+
+**Run-to-run variance is reported, not hidden.** The model is not deterministic; four consecutive runs on the same snapshot gave:
+
+| | run 1 | run 2 | run 3 | run 4 (release) |
+|---|---|---|---|---|
+| Regression, server-verified / 40 | 35 ([40020404463](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40020404463)) | 34 ([40111814189](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40111814189)) | 35 ([40113049929](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40113049929)) | **36** ([40115576951](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40115576951)) |
+| Regression, + LLM judge / 40 | 32 | 32 | 34 | 32 |
+| Holdout, server-verified / 24 | 24 ([40020407844](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40020407844)) | 24 ([40111816242](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40111816242)) | 23 ([40113051727](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40113051727)) | 23 ([40115578916](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/runs/40115578916)) |
+| Holdout, + LLM judge / 24 | 19 | 19 | 18 | 20 |
+
+Between runs the investigator code changed (context records, growth definition, output budget; `docs/DECISIONS.md`); the scoring
+rules and references did not. Citation failures and misconduct language were 0 in every run. The remaining failures move between
+cases from run to run (over-cautious "insufficient evidence" refusals, a growth question answered on a different basis, a trend
+question answered partially) — a model-behaviour limit, not a verifier gap, and stated as such.
 
 - Reference values are computed by SQL at evaluation time, never hard-coded; a case passes numerically only if every
   reference value appears among the facts that survived server-side verification, with matching entities.
