@@ -1,5 +1,7 @@
 # CivicLens AI — Federal IT Spending Intelligence & Investigation
 
+[![tests](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/workflows/tests.yml/badge.svg)](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/workflows/tests.yml) [![deploy](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/workflows/deploy.yml/badge.svg)](https://github.com/sagarmodha9-dotcom/civiclens-ai/actions/workflows/deploy.yml)
+
 **Where did $109.8 billion of federal IT contract money go, what looks statistically unusual, and can an AI explain it without making anything up?**
 
 CivicLens answers that on real USAspending.gov records for six civilian agencies (FY2022–FY2026): a Databricks lakehouse, an
@@ -147,12 +149,11 @@ Fly.io shared-cpu-1x 512 MB always-on + 1 GB volume (≈ $3–5/month), Vercel H
 (free), Anthropic API capped at $10/month in the console with a $5/month in-app budget (a full 40-case evaluation costs
 about $0.65), GitHub Actions (free tier).
 
-## Limitations (see `docs/ACCEPTANCE.md` for the full list)
+## Limitations (ranked; details in [`docs/ACCEPTANCE.md`](docs/ACCEPTANCE.md))
 
-- Treasury FY2023–FY2026 cell counts differ from the API's count endpoint by 1–6 rows (≤ 0.21%) on the day the source
-  refreshed; recorded per cell, within the documented tolerance, and re-checked on the next pull.
-- FY2026 is preliminary and will be revised by the source.
-- The LLM judge is a second model's opinion; the server-verified column is the one that is provable.
-- The investigator answers inside the dashboard scope only, and declines what the tools cannot measure (outlays,
-  headcount, other agencies, future years).
-- Databricks Free Edition cannot create catalogs; the lakehouse uses the built-in `workspace` catalog.
+1. The investigator is not deterministic: 34–36 of 40 regression and 23–24 of 24 holdout cases pass server verification across four
+   runs. The failures are incomplete answers (mostly over-cautious refusals); numbers the server cannot trace are never shown.
+2. The LLM judge flags explanatory wording in a handful of cases per run; it is reported separately as a second model's opinion.
+3. Live answers take 10–40 s and are rate-limited to a fixed monthly budget; repeated questions are served from cache and labelled.
+4. Treasury FY2023–FY2026 row counts are 1–6 short of the API count (≤ 0.21%); the dollar deltas sit only on those cells.
+5. FY2026 is preliminary; Databricks Free Edition (no custom catalog); one Fly.io machine (~30 s redeploy gap).

@@ -1,4 +1,0 @@
-duckdb>=1.1
-
-[test]
-pytest>=8

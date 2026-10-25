@@ -1,8 +1,0 @@
-Metadata-Version: 2.4
-Name: civiclens-lakehouse
-Version: 0.1.0
-Summary: CivicLens AI: Bronze/Silver/Gold transformations, anomaly detectors, DQ gate (DuckDB + Spark)
-Requires-Python: >=3.11
-Requires-Dist: duckdb>=1.1
-Provides-Extra: test
-Requires-Dist: pytest>=8; extra == "test"
