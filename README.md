@@ -157,3 +157,7 @@ about $0.65), GitHub Actions (free tier).
 3. Live answers take 10–40 s and are rate-limited to a fixed monthly budget; repeated questions are served from cache and labelled.
 4. Treasury FY2023–FY2026 row counts are 1–6 short of the API count (≤ 0.21%); the dollar deltas sit only on those cells.
 5. FY2026 is preliminary; Databricks Free Edition (no custom catalog); one Fly.io machine (~30 s redeploy gap).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
