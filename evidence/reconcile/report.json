@@ -1,5 +1,5 @@
 {
- "run_utc": "2026-10-23T17:45:22+00:00",
+ "run_utc": "2026-10-26T17:05:46+00:00",
  "snapshot": "build/civiclens.duckdb",
  "R1": [
   {
@@ -197,8 +197,8 @@
   {
    "agency_code": "070",
    "fiscal_year": 2026,
-   "ours": 4447,
-   "api_count_now": 4447,
+   "ours": 4449,
+   "api_count_now": 4449,
    "delta": 0,
    "error": null
   },
@@ -245,604 +245,604 @@
  ],
  "R2": [
   {
-   "award_key": "CONT_AWD_DOCRA133W15NC0244_1330_GS00T07NSD0002_4735",
-   "fiscal_year": 2022,
-   "agency_code": "013",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 0.0,
-   "api_sum": 0.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 0.0,
-   "api_transactions_all_years": 3
-  },
-  {
-   "award_key": "CONT_AWD_36C24420F0458_3600_GS35F0485N_4730",
+   "award_key": "CONT_AWD_75F40124F19023_7524_75F40120D00005_7524",
    "fiscal_year": 2024,
-   "agency_code": "036",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 286486.72,
-   "api_sum": 286486.72,
+   "agency_code": "075",
+   "ours_n": 2,
+   "api_n": 2,
+   "ours_sum": 5115507.71,
+   "api_sum": 5115507.71,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 1521025.58,
-   "api_transactions_all_years": 11
-  },
-  {
-   "award_key": "CONT_AWD_1331L519F13500432_1301_GS35F0256K_4730",
-   "fiscal_year": 2022,
-   "agency_code": "013",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": -0.05,
-   "api_sum": -0.05,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 89866.32,
+   "api_lifetime_total_obligation_label_only": 10158922.92,
    "api_transactions_all_years": 5
   },
   {
-   "award_key": "CONT_AWD_70RDAD18FC0000035_7001_HSHQDC17A00018_7001",
+   "award_key": "CONT_AWD_70FB7022F00000118_7022_70FB7019D00000011_7022",
    "fiscal_year": 2022,
    "agency_code": "070",
    "ours_n": 1,
    "api_n": 1,
-   "ours_sum": -10.95,
-   "api_sum": -10.95,
+   "ours_sum": 18912.5,
+   "api_sum": 18912.5,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 558.61,
+   "api_lifetime_total_obligation_label_only": 0.0,
    "api_transactions_all_years": 2
   },
   {
-   "award_key": "CONT_AWD_36C25924N0497_3600_GS35F251GA_4732",
+   "award_key": "CONT_AWD_70SBUR24F00000287_7003_HSHQDC12D00013_7001",
    "fiscal_year": 2024,
-   "agency_code": "036",
+   "agency_code": "070",
    "ours_n": 1,
    "api_n": 1,
-   "ours_sum": 10200.0,
-   "api_sum": 10200.0,
+   "ours_sum": 382275.0,
+   "api_sum": 382275.0,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 31068.0,
-   "api_transactions_all_years": 3
+   "api_lifetime_total_obligation_label_only": 382275.0,
+   "api_transactions_all_years": 2
   },
   {
-   "award_key": "CONT_AWD_2032H523F00677_2050_NNG15SC71B_8000",
+   "award_key": "CONT_AWD_75A50224F62009_7505_75A50222A00002_7505",
    "fiscal_year": 2026,
-   "agency_code": "020",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 0.0,
-   "api_sum": 0.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 46863.25,
-   "api_transactions_all_years": 5
-  },
-  {
-   "award_key": "CONT_AWD_28321323FA0010052_2800_28321319A00040003_2800",
-   "fiscal_year": 2023,
-   "agency_code": "028",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 287639.21,
-   "api_sum": 287639.21,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 287639.21,
-   "api_transactions_all_years": 1
-  },
-  {
-   "award_key": "CONT_AWD_75ACF122P00024_7590_-NONE-_-NONE-",
-   "fiscal_year": 2022,
    "agency_code": "075",
    "ours_n": 1,
    "api_n": 1,
-   "ours_sum": 36579.06,
-   "api_sum": 36579.06,
+   "ours_sum": -1092.52,
+   "api_sum": -1092.52,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 36579.06,
+   "api_lifetime_total_obligation_label_only": 371.92,
    "api_transactions_all_years": 2
   },
   {
-   "award_key": "CONT_AWD_36C10B18N10080023_3600_VA11816D1008_3600",
-   "fiscal_year": 2023,
-   "agency_code": "036",
+   "award_key": "CONT_AWD_70T02022F7554N003_7013_NNG15SD02B_8000",
+   "fiscal_year": 2026,
+   "agency_code": "070",
    "ours_n": 1,
    "api_n": 1,
    "ours_sum": 0.0,
    "api_sum": 0.0,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 66385768.3,
-   "api_transactions_all_years": 7
-  },
-  {
-   "award_key": "CONT_AWD_2031JW21F00042_2046_NNG15SC71B_8000",
-   "fiscal_year": 2022,
-   "agency_code": "020",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 28467.78,
-   "api_sum": 28467.78,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 148448.12,
+   "api_lifetime_total_obligation_label_only": 691304.4,
    "api_transactions_all_years": 6
   },
   {
-   "award_key": "CONT_AWD_75D30124P18494_7523_-NONE-_-NONE-",
-   "fiscal_year": 2024,
-   "agency_code": "075",
+   "award_key": "CONT_AWD_1305M322PNWWN0538_1330_-NONE-_-NONE-",
+   "fiscal_year": 2022,
+   "agency_code": "013",
    "ours_n": 1,
    "api_n": 1,
-   "ours_sum": 493235.0,
-   "api_sum": 493235.0,
+   "ours_sum": 9461.24,
+   "api_sum": 9461.24,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 1629820.0,
+   "api_lifetime_total_obligation_label_only": 9461.24,
+   "api_transactions_all_years": 1
+  },
+  {
+   "award_key": "CONT_AWD_2032H318C00011_2001_-NONE-_-NONE-",
+   "fiscal_year": 2025,
+   "agency_code": "020",
+   "ours_n": 2,
+   "api_n": 2,
+   "ours_sum": 0.0,
+   "api_sum": 0.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 589404.01,
+   "api_transactions_all_years": 14
+  },
+  {
+   "award_key": "CONT_AWD_36C26123F0028_3600_NNG15SD22B_8000",
+   "fiscal_year": 2026,
+   "agency_code": "036",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 8238.35,
+   "api_sum": 8238.35,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 32953.4,
    "api_transactions_all_years": 4
   },
   {
-   "award_key": "CONT_AWD_70B01C19F00000727_7014_70B01C19A00000022_7014",
-   "fiscal_year": 2022,
-   "agency_code": "070",
-   "ours_n": 3,
-   "api_n": 3,
-   "ours_sum": 4250942.19,
-   "api_sum": 4250942.19,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 36284398.86,
-   "api_transactions_all_years": 27
-  },
-  {
-   "award_key": "CONT_AWD_36C24221P0402_3600_-NONE-_-NONE-",
-   "fiscal_year": 2025,
-   "agency_code": "036",
+   "award_key": "CONT_AWD_1331L523P13420146_1301_-NONE-_-NONE-",
+   "fiscal_year": 2026,
+   "agency_code": "013",
    "ours_n": 2,
    "api_n": 2,
-   "ours_sum": 38146.32,
-   "api_sum": 38146.32,
+   "ours_sum": 525321.04,
+   "api_sum": 525321.04,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 173895.94,
-   "api_transactions_all_years": 6
-  },
-  {
-   "award_key": "CONT_AWD_1331L523F13230035_1323_1331L518A13ES0010_1301",
-   "fiscal_year": 2023,
-   "agency_code": "013",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 331.65,
-   "api_sum": 331.65,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 331.65,
-   "api_transactions_all_years": 1
-  },
-  {
-   "award_key": "CONT_AWD_1331L523F13420416_1301_NNG15SC65B_8000",
-   "fiscal_year": 2023,
-   "agency_code": "013",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 56826.95,
-   "api_sum": 56826.95,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 56826.95,
-   "api_transactions_all_years": 1
-  },
-  {
-   "award_key": "CONT_AWD_36C24720F0137_3600_GS35F0449Y_4732",
-   "fiscal_year": 2023,
-   "agency_code": "036",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 11099.3,
-   "api_sum": 11099.3,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 41880.4,
-   "api_transactions_all_years": 6
-  },
-  {
-   "award_key": "CONT_AWD_1333LB18P00000046_1323_-NONE-_-NONE-",
-   "fiscal_year": 2022,
-   "agency_code": "013",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 0.0,
-   "api_sum": 0.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 13666.95,
-   "api_transactions_all_years": 2
-  },
-  {
-   "award_key": "CONT_AWD_70B06C23F00000603_7014_GS35F0011Y_4732",
-   "fiscal_year": 2026,
-   "agency_code": "070",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 11340.0,
-   "api_sum": 11340.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 45330.84,
-   "api_transactions_all_years": 5
-  },
-  {
-   "award_key": "CONT_AWD_70RTAC26FR0000045_7001_70RTAC26D00000004_7001",
-   "fiscal_year": 2026,
-   "agency_code": "070",
-   "ours_n": 3,
-   "api_n": 3,
-   "ours_sum": 23983144.57,
-   "api_sum": 23983144.57,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 23983144.57,
-   "api_transactions_all_years": 3
-  },
-  {
-   "award_key": "CONT_AWD_75N92021F00003_7529_HHSN268201800008B_7529",
-   "fiscal_year": 2026,
-   "agency_code": "075",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": -36100.88,
-   "api_sum": -36100.88,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 4295373.52,
-   "api_transactions_all_years": 6
-  },
-  {
-   "award_key": "CONT_AWD_TIRNO17P00055_2050_-NONE-_-NONE-",
-   "fiscal_year": 2023,
-   "agency_code": "020",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 10062.96,
-   "api_sum": 10062.96,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 0.0,
-   "api_transactions_all_years": 5
-  },
-  {
-   "award_key": "CONT_AWD_36C10B19F0416_3600_NNG15SD37B_8000",
-   "fiscal_year": 2022,
-   "agency_code": "036",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 16740.0,
-   "api_sum": 16740.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 95595.0,
-   "api_transactions_all_years": 5
-  },
-  {
-   "award_key": "CONT_AWD_28321322FDX030215_2800_03310319D0026_0300",
-   "fiscal_year": 2022,
-   "agency_code": "028",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 11969.04,
-   "api_sum": 11969.04,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 11969.04,
-   "api_transactions_all_years": 1
-  },
-  {
-   "award_key": "CONT_AWD_75P00123F37004_7570_75P00122A00010_7570",
-   "fiscal_year": 2024,
-   "agency_code": "075",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 0.0,
-   "api_sum": 0.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 700818.6,
-   "api_transactions_all_years": 2
-  },
-  {
-   "award_key": "CONT_AWD_70B03C22P00000010_7014_-NONE-_-NONE-",
-   "fiscal_year": 2026,
-   "agency_code": "070",
-   "ours_n": 4,
-   "api_n": 4,
-   "ours_sum": 37603.24,
-   "api_sum": 37603.24,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 179891.64,
+   "api_lifetime_total_obligation_label_only": 3601554.64,
    "api_transactions_all_years": 12
   },
   {
-   "award_key": "CONT_AWD_75040121F80012_7504_GS35F110DA_4732",
-   "fiscal_year": 2026,
-   "agency_code": "075",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 0.0,
-   "api_sum": 0.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 20307.56,
-   "api_transactions_all_years": 2
-  },
-  {
-   "award_key": "CONT_AWD_70Z0G825PBNCR0009_7008_-NONE-_-NONE-",
-   "fiscal_year": 2025,
-   "agency_code": "070",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 18500.0,
-   "api_sum": 18500.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 18500.0,
-   "api_transactions_all_years": 1
-  },
-  {
-   "award_key": "CONT_AWD_70FB7026F00000080_7022_70FB7025D00000001_7022",
-   "fiscal_year": 2026,
-   "agency_code": "070",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 2194550.83,
-   "api_sum": 2194550.83,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 2194550.83,
-   "api_transactions_all_years": 1
-  },
-  {
-   "award_key": "CONT_AWD_70B06C22C00000074_7014_-NONE-_-NONE-",
-   "fiscal_year": 2025,
-   "agency_code": "070",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 49500.0,
-   "api_sum": 49500.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 247500.0,
-   "api_transactions_all_years": 5
-  },
-  {
-   "award_key": "CONT_AWD_1333ND24FNB640146_1341_1333ND21DNB770022_1341",
-   "fiscal_year": 2024,
-   "agency_code": "013",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 156307.2,
-   "api_sum": 156307.2,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 156307.2,
-   "api_transactions_all_years": 1
-  },
-  {
-   "award_key": "CONT_AWD_36C10B21N10180007_3600_VA11816D1018_3600",
-   "fiscal_year": 2024,
-   "agency_code": "036",
-   "ours_n": 8,
-   "api_n": 8,
-   "ours_sum": 49255172.75,
-   "api_sum": 49255172.75,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 230707970.19,
-   "api_transactions_all_years": 27
-  },
-  {
-   "award_key": "CONT_AWD_70RCSA22P00000047_7001_-NONE-_-NONE-",
-   "fiscal_year": 2022,
-   "agency_code": "070",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 121498.1,
-   "api_sum": 121498.1,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 121498.1,
-   "api_transactions_all_years": 2
-  },
-  {
-   "award_key": "CONT_AWD_36C10B23F0097_3600_NNG15SD00B_8000",
-   "fiscal_year": 2026,
-   "agency_code": "036",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 261185.82,
-   "api_sum": 261185.82,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 1166443.46,
-   "api_transactions_all_years": 5
-  },
-  {
-   "award_key": "CONT_AWD_HHSD2002004034090048_7523_HHSD200200403409I_7523",
-   "fiscal_year": 2023,
-   "agency_code": "075",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": -99179.35,
-   "api_sum": -99179.35,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 6853894.73,
-   "api_transactions_all_years": 31
-  },
-  {
-   "award_key": "CONT_AWD_70VT1518F00009_7004_HSHQDC13D00022_7001",
-   "fiscal_year": 2022,
-   "agency_code": "070",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 0.0,
-   "api_sum": 0.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 14140.0,
-   "api_transactions_all_years": 6
-  },
-  {
-   "award_key": "CONT_AWD_75R60224F34022_7526_75R60220A00017_7526",
-   "fiscal_year": 2024,
-   "agency_code": "075",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 56180.56,
-   "api_sum": 56180.56,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 56180.56,
-   "api_transactions_all_years": 1
-  },
-  {
-   "award_key": "CONT_AWD_2031ZB21F00071_2041_47QTCB21D0061_4732",
-   "fiscal_year": 2022,
-   "agency_code": "020",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 653200.0,
-   "api_sum": 653200.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 1352200.0,
-   "api_transactions_all_years": 2
-  },
-  {
-   "award_key": "CONT_AWD_36C24521P0200_3600_-NONE-_-NONE-",
+   "award_key": "CONT_AWD_36C10M25F50102_3600_NNG15SD38B_8000",
    "fiscal_year": 2025,
    "agency_code": "036",
    "ours_n": 1,
    "api_n": 1,
-   "ours_sum": 43495.0,
-   "api_sum": 43495.0,
+   "ours_sum": 106300.78,
+   "api_sum": 106300.78,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 212450.0,
-   "api_transactions_all_years": 6
-  },
-  {
-   "award_key": "CONT_AWD_75F40122F80186_7524_GS35F0448W_4730",
-   "fiscal_year": 2026,
-   "agency_code": "075",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": -32654.2,
-   "api_sum": -32654.2,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 46141.8,
-   "api_transactions_all_years": 6
-  },
-  {
-   "award_key": "CONT_AWD_205AE926F00050_2050_2032H525A00023_2050",
-   "fiscal_year": 2026,
-   "agency_code": "020",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 22524459.2,
-   "api_sum": 22524459.2,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 22524459.2,
+   "api_lifetime_total_obligation_label_only": 106300.78,
    "api_transactions_all_years": 1
   },
   {
-   "award_key": "CONT_AWD_70RSAT18FR0000134_7001_HSHQDC13D00020_7001",
-   "fiscal_year": 2022,
-   "agency_code": "070",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 0.0,
-   "api_sum": 0.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 177406.95,
-   "api_transactions_all_years": 2
-  },
-  {
-   "award_key": "CONT_AWD_75R60225F80069_7526_47QTCB21D0325_4732",
-   "fiscal_year": 2025,
+   "award_key": "CONT_AWD_HHSM500201300146C_7530_-NONE-_-NONE-",
+   "fiscal_year": 2024,
    "agency_code": "075",
    "ours_n": 2,
    "api_n": 2,
-   "ours_sum": 1224637.6,
-   "api_sum": 1224637.6,
+   "ours_sum": -208726.31,
+   "api_sum": -208726.31,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 2458562.12,
+   "api_lifetime_total_obligation_label_only": 2810736.15,
+   "api_transactions_all_years": 26
+  },
+  {
+   "award_key": "CONT_AWD_205AE925C00048_2050_-NONE-_-NONE-",
+   "fiscal_year": 2025,
+   "agency_code": "020",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 124084.74,
+   "api_sum": 124084.74,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 124084.74,
+   "api_transactions_all_years": 2
+  },
+  {
+   "award_key": "CONT_AWD_205AE922F00062_2050_NNG15SD13B_8000",
+   "fiscal_year": 2024,
+   "agency_code": "020",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 29964.33,
+   "api_sum": 29964.33,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 87310.21,
+   "api_transactions_all_years": 5
+  },
+  {
+   "award_key": "CONT_AWD_2031JW22F00020_2046_2031JW21A00002_2046",
+   "fiscal_year": 2022,
+   "agency_code": "020",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 522670.4,
+   "api_sum": 522670.4,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 1853941.15,
+   "api_transactions_all_years": 7
+  },
+  {
+   "award_key": "CONT_AWD_70FA3126F00000065_7022_47QTCB21D0332_4732",
+   "fiscal_year": 2026,
+   "agency_code": "070",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 3451680.0,
+   "api_sum": 3451680.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 3451680.0,
+   "api_transactions_all_years": 1
+  },
+  {
+   "award_key": "CONT_AWD_28321321FDX030096_2800_47QTCA18D0081_4732",
+   "fiscal_year": 2026,
+   "agency_code": "028",
+   "ours_n": 2,
+   "api_n": 2,
+   "ours_sum": 838406.4,
+   "api_sum": 838406.4,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 8858784.0,
+   "api_transactions_all_years": 10
+  },
+  {
+   "award_key": "CONT_AWD_1332KP25F0022_1330_1305M421ANAAA0054_1330",
+   "fiscal_year": 2025,
+   "agency_code": "013",
+   "ours_n": 2,
+   "api_n": 2,
+   "ours_sum": 603844.8,
+   "api_sum": 603844.8,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 1218687.2,
    "api_transactions_all_years": 4
   },
   {
-   "award_key": "CONT_AWD_36C10B19N10080029_3600_VA11816D1008_3600",
-   "fiscal_year": 2022,
-   "agency_code": "036",
-   "ours_n": 2,
-   "api_n": 2,
-   "ours_sum": 226788.48,
-   "api_sum": 226788.48,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 1131427.13,
-   "api_transactions_all_years": 11
-  },
-  {
-   "award_key": "CONT_AWD_75F40126P00421_7524_-NONE-_-NONE-",
-   "fiscal_year": 2026,
+   "award_key": "CONT_AWD_75R60224F34057_7526_75R60221D00003_7526",
+   "fiscal_year": 2024,
    "agency_code": "075",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 1245557.0,
-   "api_sum": 1245557.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 1245557.0,
-   "api_transactions_all_years": 1
-  },
-  {
-   "award_key": "CONT_AWD_70RTAC26FC0000026_7001_70RTAC26A00000011_7001",
-   "fiscal_year": 2026,
-   "agency_code": "070",
    "ours_n": 3,
    "api_n": 3,
-   "ours_sum": 11887155.56,
-   "api_sum": 11887155.56,
+   "ours_sum": 823200.0,
+   "api_sum": 823200.0,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 11887155.56,
-   "api_transactions_all_years": 3
-  },
-  {
-   "award_key": "CONT_AWD_HHSM500T0005_7530_HHSM500200700015I_7530",
-   "fiscal_year": 2023,
-   "agency_code": "075",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": -574778.88,
-   "api_sum": -574778.88,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 22756252.25,
-   "api_transactions_all_years": 6
-  },
-  {
-   "award_key": "CONT_AWD_HSCETE11J00549_7012_HSCETE11A00002_7012",
-   "fiscal_year": 2022,
-   "agency_code": "070",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 0.0,
-   "api_sum": 0.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 42459.2,
-   "api_transactions_all_years": 2
-  },
-  {
-   "award_key": "CONT_AWD_70T02023F7500N005_7013_47QTCK18D0031_4732",
-   "fiscal_year": 2024,
-   "agency_code": "070",
-   "ours_n": 1,
-   "api_n": 1,
-   "ours_sum": 3096661.67,
-   "api_sum": 3096661.67,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 17663794.06,
-   "api_transactions_all_years": 4
-  },
-  {
-   "award_key": "CONT_AWD_75D30119C05145_7523_-NONE-_-NONE-",
-   "fiscal_year": 2022,
-   "agency_code": "075",
-   "ours_n": 2,
-   "api_n": 2,
-   "ours_sum": 401640.0,
-   "api_sum": 401640.0,
-   "match": true,
-   "api_lifetime_total_obligation_label_only": 2023656.0,
+   "api_lifetime_total_obligation_label_only": 845075.0,
    "api_transactions_all_years": 8
   },
   {
-   "award_key": "CONT_AWD_1305M324F0345_1330_GS35F457GA_4732",
+   "award_key": "CONT_AWD_36C10B23F0161_3600_NNG15SD27B_8000",
    "fiscal_year": 2024,
+   "agency_code": "036",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 231386.16,
+   "api_sum": 231386.16,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 471759.36,
+   "api_transactions_all_years": 2
+  },
+  {
+   "award_key": "CONT_AWD_36C24423F0319_3600_GS02F0106Y_4732",
+   "fiscal_year": 2026,
+   "agency_code": "036",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 11450.61,
+   "api_sum": 11450.61,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 44472.84,
+   "api_transactions_all_years": 4
+  },
+  {
+   "award_key": "CONT_AWD_36C10A22F0139_3600_GS00T07NSD0007_4735",
+   "fiscal_year": 2024,
+   "agency_code": "036",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": -1615.28,
+   "api_sum": -1615.28,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 323521.26,
+   "api_transactions_all_years": 2
+  },
+  {
+   "award_key": "CONT_AWD_70RDAD21FR0000036_7001_70RTAC20D00000002_7001",
+   "fiscal_year": 2022,
+   "agency_code": "070",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 0.0,
+   "api_sum": 0.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 226707.78,
+   "api_transactions_all_years": 4
+  },
+  {
+   "award_key": "CONT_AWD_VA11816F1338_3600_NNG15SD19B_8000",
+   "fiscal_year": 2022,
+   "agency_code": "036",
+   "ours_n": 2,
+   "api_n": 2,
+   "ours_sum": 13407.63,
+   "api_sum": 13407.63,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 383637.13,
+   "api_transactions_all_years": 9
+  },
+  {
+   "award_key": "CONT_AWD_HHSN273201700014U_7529_GS00Q13NSA3000_4732",
+   "fiscal_year": 2023,
+   "agency_code": "075",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": -2264.88,
+   "api_sum": -2264.88,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 181023.37,
+   "api_transactions_all_years": 6
+  },
+  {
+   "award_key": "CONT_AWD_75N98020F00380_7529_GS06F1217Z_4732",
+   "fiscal_year": 2023,
+   "agency_code": "075",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 386640.84,
+   "api_sum": 386640.84,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 1526187.68,
+   "api_transactions_all_years": 7
+  },
+  {
+   "award_key": "CONT_AWD_70B06C22F00001005_7014_47QTCA20D00CN_4732",
+   "fiscal_year": 2025,
+   "agency_code": "070",
+   "ours_n": 8,
+   "api_n": 8,
+   "ours_sum": 2028723.8,
+   "api_sum": 2028723.8,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 11919454.87,
+   "api_transactions_all_years": 20
+  },
+  {
+   "award_key": "CONT_AWD_2099AC26F00038_2099_2099AC26D00002_2099",
+   "fiscal_year": 2026,
+   "agency_code": "020",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 332641.05,
+   "api_sum": 332641.05,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 332641.05,
+   "api_transactions_all_years": 1
+  },
+  {
+   "award_key": "CONT_AWD_36C10B23F0044_3600_NNG15SD39B_8000",
+   "fiscal_year": 2023,
+   "agency_code": "036",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 293328.0,
+   "api_sum": 293328.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 293328.0,
+   "api_transactions_all_years": 3
+  },
+  {
+   "award_key": "CONT_AWD_HHSP233201700293W_7570_NNG15SC85B_8000",
+   "fiscal_year": 2022,
+   "agency_code": "075",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 0.0,
+   "api_sum": 0.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 206144.0,
+   "api_transactions_all_years": 2
+  },
+  {
+   "award_key": "CONT_AWD_36C25921N0089_3600_36C25920A0065_3600",
+   "fiscal_year": 2023,
+   "agency_code": "036",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 41338.8,
+   "api_sum": 41338.8,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 204757.6,
+   "api_transactions_all_years": 7
+  },
+  {
+   "award_key": "CONT_AWD_28321323FA0010144_2800_28321319A00040013_2800",
+   "fiscal_year": 2023,
+   "agency_code": "028",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 3832420.52,
+   "api_sum": 3832420.52,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 3832420.52,
+   "api_transactions_all_years": 2
+  },
+  {
+   "award_key": "CONT_AWD_75040120F80003_7504_GS06F1233Z_4732",
+   "fiscal_year": 2022,
+   "agency_code": "075",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 878988.8,
+   "api_sum": 878988.8,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 2614495.0,
+   "api_transactions_all_years": 5
+  },
+  {
+   "award_key": "CONT_AWD_75F40119F19006_7524_HHSF223201400024B_7524",
+   "fiscal_year": 2022,
+   "agency_code": "075",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": -88429.79,
+   "api_sum": -88429.79,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 2168391.63,
+   "api_transactions_all_years": 5
+  },
+  {
+   "award_key": "CONT_AWD_HHSD2002004034090030_7523_HHSD200200403409I_7523",
+   "fiscal_year": 2023,
+   "agency_code": "075",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": -83957.33,
+   "api_sum": -83957.33,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 386995.14,
+   "api_transactions_all_years": 42
+  },
+  {
+   "award_key": "CONT_AWD_70FA5022F00000082_7022_70FA5021D00000001_7022",
+   "fiscal_year": 2024,
+   "agency_code": "070",
+   "ours_n": 3,
+   "api_n": 3,
+   "ours_sum": 721033.0,
+   "api_sum": 721033.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 6319133.73,
+   "api_transactions_all_years": 8
+  },
+  {
+   "award_key": "CONT_AWD_1332KP22FNEEG0047_1330_1305M421ANAAA0038_1330",
+   "fiscal_year": 2023,
+   "agency_code": "013",
+   "ours_n": 3,
+   "api_n": 3,
+   "ours_sum": 12936468.89,
+   "api_sum": 12936468.89,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 47473936.1,
+   "api_transactions_all_years": 22
+  },
+  {
+   "award_key": "CONT_AWD_1305M425F0064_1330_1305M421GNAAJ0002_1330",
+   "fiscal_year": 2025,
    "agency_code": "013",
    "ours_n": 1,
    "api_n": 1,
-   "ours_sum": 1832253.33,
-   "api_sum": 1832253.33,
+   "ours_sum": 5573924.66,
+   "api_sum": 5573924.66,
    "match": true,
-   "api_lifetime_total_obligation_label_only": 7324270.31,
-   "api_transactions_all_years": 7
+   "api_lifetime_total_obligation_label_only": 5573924.66,
+   "api_transactions_all_years": 1
+  },
+  {
+   "award_key": "CONT_AWD_2032H520F00608_2050_GS35F0481Y_4732",
+   "fiscal_year": 2022,
+   "agency_code": "020",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": -2636754.0,
+   "api_sum": -2636754.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 0.0,
+   "api_transactions_all_years": 3
+  },
+  {
+   "award_key": "CONT_AWD_70FBR422F00000114_7022_70FA3018D00000002_7022",
+   "fiscal_year": 2022,
+   "agency_code": "070",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 138.87,
+   "api_sum": 138.87,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 135.69,
+   "api_transactions_all_years": 2
+  },
+  {
+   "award_key": "CONT_AWD_70B02C20F00000830_7014_70B04C20A00000015_7014",
+   "fiscal_year": 2023,
+   "agency_code": "070",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": -621.98,
+   "api_sum": -621.98,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 19893.31,
+   "api_transactions_all_years": 9
+  },
+  {
+   "award_key": "CONT_AWD_75H71223F80114_7527_GS35F389DA_4732",
+   "fiscal_year": 2023,
+   "agency_code": "075",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 23873.4,
+   "api_sum": 23873.4,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 110206.16,
+   "api_transactions_all_years": 6
+  },
+  {
+   "award_key": "CONT_AWD_70FBR923F00000043_7022_70FA3018D00000003_7022",
+   "fiscal_year": 2023,
+   "agency_code": "070",
+   "ours_n": 2,
+   "api_n": 2,
+   "ours_sum": 285.8,
+   "api_sum": 285.8,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 285.8,
+   "api_transactions_all_years": 2
+  },
+  {
+   "award_key": "CONT_AWD_HSFE4017F0057_7022_GS35F0404K_4730",
+   "fiscal_year": 2022,
+   "agency_code": "070",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 0.0,
+   "api_sum": 0.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 140424.0,
+   "api_transactions_all_years": 5
+  },
+  {
+   "award_key": "CONT_AWD_7571TE26F80059_7571_47QTCA24D008A_4732",
+   "fiscal_year": 2026,
+   "agency_code": "075",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 79530.0,
+   "api_sum": 79530.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 79530.0,
+   "api_transactions_all_years": 1
+  },
+  {
+   "award_key": "CONT_AWD_2032H521F00264_2050_47QTCA18D0081_4732",
+   "fiscal_year": 2022,
+   "agency_code": "020",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 985958.73,
+   "api_sum": 985958.73,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 4972726.44,
+   "api_transactions_all_years": 13
+  },
+  {
+   "award_key": "CONT_AWD_HHSM500T0002_7530_HHSM500201300011I_7530",
+   "fiscal_year": 2023,
+   "agency_code": "075",
+   "ours_n": 2,
+   "api_n": 2,
+   "ours_sum": 28350837.0,
+   "api_sum": 28350837.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 253766656.22,
+   "api_transactions_all_years": 48
+  },
+  {
+   "award_key": "CONT_AWD_75N98C25F00013_7529_GS35F025DA_4732",
+   "fiscal_year": 2025,
+   "agency_code": "075",
+   "ours_n": 2,
+   "api_n": 2,
+   "ours_sum": 12376.8,
+   "api_sum": 12376.8,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 12376.8,
+   "api_transactions_all_years": 2
+  },
+  {
+   "award_key": "CONT_AWD_1331L523F13500645_1301_1331L523A13ES0051_1301",
+   "fiscal_year": 2023,
+   "agency_code": "013",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 57876.0,
+   "api_sum": 57876.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 57876.0,
+   "api_transactions_all_years": 1
+  },
+  {
+   "award_key": "CONT_AWD_70FA3124F00000060_7022_NNG15SC73B_8000",
+   "fiscal_year": 2024,
+   "agency_code": "070",
+   "ours_n": 1,
+   "api_n": 1,
+   "ours_sum": 177049.86,
+   "api_sum": 177049.86,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 265574.79,
+   "api_transactions_all_years": 3
+  },
+  {
+   "award_key": "CONT_AWD_2032H523F00764_2050_2032H523A00031_2050",
+   "fiscal_year": 2025,
+   "agency_code": "020",
+   "ours_n": 2,
+   "api_n": 2,
+   "ours_sum": 0.0,
+   "api_sum": 0.0,
+   "match": true,
+   "api_lifetime_total_obligation_label_only": 813553.93,
+   "api_transactions_all_years": 6
   }
  ],
  "R3": [
@@ -852,7 +852,10 @@
    "ours": 1170880572.2,
    "api_spending_over_time": 1170880572.2,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "013",
@@ -860,7 +863,10 @@
    "ours": 1314026936.94,
    "api_spending_over_time": 1314026936.94,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "013",
@@ -868,7 +874,10 @@
    "ours": 1376640938.61,
    "api_spending_over_time": 1376640938.61,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "013",
@@ -876,7 +885,10 @@
    "ours": 1354182418.21,
    "api_spending_over_time": 1354182418.21,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "013",
@@ -884,7 +896,10 @@
    "ours": 1640191267.9,
    "api_spending_over_time": 1640191267.9,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "020",
@@ -892,7 +907,10 @@
    "ours": 1819975487.12,
    "api_spending_over_time": 1819975487.12,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "020",
@@ -900,7 +918,10 @@
    "ours": 2243192310.47,
    "api_spending_over_time": 2243255482.39,
    "delta": -63171.92,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": true
   },
   {
    "agency_code": "020",
@@ -908,7 +929,10 @@
    "ours": 2675734665.92,
    "api_spending_over_time": 2675856879.12,
    "delta": -122213.2,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": true
   },
   {
    "agency_code": "020",
@@ -916,7 +940,10 @@
    "ours": 3190617744.96,
    "api_spending_over_time": 3190699459.36,
    "delta": -81714.4,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": true
   },
   {
    "agency_code": "020",
@@ -924,7 +951,10 @@
    "ours": 2291020438.39,
    "api_spending_over_time": 2291010893.67,
    "delta": 9544.72,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": true
   },
   {
    "agency_code": "028",
@@ -932,7 +962,10 @@
    "ours": 1004831340.74,
    "api_spending_over_time": 1004831340.74,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "028",
@@ -940,7 +973,10 @@
    "ours": 1052732490.79,
    "api_spending_over_time": 1052732490.79,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "028",
@@ -948,7 +984,10 @@
    "ours": 938381084.59,
    "api_spending_over_time": 938381084.59,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "028",
@@ -956,7 +995,10 @@
    "ours": 781780087.36,
    "api_spending_over_time": 781780087.36,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "028",
@@ -964,7 +1006,10 @@
    "ours": 1057911411.1,
    "api_spending_over_time": 1057911411.1,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "036",
@@ -972,7 +1017,10 @@
    "ours": 6730049177.23,
    "api_spending_over_time": 6730049177.23,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "036",
@@ -980,7 +1028,10 @@
    "ours": 6198741321.22,
    "api_spending_over_time": 6198741321.22,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "036",
@@ -988,7 +1039,10 @@
    "ours": 6873105668.98,
    "api_spending_over_time": 6873105668.98,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "036",
@@ -996,7 +1050,10 @@
    "ours": 7218679612.82,
    "api_spending_over_time": 7218679612.82,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "036",
@@ -1004,7 +1061,10 @@
    "ours": 8594554065.61,
    "api_spending_over_time": 8594554065.61,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "070",
@@ -1012,7 +1072,10 @@
    "ours": 3776449747.57,
    "api_spending_over_time": 3776449747.57,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "070",
@@ -1020,7 +1083,10 @@
    "ours": 4149874995.92,
    "api_spending_over_time": 4149874995.92,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "070",
@@ -1028,7 +1094,10 @@
    "ours": 4580168576.98,
    "api_spending_over_time": 4580168576.98,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "070",
@@ -1036,15 +1105,21 @@
    "ours": 4594614260.48,
    "api_spending_over_time": 4594614260.48,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "070",
    "fiscal_year": 2026,
-   "ours": 5809345794.28,
-   "api_spending_over_time": 5809345794.28,
+   "ours": 5809614689.42,
+   "api_spending_over_time": 5809614689.42,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "075",
@@ -1052,7 +1127,10 @@
    "ours": 5518703581.6,
    "api_spending_over_time": 5518703581.6,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "075",
@@ -1060,7 +1138,10 @@
    "ours": 5455504166.39,
    "api_spending_over_time": 5455504166.39,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "075",
@@ -1068,7 +1149,10 @@
    "ours": 5513153072.97,
    "api_spending_over_time": 5513153072.97,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "075",
@@ -1076,7 +1160,10 @@
    "ours": 5208060799.64,
    "api_spending_over_time": 5208060799.64,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   },
   {
    "agency_code": "075",
@@ -1084,7 +1171,10 @@
    "ours": 5697146007.06,
    "api_spending_over_time": 5697146007.06,
    "delta": 0.0,
-   "available": true
+   "available": true,
+   "within_tolerance": true,
+   "coupled_exact_violation": false,
+   "row_count_short": false
   }
  ],
  "summary": {
@@ -1097,6 +1187,9 @@
   "r2_mismatches": 0,
   "r3_available": 30,
   "r3_nonzero_delta": 4,
+  "r3_over_tolerance_cells": 0,
+  "r3_coupled_exact_violations": 0,
+  "r3_grain": "spending_over_time, spending_level=transactions, group=month, summed over the FY window (confirmed 2026-10-24)",
   "pass": true
  }
 }
