@@ -1,15 +1,15 @@
 {
  "stamp": {
-  "github_run_id": "40005551673",
-  "commit": "5a45d15236f0",
-  "utc": "2026-10-23T18:47:55+00:00",
+  "github_run_id": "40365555689",
+  "commit": "6b5f05aabf91",
+  "utc": "2026-10-26T17:18:18+00:00",
   "catalog": "workspace",
-  "ingest_run_id": "39997561946",
+  "ingest_run_id": "40356624310",
   "serverless_environment_client": "3"
  },
  "job_id": 862977884764769,
- "run_id": 577799826358384,
- "run_page_url": "https://dbc-b531337f-7f65.cloud.databricks.com/?o=7474654994685709#job/862977884764769/run/577799826358384",
+ "run_id": 359749917343233,
+ "run_page_url": "https://dbc-b531337f-7f65.cloud.databricks.com/?o=7474654994685709#job/862977884764769/run/359749917343233",
  "state": {
   "life_cycle_state": "TERMINATED",
   "result_state": "SUCCESS",
@@ -37,18 +37,18 @@
     "user_cancelled_or_timedout": false
    },
    "notebook_output": {
-    "result": "{\"bronze\": 109883, \"silver\": 109883, \"rejects\": 0, \"silver_sum\": 109830250044.05, \"gold_award_sum\": 109830250044.05, \"flagged_large\": 157, \"scored_large\": 45044, \"gold_equals_silver\": true, \"catalog\": \"workspace\"}",
+    "result": "{\"bronze\": 109885, \"silver\": 109885, \"rejects\": 0, \"silver_sum\": 109830518939.19, \"gold_award_sum\": 109830518939.19, \"flagged_large\": 157, \"scored_large\": 45044, \"gold_equals_silver\": true, \"catalog\": \"workspace\"}",
     "truncated": false
    },
    "error": null
   }
  ],
  "databricks_dq": {
-  "bronze": 109883,
-  "silver": 109883,
+  "bronze": 109885,
+  "silver": 109885,
   "rejects": 0,
-  "silver_sum": 109830250044.05,
-  "gold_award_sum": 109830250044.05,
+  "silver_sum": 109830518939.19,
+  "gold_award_sum": 109830518939.19,
   "flagged_large": 157,
   "scored_large": 45044,
   "gold_equals_silver": true,
@@ -56,13 +56,13 @@
  },
  "vs_duckdb": {
   "bronze": {
-   "databricks": 109883,
-   "duckdb": 109883,
+   "databricks": 109885,
+   "duckdb": 109885,
    "match": true
   },
   "silver": {
-   "databricks": 109883,
-   "duckdb": 109883,
+   "databricks": 109885,
+   "duckdb": 109885,
    "match": true
   },
   "rejects": {
@@ -71,13 +71,13 @@
    "match": true
   },
   "silver_sum": {
-   "databricks": 109830250044.05,
-   "duckdb": 109830250044.05,
+   "databricks": 109830518939.19,
+   "duckdb": 109830518939.19,
    "match": true
   },
   "gold_award_sum": {
-   "databricks": 109830250044.05,
-   "duckdb": 109830250044.05,
+   "databricks": 109830518939.19,
+   "duckdb": 109830518939.19,
    "match": true
   },
   "flagged_large": {
