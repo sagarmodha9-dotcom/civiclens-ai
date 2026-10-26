@@ -1,10 +1,10 @@
 {
  "stamp": {
-  "snapshot_version": "unpublished build 2026-10-23T17:45:22+00:00 (ingest run 39997561946)",
-  "snapshot_sha256": "6b204f77d420c6da",
-  "utc": "2026-10-23T19:07:41+00:00",
-  "commit": "015d267d38a9",
-  "github_run_id": "40008893734",
+  "snapshot_version": "unpublished build 2026-10-26T17:05:46+00:00 (ingest run 40356624310)",
+  "snapshot_sha256": "b8bdedc9073a9ccc",
+  "utc": "2026-10-26T17:07:07+00:00",
+  "commit": "6b5f05aabf91",
+  "github_run_id": "40365560156",
   "params": {
    "baseline_fys": "2022,2023,2024,2025",
    "min_peer_n": 30,
@@ -44,7 +44,7 @@
    "flagged_recomputed": 94,
    "flagged_sets_identical": true,
    "status_mismatches": 0,
-   "max_relative_score_diff": 6.746241755762244e-16,
+   "max_relative_score_diff": 6.596570448089795e-16,
    "rows_only_in_pipeline": 0,
    "rows_only_in_recompute": 0,
    "pass": true
@@ -153,11 +153,11 @@
     ],
     [
      2024,
-     0.0
+     41447792.16
     ],
     [
      2024,
-     41447792.16
+     0.0
     ],
     [
      2025,
@@ -371,9 +371,9 @@
    "detector": "concentration",
    "agency": "Social Security Administration",
    "psc_class2": "DK",
-   "fiscal_year": 2024,
-   "cell_total": 75064416.0,
-   "silver_total_positive_recipients": 75064416.0,
+   "fiscal_year": 2022,
+   "cell_total": 23743221.0,
+   "silver_total_positive_recipients": 23743221.0,
    "n_recipients": 1,
    "n_recipients_silver": 1,
    "hhi": 10000.0,
@@ -381,9 +381,9 @@
    "top_share": 100.0,
    "top_recipient": "FOUR POINTS TECHNOLOGY, L.L.C.",
    "top_recipient_from_silver": "FOUR POINTS TECHNOLOGY, L.L.C.",
-   "top_recipient_silver_obligations": 75064416.0,
-   "prior_hhi": 10000.0,
-   "hhi_change": 0.0,
+   "top_recipient_silver_obligations": 23743221.0,
+   "prior_hhi": null,
+   "hhi_change": null,
    "pass": true
   },
   {
@@ -409,9 +409,9 @@
    "detector": "concentration",
    "agency": "Social Security Administration",
    "psc_class2": "DK",
-   "fiscal_year": 2022,
-   "cell_total": 23743221.0,
-   "silver_total_positive_recipients": 23743221.0,
+   "fiscal_year": 2024,
+   "cell_total": 75064416.0,
+   "silver_total_positive_recipients": 75064416.0,
    "n_recipients": 1,
    "n_recipients_silver": 1,
    "hhi": 10000.0,
@@ -419,9 +419,9 @@
    "top_share": 100.0,
    "top_recipient": "FOUR POINTS TECHNOLOGY, L.L.C.",
    "top_recipient_from_silver": "FOUR POINTS TECHNOLOGY, L.L.C.",
-   "top_recipient_silver_obligations": 23743221.0,
-   "prior_hhi": null,
-   "hhi_change": null,
+   "top_recipient_silver_obligations": 75064416.0,
+   "prior_hhi": 10000.0,
+   "hhi_change": 0.0,
    "pass": true
   },
   {

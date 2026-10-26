@@ -1,13 +1,13 @@
 # Anomaly engine validation — **PASS**
 
-Snapshot `unpublished build 2026-10-23T17:45:22+00:00 (ingest run 39997561946)` · sha256 `6b204f77d420c6da…` · commit `015d267d38a9` · 2026-10-23T19:07:41+00:00 · GitHub run `40008893734`
+Snapshot `unpublished build 2026-10-26T17:05:46+00:00 (ingest run 40356624310)` · sha256 `b8bdedc9073a9ccc…` · commit `6b5f05aabf91` · 2026-10-26T17:07:07+00:00 · GitHub run `40365560156`
 
 ## 1. Independent re-implementation (Python/NumPy vs the pipeline's SQL)
 
 | detector | rows | flagged (pipeline) | flagged (recomputed) | identical flagged set | status mismatches | max rel. score diff | result |
 |---|---|---|---|---|---|---|---|
 | large_award | 46,497 | 157 | 157 | yes | 0 | 0.0e+00 | PASS |
-| concentration | 359 | 94 | 94 | yes | 0 | 6.7e-16 | PASS |
+| concentration | 359 | 94 | 94 | yes | 0 | 6.6e-16 | PASS |
 | recipient_growth | 21,017 | 219 | 219 | yes | 0 | 0.0e+00 | PASS |
 
 Parameters: `{"baseline_fys": "2022,2023,2024,2025", "min_peer_n": 30, "z_threshold": 3.5, "hhi_threshold": 2500, "hhi_top_share": 50, "hhi_min_spend": 5000000, "growth_ratio": 3, "growth_min_delta": 2000000, "growth_min_base": 500000}`. Thresholds were not changed for this run.
@@ -22,7 +22,7 @@ Each flagged value is traced back through Silver to the deduplicated raw Bronze 
 | agency | FY | recipient | PIID | value | score / thr | peer n | baseline median | silver txns → sum | bronze rows (raw/dedup) → sum | type · PSC | dates · mods · parent | years of this award | source | result |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Department of Veterans Affairs | 2022 | COLOSSAL CONTRACTING LLC | 36C10B20F0069 | $119,181,357.39 | 6.103 / 3.5 | 306 | $37,993 | 16 → $119,181,357.39 ✓ | 16/16 → $119,181,357.39 ✓ | DELIVERY ORDER · 7035 INFORMATION TECHNOLOGY SUPPORT EQUIPMENT | 2021-12-15→2022-09-27 · 16 mods · under NNG15SD72B | FY2022: $119.2M, FY2023: $-29.6M, FY2024: $0.0M, FY2025: $-4.1M | [usaspending](https://www.usaspending.gov/award/CONT_AWD_36C10B20F0069_3600_NNG15SD72B_8000/) | PASS |
-| Social Security Administration | 2022 | INTERNATIONAL BUSINESS MACHINES CORPORATION | SS001730048 | $58,487,500.00 | 5.159 / 3.5 | 62 | $271,989 | 6 → $58,487,500.00 ✓ | 6/6 → $58,487,500.00 ✓ | DELIVERY ORDER · 7030 INFORMATION TECHNOLOGY SOFTWARE | 2021-12-22→2022-09-28 · 6 mods · under GS35F110DA | FY2022: $58.5M, FY2023: $48.9M, FY2024: $0.0M, FY2024: $41.4M, FY2025: $36.0M, FY2026: $36.0M | [usaspending](https://www.usaspending.gov/award/CONT_AWD_SS001730048_2800_GS35F110DA_4732/) | PASS |
+| Social Security Administration | 2022 | INTERNATIONAL BUSINESS MACHINES CORPORATION | SS001730048 | $58,487,500.00 | 5.159 / 3.5 | 62 | $271,989 | 6 → $58,487,500.00 ✓ | 6/6 → $58,487,500.00 ✓ | DELIVERY ORDER · 7030 INFORMATION TECHNOLOGY SOFTWARE | 2021-12-22→2022-09-28 · 6 mods · under GS35F110DA | FY2022: $58.5M, FY2023: $48.9M, FY2024: $41.4M, FY2024: $0.0M, FY2025: $36.0M, FY2026: $36.0M | [usaspending](https://www.usaspending.gov/award/CONT_AWD_SS001730048_2800_GS35F110DA_4732/) | PASS |
 | Department of Commerce | 2023 | PERATON INC. | 1332KP23CNEEJ0001 | $92,130,533.55 | 4.844 / 3.5 | 187 | $46,816 | 3 → $92,130,533.55 ✓ | 3/3 → $92,130,533.55 ✓ | DEFINITIVE CONTRACT · DG11 IT AND TELECOM - NETWORK: SATELLITE COMMUNICATIONS AND TELECOM ACCESS SERVICES | 2023-02-17→2023-08-09 · 3 mods · standalone | FY2023: $92.1M, FY2024: $88.6M, FY2025: $28.0M, FY2026: $144.5M | [usaspending](https://www.usaspending.gov/award/CONT_AWD_1332KP23CNEEJ0001_1330_-NONE-_-NONE-/) | PASS |
 | Department of the Treasury | 2022 | MAXIMUS FEDERAL SERVICES, INC. | 2032H521F00374 | $30,539,724.33 | 4.483 / 3.5 | 58 | $84,752 | 16 → $30,539,724.33 ✓ | 16/16 → $30,539,724.33 ✓ | DELIVERY ORDER · DH10 IT AND TELECOM - PLATFORM AS A SERVICE: DATABASE, MAINFRAME, MIDDLEWARE | 2021-12-06→2022-09-28 · 16 mods · under 47QTCK18D0044 | FY2022: $30.5M, FY2023: $29.5M, FY2024: $22.5M, FY2025: $-2.8M | [usaspending](https://www.usaspending.gov/award/CONT_AWD_2032H521F00374_2050_47QTCK18D0044_4732/) | PASS |
 | Department of Homeland Security | 2022 | CACI, INC. - FEDERAL | 70T03022F7667N011 | $68,513,984.09 | 3.982 / 3.5 | 408 | $1,715 | 7 → $68,513,984.09 ✓ | 7/7 → $68,513,984.09 ✓ | DELIVERY ORDER · DE01 IT AND TELECOM - END USER: HELP DESK; TIER 1-2, WORKSPACE, PRINT, OUTPUT, PRODUCTIVITY TOOLS (LABOR) | 2022-04-06→2022-09-26 · 7 mods · under 47QTCK18D0009 | FY2022: $68.5M, FY2023: $0.0M, FY2026: $-1.4M | [usaspending](https://www.usaspending.gov/award/CONT_AWD_70T03022F7667N011_7013_47QTCK18D0009_4732/) | PASS |
@@ -32,9 +32,9 @@ Each flagged value is traced back through Silver to the deduplicated raw Bronze 
 
 | agency | PSC class | FY | cell total | recipients (table / silver) | HHI (table / silver) | top share | top recipient (table / silver) | prior HHI → change | result |
 |---|---|---|---|---|---|---|---|---|---|
-| Social Security Administration | DK | 2024 | $75,064,416.00 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | FOUR POINTS TECHNOLOGY, L.L.C. / FOUR POINTS TECHNOLOGY, L.L.C. | 10000.0 → 0.0 | PASS |
-| Social Security Administration | DC | 2023 | $49,558,257.30 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | AVAYA FEDERAL SOLUTIONS, INC / AVAYA FEDERAL SOLUTIONS, INC | 9084.0 → 916.0 | PASS |
 | Social Security Administration | DK | 2022 | $23,743,221.00 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | FOUR POINTS TECHNOLOGY, L.L.C. / FOUR POINTS TECHNOLOGY, L.L.C. | None → None | PASS |
+| Social Security Administration | DC | 2023 | $49,558,257.30 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | AVAYA FEDERAL SOLUTIONS, INC / AVAYA FEDERAL SOLUTIONS, INC | 9084.0 → 916.0 | PASS |
+| Social Security Administration | DK | 2024 | $75,064,416.00 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | FOUR POINTS TECHNOLOGY, L.L.C. / FOUR POINTS TECHNOLOGY, L.L.C. | 10000.0 → 0.0 | PASS |
 | Social Security Administration | DK | 2023 | $41,273,166.58 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | FOUR POINTS TECHNOLOGY, L.L.C. / FOUR POINTS TECHNOLOGY, L.L.C. | 10000.0 → 0.0 | PASS |
 
 ### Recipient growth (largest year-over-year increases)
