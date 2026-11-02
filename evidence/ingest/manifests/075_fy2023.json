@@ -1,12 +1,12 @@
 {
  "manifest_version": 1,
- "run_id": "20261026T163840Z",
+ "run_id": "20261102T195722Z",
  "status": "complete",
  "source": {
   "base": "https://api.usaspending.gov",
   "endpoint": "/api/v2/download/transactions/",
-  "file_name": "PrimeTransactionsAndSubawards_2026-10-26_H16M38S41900270.zip",
-  "file_url": "https://files.usaspending.gov/generated_downloads/PrimeTransactionsAndSubawards_2026-10-26_H16M38S41900270.zip"
+  "file_name": "PrimeTransactionsAndSubawards_2026-11-02_H19M57S23922893.zip",
+  "file_url": "https://files.usaspending.gov/generated_downloads/PrimeTransactionsAndSubawards_2026-11-02_H19M57S23922893.zip"
  },
  "request": {
   "filters": {
@@ -82,7 +82,7 @@
   "variant_count": null
  },
  "filter_hash": "b4cf32df6424402e",
- "download_job_created_utc": "20261026T163841Z",
+ "download_job_created_utc": "20261102T195723Z",
  "download_was_cached": false,
  "agency_code": "075",
  "agency_name": "Department of Health and Human Services",
@@ -91,8 +91,8 @@
   "2022-10-01",
   "2023-09-30"
  ],
- "extracted_utc": "20261026T163840Z",
- "api_last_updated": "10/26/2026",
+ "extracted_utc": "20261102T195722Z",
+ "api_last_updated": "11/02/2026",
  "api_count": 5465,
  "api_count_response": {
   "calculated_transaction_count": 5465,
@@ -111,37 +111,37 @@
  "download_status": {
   "status": "finished",
   "message": null,
-  "file_name": "PrimeTransactionsAndSubawards_2026-10-26_H16M38S41900270.zip",
-  "file_url": "https://files.usaspending.gov/generated_downloads/PrimeTransactionsAndSubawards_2026-10-26_H16M38S41900270.zip",
-  "total_size": 1465.941,
+  "file_name": "PrimeTransactionsAndSubawards_2026-11-02_H19M57S23922893.zip",
+  "file_url": "https://files.usaspending.gov/generated_downloads/PrimeTransactionsAndSubawards_2026-11-02_H19M57S23922893.zip",
+  "total_size": 1466.768,
   "total_columns": 415,
-  "total_rows": 6420,
-  "seconds_elapsed": "132.391213"
+  "total_rows": 6422,
+  "seconds_elapsed": "112.311455"
  },
  "zip": {
-  "name": "PrimeTransactionsAndSubawards_2026-10-26_H16M38S41900270.zip",
-  "bytes": 1465941,
-  "sha256": "5893c6c71e17f00ee43c4b9f07950e7496f0f27b24df10a56058cea055eda6b2",
-  "attempts": 2
+  "name": "PrimeTransactionsAndSubawards_2026-11-02_H19M57S23922893.zip",
+  "bytes": 1466768,
+  "sha256": "aad90e135f93dab9e8907444e2cbc05eab8377679baea1b153be4998c8bb2f2c",
+  "attempts": 1
  },
  "files": [
   {
-   "name": "Contracts_PrimeTransactions_2026-10-26_H16M38S44_1.csv",
-   "bytes": 14142413,
-   "sha256": "b626d247ee9a0c241ef19cb14b7474f7e60a294156d45fd20fe6f4563e2062a4",
+   "name": "Contracts_PrimeTransactions_2026-11-02_H19M57S30_1.csv",
+   "bytes": 14142248,
+   "sha256": "ed80f6dff9fbe803b18a658c6840b2e01b432addc6aa762fb2a3c0d6ebf8823d",
    "rows": 5465,
    "kind": "prime_transactions"
   },
   {
-   "name": "Contracts_Subawards_2026-10-26_H16M40S05_1.csv",
-   "bytes": 2018190,
-   "sha256": "cf143b194c6ccccfcdd13de90a728970f842afcd4b51a42a07d5a969a7bf2a0b",
-   "rows": 1417,
+   "name": "Contracts_Subawards_2026-11-02_H19M58S20_1.csv",
+   "bytes": 2022190,
+   "sha256": "29a230f0016efa60430a1284f5b57d8c4752f9e43d792f3dbc7c721618a535fa",
+   "rows": 1419,
    "kind": "subawards"
   }
  ],
  "rows_total": 5465,
- "rows_subawards": 1417,
- "download_total_rows_all_files": 6420,
+ "rows_subawards": 1419,
+ "download_total_rows_all_files": 6422,
  "count_matches": true
 }

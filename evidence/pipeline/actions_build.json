@@ -1,13 +1,13 @@
 {
- "built_utc": "2026-10-26T17:05:46+00:00",
+ "built_utc": "2026-11-02T20:23:54+00:00",
  "bronze": {
   "cells": [
    {
     "agency_code": "013",
     "fiscal_year": 2022,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M57S09_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M11S45_1.csv",
     "rows_manifest": 3898,
-    "run_id": "20261026T165706Z",
+    "run_id": "20261102T201142Z",
     "api_count": 3898,
     "rows_total": 3898,
     "status": "complete"
@@ -15,9 +15,9 @@
    {
     "agency_code": "013",
     "fiscal_year": 2023,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M58S07_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M14S01_1.csv",
     "rows_manifest": 3463,
-    "run_id": "20261026T165801Z",
+    "run_id": "20261102T201357Z",
     "api_count": 3463,
     "rows_total": 3463,
     "status": "complete"
@@ -25,9 +25,9 @@
    {
     "agency_code": "013",
     "fiscal_year": 2024,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M59S40_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M16S16_1.csv",
     "rows_manifest": 2907,
-    "run_id": "20261026T165937Z",
+    "run_id": "20261102T201542Z",
     "api_count": 2907,
     "rows_total": 2907,
     "status": "complete"
@@ -35,9 +35,9 @@
    {
     "agency_code": "013",
     "fiscal_year": 2025,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H17M01S17_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M18S22_1.csv",
     "rows_manifest": 2638,
-    "run_id": "20261026T170045Z",
+    "run_id": "20261102T201747Z",
     "api_count": 2638,
     "rows_total": 2638,
     "status": "complete"
@@ -45,9 +45,9 @@
    {
     "agency_code": "013",
     "fiscal_year": 2026,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H17M02S13_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M19S24_1.csv",
     "rows_manifest": 2152,
-    "run_id": "20261026T170210Z",
+    "run_id": "20261102T201921Z",
     "api_count": 2152,
     "rows_total": 2152,
     "status": "complete"
@@ -55,9 +55,9 @@
    {
     "agency_code": "020",
     "fiscal_year": 2022,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M48S16_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M04S58_1.csv",
     "rows_manifest": 3822,
-    "run_id": "20261026T164813Z",
+    "run_id": "20261102T200453Z",
     "api_count": 3822,
     "rows_total": 3822,
     "status": "complete"
@@ -65,9 +65,9 @@
    {
     "agency_code": "020",
     "fiscal_year": 2023,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M50S22_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M06S40_1.csv",
     "rows_manifest": 3308,
-    "run_id": "20261026T164949Z",
+    "run_id": "20261102T200637Z",
     "api_count": 3309,
     "rows_total": 3308,
     "status": "count_mismatch"
@@ -75,9 +75,9 @@
    {
     "agency_code": "020",
     "fiscal_year": 2024,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M52S09_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M07S55_1.csv",
     "rows_manifest": 3372,
-    "run_id": "20261026T165136Z",
+    "run_id": "20261102T200751Z",
     "api_count": 3375,
     "rows_total": 3372,
     "status": "count_mismatch"
@@ -85,9 +85,9 @@
    {
     "agency_code": "020",
     "fiscal_year": 2025,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M54S17_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M09S28_1.csv",
     "rows_manifest": 4020,
-    "run_id": "20261026T165343Z",
+    "run_id": "20261102T200925Z",
     "api_count": 4022,
     "rows_total": 4020,
     "status": "count_mismatch"
@@ -95,19 +95,19 @@
    {
     "agency_code": "020",
     "fiscal_year": 2026,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M56S14_1.csv",
-    "rows_manifest": 2859,
-    "run_id": "20261026T165612Z",
-    "api_count": 2865,
-    "rows_total": 2859,
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M10S45_1.csv",
+    "rows_manifest": 2865,
+    "run_id": "20261102T201039Z",
+    "api_count": 2871,
+    "rows_total": 2865,
     "status": "count_mismatch"
    },
    {
     "agency_code": "028",
     "fiscal_year": 2022,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H17M02S56_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M20S07_1.csv",
     "rows_manifest": 438,
-    "run_id": "20261026T170254Z",
+    "run_id": "20261102T202005Z",
     "api_count": 438,
     "rows_total": 438,
     "status": "complete"
@@ -115,9 +115,9 @@
    {
     "agency_code": "028",
     "fiscal_year": 2023,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H17M03S31_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M20S42_1.csv",
     "rows_manifest": 378,
-    "run_id": "20261026T170329Z",
+    "run_id": "20261102T202038Z",
     "api_count": 378,
     "rows_total": 378,
     "status": "complete"
@@ -125,9 +125,9 @@
    {
     "agency_code": "028",
     "fiscal_year": 2024,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H17M04S05_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M21S44_1.csv",
     "rows_manifest": 369,
-    "run_id": "20261026T170402Z",
+    "run_id": "20261102T202111Z",
     "api_count": 369,
     "rows_total": 369,
     "status": "complete"
@@ -135,9 +135,9 @@
    {
     "agency_code": "028",
     "fiscal_year": 2025,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H17M04S37_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M22S18_1.csv",
     "rows_manifest": 313,
-    "run_id": "20261026T170436Z",
+    "run_id": "20261102T202214Z",
     "api_count": 313,
     "rows_total": 313,
     "status": "complete"
@@ -145,9 +145,9 @@
    {
     "agency_code": "028",
     "fiscal_year": 2026,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H17M05S06_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M23S07_1.csv",
     "rows_manifest": 235,
-    "run_id": "20261026T170500Z",
+    "run_id": "20261102T202257Z",
     "api_count": 235,
     "rows_total": 235,
     "status": "complete"
@@ -155,9 +155,9 @@
    {
     "agency_code": "036",
     "fiscal_year": 2022,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M11S26_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M34S22_1.csv",
     "rows_manifest": 5197,
-    "run_id": "20261026T161122Z",
+    "run_id": "20261102T193418Z",
     "api_count": 5197,
     "rows_total": 5197,
     "status": "complete"
@@ -165,49 +165,49 @@
    {
     "agency_code": "036",
     "fiscal_year": 2023,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M14S26_1.csv",
-    "rows_manifest": 4270,
-    "run_id": "20261026T161422Z",
-    "api_count": 4270,
-    "rows_total": 4270,
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M35S48_1.csv",
+    "rows_manifest": 4268,
+    "run_id": "20261102T193543Z",
+    "api_count": 4268,
+    "rows_total": 4268,
     "status": "complete"
    },
    {
     "agency_code": "036",
     "fiscal_year": 2024,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M16S23_1.csv",
-    "rows_manifest": 3974,
-    "run_id": "20261026T161619Z",
-    "api_count": 3974,
-    "rows_total": 3974,
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M37S03_1.csv",
+    "rows_manifest": 3972,
+    "run_id": "20261102T193657Z",
+    "api_count": 3972,
+    "rows_total": 3972,
     "status": "complete"
    },
    {
     "agency_code": "036",
     "fiscal_year": 2025,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M18S42_1.csv",
-    "rows_manifest": 3919,
-    "run_id": "20261026T161837Z",
-    "api_count": 3919,
-    "rows_total": 3919,
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M38S29_1.csv",
+    "rows_manifest": 3917,
+    "run_id": "20261102T193823Z",
+    "api_count": 3917,
+    "rows_total": 3917,
     "status": "complete"
    },
    {
     "agency_code": "036",
     "fiscal_year": 2026,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M20S17_1.csv",
-    "rows_manifest": 4385,
-    "run_id": "20261026T162014Z",
-    "api_count": 4385,
-    "rows_total": 4385,
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M40S42_1.csv",
+    "rows_manifest": 4382,
+    "run_id": "20261102T194039Z",
+    "api_count": 4382,
+    "rows_total": 4382,
     "status": "complete"
    },
    {
     "agency_code": "070",
     "fiscal_year": 2022,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M21S48_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M42S06_1.csv",
     "rows_manifest": 8020,
-    "run_id": "20261026T162142Z",
+    "run_id": "20261102T194132Z",
     "api_count": 8020,
     "rows_total": 8020,
     "status": "complete"
@@ -215,9 +215,9 @@
    {
     "agency_code": "070",
     "fiscal_year": 2023,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M24S58_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M46S57_1.csv",
     "rows_manifest": 6654,
-    "run_id": "20261026T162454Z",
+    "run_id": "20261102T194623Z",
     "api_count": 6654,
     "rows_total": 6654,
     "status": "complete"
@@ -225,9 +225,9 @@
    {
     "agency_code": "070",
     "fiscal_year": 2024,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M27S57_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M49S25_1.csv",
     "rows_manifest": 5502,
-    "run_id": "20261026T162753Z",
+    "run_id": "20261102T194920Z",
     "api_count": 5502,
     "rows_total": 5502,
     "status": "complete"
@@ -235,9 +235,9 @@
    {
     "agency_code": "070",
     "fiscal_year": 2025,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M31S20_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M51S28_1.csv",
     "rows_manifest": 5040,
-    "run_id": "20261026T163113Z",
+    "run_id": "20261102T195125Z",
     "api_count": 5040,
     "rows_total": 5040,
     "status": "complete"
@@ -245,19 +245,19 @@
    {
     "agency_code": "070",
     "fiscal_year": 2026,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M33S47_1.csv",
-    "rows_manifest": 4449,
-    "run_id": "20261026T163344Z",
-    "api_count": 4449,
-    "rows_total": 4449,
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M53S02_1.csv",
+    "rows_manifest": 4451,
+    "run_id": "20261102T195259Z",
+    "api_count": 4451,
+    "rows_total": 4451,
     "status": "complete"
    },
    {
     "agency_code": "075",
     "fiscal_year": 2022,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M36S25_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M55S12_1.csv",
     "rows_manifest": 5944,
-    "run_id": "20261026T163551Z",
+    "run_id": "20261102T195506Z",
     "api_count": 5944,
     "rows_total": 5944,
     "status": "complete"
@@ -265,9 +265,9 @@
    {
     "agency_code": "075",
     "fiscal_year": 2023,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M38S44_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M57S30_1.csv",
     "rows_manifest": 5465,
-    "run_id": "20261026T163840Z",
+    "run_id": "20261102T195722Z",
     "api_count": 5465,
     "rows_total": 5465,
     "status": "complete"
@@ -275,19 +275,19 @@
    {
     "agency_code": "075",
     "fiscal_year": 2024,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M42S04_1.csv",
-    "rows_manifest": 4841,
-    "run_id": "20261026T164201Z",
-    "api_count": 4841,
-    "rows_total": 4841,
+    "file": "Contracts_PrimeTransactions_2026-11-02_H19M59S22_1.csv",
+    "rows_manifest": 4842,
+    "run_id": "20261102T195918Z",
+    "api_count": 4842,
+    "rows_total": 4842,
     "status": "complete"
    },
    {
     "agency_code": "075",
     "fiscal_year": 2025,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M45S14_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M01S08_1.csv",
     "rows_manifest": 4310,
-    "run_id": "20261026T164511Z",
+    "run_id": "20261102T200104Z",
     "api_count": 4310,
     "rows_total": 4310,
     "status": "complete"
@@ -295,9 +295,9 @@
    {
     "agency_code": "075",
     "fiscal_year": 2026,
-    "file": "Contracts_PrimeTransactions_2026-10-26_H16M47S00_1.csv",
+    "file": "Contracts_PrimeTransactions_2026-11-02_H20M03S49_1.csv",
     "rows_manifest": 3743,
-    "run_id": "20261026T164657Z",
+    "run_id": "20261102T200339Z",
     "api_count": 3743,
     "rows_total": 3743,
     "status": "complete"
@@ -330,12 +330,12 @@
   },
   "gold_award_equals_silver": {
    "pass": true,
-   "silver": 109830518939.19,
-   "gold_award_fy": 109830518939.19
+   "silver": 109833399742.54,
+   "gold_award_fy": 109833399742.54
   },
   "gold_agency_equals_silver": {
    "pass": true,
-   "gold_agency_fy": 109830518939.19
+   "gold_agency_fy": 109833399742.54
   },
   "fiscal_year_matches_cell": {
    "pass": true,
@@ -343,8 +343,8 @@
   },
   "flag_rate_large_award": {
    "pass": true,
-   "scored": 45044,
-   "flagged": 157,
+   "scored": 45039,
+   "flagged": 156,
    "rate": 0.0035,
    "note": "design <=2% on log-normal peers; >2% is reviewed, >5% fails"
   },
@@ -358,7 +358,7 @@
    "tolerance": 0.005,
    "cells": 30,
    "exact_cells": 26,
-   "worst_delta_fraction": 0.002094,
+   "worst_delta_fraction": 0.00209,
    "inexact": [
     {
      "agency_code": "020",
@@ -390,10 +390,10 @@
     {
      "agency_code": "020",
      "fiscal_year": 2026,
-     "rows": 2859,
-     "api_count": 2865,
+     "rows": 2865,
+     "api_count": 2871,
      "delta": -6,
-     "delta_fraction": 0.002094,
+     "delta_fraction": 0.00209,
      "exact": false
     }
    ]
@@ -402,10 +402,10 @@
  },
  "anomaly_summary": {
   "large_award": {
-   "rows": 46497,
-   "flagged": 157,
-   "normal": 44887,
-   "scored": 45044,
+   "rows": 46492,
+   "flagged": 156,
+   "normal": 44883,
+   "scored": 45039,
    "not_scored": {
     "not scored: fewer than 30 comparable award-years": 1453
    }
@@ -420,12 +420,12 @@
    }
   },
   "recipient_growth": {
-   "rows": 21017,
+   "rows": 21019,
    "flagged": 219,
    "normal": 5222,
    "scored": 5441,
    "not_scored": {
-    "not scored: no prior-year obligations at this agency": 8417,
+    "not scored: no prior-year obligations at this agency": 8419,
     "not scored: prior year below base floor": 7159
    }
   }
@@ -434,12 +434,12 @@
   "bronze_prime_transactions": 109885,
   "silver_contract_transactions": 109885,
   "silver_rejects": 0,
-  "gold_award_fy": 68699,
+  "gold_award_fy": 68696,
   "gold_agency_fy": 60,
-  "gold_recipient_agency_fy": 21017,
+  "gold_recipient_agency_fy": 21019,
   "gold_psc_fy": 360,
-  "anomaly_large_award": 46497,
+  "anomaly_large_award": 46492,
   "anomaly_concentration": 359,
-  "anomaly_recipient_growth": 21017
+  "anomaly_recipient_growth": 21019
  }
 }
