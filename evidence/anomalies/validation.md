@@ -1,17 +1,17 @@
 # Anomaly engine validation — **PASS**
 
-Snapshot `unpublished build 2026-10-26T17:05:46+00:00 (ingest run 40356624310)` · sha256 `b8bdedc9073a9ccc…` · commit `6b5f05aabf91` · 2026-10-26T17:07:07+00:00 · GitHub run `40365560156`
+Snapshot `unpublished build 2026-11-02T20:23:54+00:00 (ingest run 41511110263)` · sha256 `fd49acd2708ddb96…` · commit `601343eb26a6` · 2026-11-02T20:25:42+00:00 · GitHub run `41519050515`
 
 ## 1. Independent re-implementation (Python/NumPy vs the pipeline's SQL)
 
 | detector | rows | flagged (pipeline) | flagged (recomputed) | identical flagged set | status mismatches | max rel. score diff | result |
 |---|---|---|---|---|---|---|---|
-| large_award | 46,497 | 157 | 157 | yes | 0 | 0.0e+00 | PASS |
-| concentration | 359 | 94 | 94 | yes | 0 | 6.6e-16 | PASS |
-| recipient_growth | 21,017 | 219 | 219 | yes | 0 | 0.0e+00 | PASS |
+| large_award | 46,492 | 156 | 156 | yes | 0 | 2.7e-15 | PASS |
+| concentration | 359 | 94 | 94 | yes | 0 | 1.1e-15 | PASS |
+| recipient_growth | 21,019 | 219 | 219 | yes | 0 | 0.0e+00 | PASS |
 
 Parameters: `{"baseline_fys": "2022,2023,2024,2025", "min_peer_n": 30, "z_threshold": 3.5, "hhi_threshold": 2500, "hhi_top_share": 50, "hhi_min_spend": 5000000, "growth_ratio": 3, "growth_min_delta": 2000000, "growth_min_base": 500000}`. Thresholds were not changed for this run.
-Row grain for large_award is the Gold award-year grain (award_key, PIID, fiscal year, agency, recipient UEI): 46,497 table rows, of which 39 are award-years that appear twice because the recipient UEI or PIID changed within the year; both rows are scored and both are compared (46,497 compared).
+Row grain for large_award is the Gold award-year grain (award_key, PIID, fiscal year, agency, recipient UEI): 46,492 table rows, of which 39 are award-years that appear twice because the recipient UEI or PIID changed within the year; both rows are scored and both are compared (46,492 compared).
 
 ## 2. Source trace of representative flagged records
 
@@ -32,10 +32,10 @@ Each flagged value is traced back through Silver to the deduplicated raw Bronze 
 
 | agency | PSC class | FY | cell total | recipients (table / silver) | HHI (table / silver) | top share | top recipient (table / silver) | prior HHI → change | result |
 |---|---|---|---|---|---|---|---|---|---|
-| Social Security Administration | DK | 2022 | $23,743,221.00 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | FOUR POINTS TECHNOLOGY, L.L.C. / FOUR POINTS TECHNOLOGY, L.L.C. | None → None | PASS |
-| Social Security Administration | DC | 2023 | $49,558,257.30 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | AVAYA FEDERAL SOLUTIONS, INC / AVAYA FEDERAL SOLUTIONS, INC | 9084.0 → 916.0 | PASS |
 | Social Security Administration | DK | 2024 | $75,064,416.00 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | FOUR POINTS TECHNOLOGY, L.L.C. / FOUR POINTS TECHNOLOGY, L.L.C. | 10000.0 → 0.0 | PASS |
 | Social Security Administration | DK | 2023 | $41,273,166.58 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | FOUR POINTS TECHNOLOGY, L.L.C. / FOUR POINTS TECHNOLOGY, L.L.C. | 10000.0 → 0.0 | PASS |
+| Social Security Administration | DK | 2022 | $23,743,221.00 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | FOUR POINTS TECHNOLOGY, L.L.C. / FOUR POINTS TECHNOLOGY, L.L.C. | None → None | PASS |
+| Social Security Administration | DC | 2023 | $49,558,257.30 | 1 / 1 | 10000.0 / 10000.0 | 100.0% | AVAYA FEDERAL SOLUTIONS, INC / AVAYA FEDERAL SOLUTIONS, INC | 9084.0 → 916.0 | PASS |
 
 ### Recipient growth (largest year-over-year increases)
 
