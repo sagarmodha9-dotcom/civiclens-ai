@@ -1,116 +1,116 @@
-# Reconciliation against USAspending — 2026-11-09T20:40:53+00:00
+# Reconciliation against USAspending — 2026-11-16T20:36:26+00:00
 
 R1 completeness: 30 cells re-counted now, 26 exact, 4 with a delta, 0 beyond the 0.5% tolerance. R2 window sums: 50 sampled awards, 0 mismatches. R3 agency-year vs spending_over_time: 30 available, 4 with a non-zero delta, 0 beyond tolerance, 0 dollar differences on cells whose row count was exact. **PASS** (R2 must be exact to the cent; R1 and R3 deltas must stay within 0.5%; a cell with an exact row count must also match in dollars exactly; R3 grain: spending_over_time, spending_level=transactions, group=month, summed over the FY window (confirmed 2026-10-24)).
 
 | check | agency | FY | ours | API | delta / match |
 |---|---|---|---|---|---|
-| R1 count | 013 | 2022 | 3,898 | 3898 | 0 |
-| R1 count | 013 | 2023 | 3,463 | 3463 | 0 |
-| R1 count | 013 | 2024 | 2,907 | 2907 | 0 |
-| R1 count | 013 | 2025 | 2,638 | 2638 | 0 |
+| R1 count | 013 | 2022 | 3,905 | 3905 | 0 |
+| R1 count | 013 | 2023 | 3,469 | 3469 | 0 |
+| R1 count | 013 | 2024 | 2,925 | 2925 | 0 |
+| R1 count | 013 | 2025 | 2,653 | 2653 | 0 |
 | R1 count | 013 | 2026 | 2,152 | 2152 | 0 |
 | R1 count | 020 | 2022 | 3,822 | 3822 | 0 |
 | R1 count | 020 | 2023 | 3,308 | 3309 | -1 |
 | R1 count | 020 | 2024 | 3,372 | 3375 | -3 |
 | R1 count | 020 | 2025 | 4,020 | 4022 | -2 |
-| R1 count | 020 | 2026 | 2,865 | 2871 | -6 |
+| R1 count | 020 | 2026 | 2,868 | 2875 | -7 |
 | R1 count | 028 | 2022 | 438 | 438 | 0 |
 | R1 count | 028 | 2023 | 378 | 378 | 0 |
 | R1 count | 028 | 2024 | 369 | 369 | 0 |
 | R1 count | 028 | 2025 | 313 | 313 | 0 |
 | R1 count | 028 | 2026 | 235 | 235 | 0 |
 | R1 count | 036 | 2022 | 5,197 | 5197 | 0 |
-| R1 count | 036 | 2023 | 4,268 | 4268 | 0 |
-| R1 count | 036 | 2024 | 3,970 | 3970 | 0 |
-| R1 count | 036 | 2025 | 3,917 | 3917 | 0 |
-| R1 count | 036 | 2026 | 4,380 | 4380 | 0 |
+| R1 count | 036 | 2023 | 4,265 | 4265 | 0 |
+| R1 count | 036 | 2024 | 3,966 | 3966 | 0 |
+| R1 count | 036 | 2025 | 3,912 | 3912 | 0 |
+| R1 count | 036 | 2026 | 4,373 | 4373 | 0 |
 | R1 count | 070 | 2022 | 8,020 | 8020 | 0 |
 | R1 count | 070 | 2023 | 6,654 | 6654 | 0 |
 | R1 count | 070 | 2024 | 5,502 | 5502 | 0 |
 | R1 count | 070 | 2025 | 5,042 | 5042 | 0 |
-| R1 count | 070 | 2026 | 4,451 | 4451 | 0 |
+| R1 count | 070 | 2026 | 4,457 | 4457 | 0 |
 | R1 count | 075 | 2022 | 5,944 | 5944 | 0 |
 | R1 count | 075 | 2023 | 5,465 | 5465 | 0 |
 | R1 count | 075 | 2024 | 4,842 | 4842 | 0 |
-| R1 count | 075 | 2025 | 4,310 | 4310 | 0 |
+| R1 count | 075 | 2025 | 4,311 | 4311 | 0 |
 | R1 count | 075 | 2026 | 3,743 | 3743 | 0 |
-| R2 award `CONT_AWD_205AE925F00048_2050_NNG15SC71B_8000` | 020 | 2025 | 2 tx, $1,410,885.96 | 2 tx, $1,410,885.96 (lifetime $2962860.54) | match |
-| R2 award `CONT_AWD_75H71123P00083_7527_-NONE-_-NONE-` | 075 | 2024 | 1 tx, $8,016.00 | 1 tx, $8,016.00 (lifetime $9312.0) | match |
-| R2 award `CONT_AWD_2031ZB22F00073_2041_47QTCB21D0306_4732` | 020 | 2023 | 1 tx, $2,127,044.28 | 1 tx, $2,127,044.28 (lifetime $4466216.85) | match |
-| R2 award `CONT_AWD_36C10B22F0031_3600_NNG15SD24B_8000` | 036 | 2022 | 2 tx, $158,315.82 | 2 tx, $158,315.82 (lifetime $1463620.8) | match |
-| R2 award `CONT_AWD_2032H518F01270_2050_NNG15SD20B_8000` | 020 | 2023 | 1 tx, $-7,151.85 | 1 tx, $-7,151.85 (lifetime $54814.37) | match |
-| R2 award `CONT_AWD_75FCMC22F0067_7530_GS35F711GA_4732` | 075 | 2025 | 1 tx, $7,033,162.22 | 1 tx, $7,033,162.22 (lifetime $33977538.4) | match |
-| R2 award `CONT_AWD_75N97022F00001_7529_HHSN316201500050W_7529` | 075 | 2022 | 1 tx, $629,617.91 | 1 tx, $629,617.91 (lifetime $629617.91) | match |
-| R2 award `CONT_AWD_75F40122C00157_7524_-NONE-_-NONE-` | 075 | 2023 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $3703521.6) | match |
-| R2 award `CONT_AWD_HHSD2002010371980009_7523_HHSD200201037198I_7523` | 075 | 2025 | 2 tx, $0.00 | 2 tx, $0.00 (lifetime $84957884.56) | match |
-| R2 award `CONT_AWD_70Z04423FC2PL0015_7008_70Z04423DC2PL0001_7008` | 070 | 2026 | 1 tx, $39,200.00 | 1 tx, $39,200.00 (lifetime $147199.84) | match |
-| R2 award `CONT_AWD_70B04C23F00001213_7014_NNG15SD11B_8000` | 070 | 2023 | 1 tx, $809,800.00 | 1 tx, $809,800.00 (lifetime $809800.0) | match |
-| R2 award `CONT_AWD_1331L523FNCNP0663_1301_1331L523A13ES0021_1301` | 013 | 2023 | 1 tx, $22,913.40 | 1 tx, $22,913.40 (lifetime $24089.4) | match |
-| R2 award `CONT_AWD_HSCG3207FR00006_7008_GS35F0852N_4730` | 070 | 2025 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $89565.32) | match |
-| R2 award `CONT_AWD_70B04C24F00000184_7014_47QTCK18D0001_4732` | 070 | 2026 | 8 tx, $32,300,080.87 | 8 tx, $32,300,080.87 (lifetime $110881128.98) | match |
-| R2 award `CONT_AWD_75H70722F80132_7527_HHSN316201200018W_7529` | 075 | 2022 | 1 tx, $54,163.62 | 1 tx, $54,163.62 (lifetime $51898.78) | match |
-| R2 award `CONT_AWD_2032H521F00869_2050_TIRNO17Z00027_2050` | 020 | 2024 | 2 tx, $-3,203.25 | 2 tx, $-3,203.25 (lifetime $9961200.17) | match |
-| R2 award `CONT_AWD_HSCETE11J00470_7012_HSHQDC07D00029_7001` | 070 | 2022 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $7046.08) | match |
-| R2 award `CONT_AWD_VA26016P1607_3600_-NONE-_-NONE-` | 036 | 2022 | 1 tx, $-11,095.44 | 1 tx, $-11,095.44 (lifetime $43505.01) | match |
-| R2 award `CONT_AWD_36C10A22P0008_3600_-NONE-_-NONE-` | 036 | 2026 | 2 tx, $45,467.21 | 2 tx, $45,467.21 (lifetime $208053.78) | match |
-| R2 award `CONT_AWD_75F40123P00099_7524_-NONE-_-NONE-` | 075 | 2023 | 1 tx, $98,317.00 | 1 tx, $98,317.00 (lifetime $314222.0) | match |
-| R2 award `CONT_AWD_1305M322FNWWW0091_1330_1305M421ANAAA0080_1330` | 013 | 2025 | 1 tx, $182,823.28 | 1 tx, $182,823.28 (lifetime $876625.08) | match |
-| R2 award `CONT_AWD_36C26023F0187_3600_GS07F187GA_4732` | 036 | 2023 | 1 tx, $11,817.60 | 1 tx, $11,817.60 (lifetime $23989.6) | match |
-| R2 award `CONT_AWD_36C24524F0127_3600_47QTCA20D00B5_4732` | 036 | 2025 | 1 tx, $-675.00 | 1 tx, $-675.00 (lifetime $0.0) | match |
-| R2 award `CONT_AWD_75N95023F00001_7529_HHSN316201200110W_7529` | 075 | 2024 | 1 tx, $3,714,658.07 | 1 tx, $3,714,658.07 (lifetime $11649300.48) | match |
-| R2 award `CONT_AWD_DOCRA133W17CC0023_1330_DOCSA130114BU0005_1301` | 013 | 2023 | 1 tx, $-12,001.16 | 1 tx, $-12,001.16 (lifetime $230219.27) | match |
-| R2 award `CONT_AWD_HHSM500201400225C_7530_-NONE-_-NONE-` | 075 | 2023 | 1 tx, $-34,682.95 | 1 tx, $-34,682.95 (lifetime $2452722.05) | match |
-| R2 award `CONT_AWD_70RDA125FR0000025_7001_NNG15SC78B_8000` | 070 | 2025 | 2 tx, $3,707,054.60 | 2 tx, $3,707,054.60 (lifetime $6195992.07) | match |
-| R2 award `CONT_AWD_75FCMC21F0003_7530_HHSM500201600067I_7530` | 075 | 2024 | 1 tx, $789,339.00 | 1 tx, $789,339.00 (lifetime $3780690.0) | match |
-| R2 award `CONT_AWD_36C25623P1376_3600_-NONE-_-NONE-` | 036 | 2025 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $214001.0) | match |
-| R2 award `CONT_AWD_70CMSD26P00000140_7012_-NONE-_-NONE-` | 070 | 2026 | 1 tx, $1,690,000.00 | 1 tx, $1,690,000.00 (lifetime $1690000.0) | match |
-| R2 award `CONT_AWD_HSCETE11J00279_7012_HSHQDC07D00030_7001` | 070 | 2022 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $4465.04) | match |
-| R2 award `CONT_AWD_75F40120F80622_7524_NNG15SD19B_8000` | 075 | 2024 | 1 tx, $8,314.20 | 1 tx, $8,314.20 (lifetime $39441.6) | match |
-| R2 award `CONT_AWD_1333LB22F00000177_1323_NNG15SC65B_8000` | 013 | 2022 | 1 tx, $226,561.85 | 1 tx, $226,561.85 (lifetime $226561.85) | match |
-| R2 award `CONT_AWD_2032H520F00484_2050_NNG15SC71B_8000` | 020 | 2024 | 1 tx, $18,600.00 | 1 tx, $18,600.00 (lifetime $74400.0) | match |
-| R2 award `CONT_AWD_28321320P00050275_2800_-NONE-_-NONE-` | 028 | 2025 | 2 tx, $675,819.00 | 2 tx, $675,819.00 (lifetime $3313210.96) | match |
-| R2 award `CONT_AWD_36C10B24F0253_3600_NNG15SD22B_8000` | 036 | 2026 | 2 tx, $8,294,900.00 | 2 tx, $8,294,900.00 (lifetime $27027030.0) | match |
-| R2 award `CONT_AWD_70RDA124FR0000038_7001_70RTAC21D00000006_7001` | 070 | 2025 | 2 tx, $184,518.12 | 2 tx, $184,518.12 (lifetime $434915.68) | match |
-| R2 award `CONT_AWD_36C10B21C0017_3600_-NONE-_-NONE-` | 036 | 2022 | 1 tx, $246,000.00 | 1 tx, $246,000.00 (lifetime $1106880.0) | match |
-| R2 award `CONT_AWD_36C10A22F0143_3600_NNG15SD22B_8000` | 036 | 2026 | 2 tx, $2,327,240.00 | 2 tx, $2,327,240.00 (lifetime $40514680.0) | match |
-| R2 award `CONT_AWD_36C77620P0019_3600_-NONE-_-NONE-` | 036 | 2024 | 1 tx, $42,267.00 | 1 tx, $42,267.00 (lifetime $183450.0) | match |
-| R2 award `CONT_AWD_75F40123F80401_7524_75N98119D00034_7529` | 075 | 2026 | 1 tx, $2,592,141.40 | 1 tx, $2,592,141.40 (lifetime $9706823.63) | match |
-| R2 award `CONT_AWD_36C10B25F0082_3600_NNG15SD42B_8000` | 036 | 2026 | 1 tx, $-21,474.80 | 1 tx, $-21,474.80 (lifetime $11124.0) | match |
-| R2 award `CONT_AWD_VA69D17C0230_3600_-NONE-_-NONE-` | 036 | 2023 | 2 tx, $-19,403.62 | 2 tx, $-19,403.62 (lifetime $432076.87) | match |
-| R2 award `CONT_AWD_75P00122F80084_7570_GS35F0095W_4730` | 075 | 2023 | 3 tx, $73,510.77 | 3 tx, $73,510.77 (lifetime $923481.75) | match |
-| R2 award `CONT_AWD_75F40120F19006_7524_75F40118A10050_7524` | 075 | 2023 | 1 tx, $-11,541.69 | 1 tx, $-11,541.69 (lifetime $6968964.44) | match |
-| R2 award `CONT_AWD_HHSM500201700041C_7530_-NONE-_-NONE-` | 075 | 2025 | 1 tx, $-34,987.88 | 1 tx, $-34,987.88 (lifetime $1667222.05) | match |
-| R2 award `CONT_AWD_36C10B23C0032_3600_-NONE-_-NONE-` | 036 | 2024 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $375443.44) | match |
-| R2 award `CONT_AWD_HSTS0317JCT6017_7013_HSHQDC13DE2023_7001` | 070 | 2022 | 1 tx, $-5,581.91 | 1 tx, $-5,581.91 (lifetime $434712.49) | match |
-| R2 award `CONT_AWD_7571TE26F80126_7571_47QTCA24A0002_4732` | 075 | 2026 | 1 tx, $273,158.07 | 1 tx, $273,158.07 (lifetime $273158.07) | match |
-| R2 award `CONT_AWD_205AE925F00211_2050_2032H523A00029_2050` | 020 | 2025 | 1 tx, $65,520.00 | 1 tx, $65,520.00 (lifetime $65520.0) | match |
-| R3 agency-year | 013 | 2022 | $1,170,880,572.20 | $1,170,880,572.20 | 0.00 |
-| R3 agency-year | 013 | 2023 | $1,314,026,936.94 | $1,314,026,936.94 | 0.00 |
-| R3 agency-year | 013 | 2024 | $1,376,640,938.61 | $1,376,640,938.61 | 0.00 |
-| R3 agency-year | 013 | 2025 | $1,354,182,418.21 | $1,354,182,418.21 | 0.00 |
+| R2 award `CONT_AWD_HHSN268201700276U_7529_GS35F0119Y_4732` | 075 | 2026 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $539076.12) | match |
+| R2 award `CONT_AWD_70Z02722PC0002673_7008_-NONE-_-NONE-` | 070 | 2022 | 1 tx, $5,769.84 | 1 tx, $5,769.84 (lifetime $9627.45) | match |
+| R2 award `CONT_AWD_36C10B26N10030037_3600_VA11816D1003_3600` | 036 | 2026 | 3 tx, $8,657,621.89 | 3 tx, $8,657,621.89 (lifetime $8657621.89) | match |
+| R2 award `CONT_AWD_70B04C21F00001029_7014_70B04C20A00000016_7014` | 070 | 2022 | 2 tx, $1,334.05 | 2 tx, $1,334.05 (lifetime $2713.59) | match |
+| R2 award `CONT_AWD_20380223F00002_2036_47QTCA19D00GQ_4732` | 020 | 2023 | 1 tx, $10,385.22 | 1 tx, $10,385.22 (lifetime $10385.22) | match |
+| R2 award `CONT_AWD_36C10A24F0031_3600_NNG15SD34B_8000` | 036 | 2024 | 2 tx, $661,790.07 | 2 tx, $661,790.07 (lifetime $661790.07) | match |
+| R2 award `CONT_AWD_36C24120C0018_3600_-NONE-_-NONE-` | 036 | 2025 | 1 tx, $50,000.00 | 1 tx, $50,000.00 (lifetime $781626.25) | match |
+| R2 award `CONT_AWD_75A50325P00010_7505_-NONE-_-NONE-` | 075 | 2025 | 1 tx, $9,838.50 | 1 tx, $9,838.50 (lifetime $20464.08) | match |
+| R2 award `CONT_AWD_2023H225F00147_2050_47QTCA19D00CX_4732` | 020 | 2026 | 2 tx, $0.00 | 2 tx, $0.00 (lifetime $73189.52) | match |
+| R2 award `CONT_AWD_DOCEA133W17CQ0082T0002_1330_DOCEA133W17CQ0082_1330` | 013 | 2024 | 7 tx, $3,123,666.00 | 7 tx, $3,123,666.00 (lifetime $31337327.15) | match |
+| R2 award `CONT_AWD_70RCSJ24FR0000053_7001_47QTCB22D0276_4732` | 070 | 2025 | 2 tx, $0.00 | 2 tx, $0.00 (lifetime $510322.73) | match |
+| R2 award `CONT_AWD_36C10B23F0239_3600_NNG15SD00B_8000` | 036 | 2023 | 1 tx, $128,556.28 | 1 tx, $128,556.28 (lifetime $123237.44) | match |
+| R2 award `CONT_AWD_75A50222F62001_7505_75A50222A00002_7505` | 075 | 2026 | 1 tx, $2,142,857.94 | 1 tx, $2,142,857.94 (lifetime $8751931.36) | match |
+| R2 award `CONT_AWD_1331L522P13210085_1301_-NONE-_-NONE-` | 013 | 2022 | 1 tx, $17,820.00 | 1 tx, $17,820.00 (lifetime $91979.64) | match |
+| R2 award `CONT_AWD_70B06C24F00000501_7014_70RTAC21D00000001_7001` | 070 | 2024 | 1 tx, $12,987.88 | 1 tx, $12,987.88 (lifetime $12095.92) | match |
+| R2 award `CONT_AWD_36C25025F0633_3600_47QTCA23D005Q_4732` | 036 | 2025 | 1 tx, $121,572.73 | 1 tx, $121,572.73 (lifetime $121572.73) | match |
+| R2 award `CONT_AWD_20340623F00029_2036_NNG15SD60B_8000` | 020 | 2026 | 1 tx, $90,312.81 | 1 tx, $90,312.81 (lifetime $335004.29) | match |
+| R2 award `CONT_AWD_36C26226P1422_3600_-NONE-_-NONE-` | 036 | 2026 | 1 tx, $29,170.32 | 1 tx, $29,170.32 (lifetime $29170.32) | match |
+| R2 award `CONT_AWD_2032H522F00060_2050_47QTCK18D0014_4732` | 020 | 2022 | 12 tx, $5,596,445.17 | 12 tx, $5,596,445.17 (lifetime $5493115.79) | match |
+| R2 award `CONT_AWD_2032H823F00221_2050_NNG15SC71B_8000` | 020 | 2026 | 1 tx, $32,964.00 | 1 tx, $32,964.00 (lifetime $131856.0) | match |
+| R2 award `CONT_AWD_75D30121P12822_7523_-NONE-_-NONE-` | 075 | 2024 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $287952.0) | match |
+| R2 award `CONT_AWD_70T03019F3BOGS009_7013_GS00Q17GWD2293_4732` | 070 | 2025 | 1 tx, $-32.84 | 1 tx, $-32.84 (lifetime $1888776.64) | match |
+| R2 award `CONT_AWD_70FA3123F00000043_7022_70FA3019D00000003_7022` | 070 | 2025 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $1708038.87) | match |
+| R2 award `CONT_AWD_20341122F00016_2036_47QTCA20D00B5_4732` | 020 | 2023 | 1 tx, $252,000.00 | 1 tx, $252,000.00 (lifetime $1552742.96) | match |
+| R2 award `CONT_AWD_28321320P00050036_2800_-NONE-_-NONE-` | 028 | 2022 | 1 tx, $52,500.00 | 1 tx, $52,500.00 (lifetime $270000.0) | match |
+| R2 award `CONT_AWD_75F40119F19046_7524_HHSF223201610046I_7524` | 075 | 2023 | 1 tx, $-4,116.51 | 1 tx, $-4,116.51 (lifetime $335358.69) | match |
+| R2 award `CONT_AWD_20340921P00118_2036_-NONE-_-NONE-` | 020 | 2024 | 1 tx, $1,548.61 | 1 tx, $1,548.61 (lifetime $107225.86) | match |
+| R2 award `CONT_AWD_HHSM500201500341P_7530_-NONE-_-NONE-` | 075 | 2024 | 1 tx, $-3,092.56 | 1 tx, $-3,092.56 (lifetime $168092.53) | match |
+| R2 award `CONT_AWD_75D30124F00001_7523_75D30124D19687_7523` | 075 | 2024 | 1 tx, $1,529,783.83 | 1 tx, $1,529,783.83 (lifetime $1529783.83) | match |
+| R2 award `CONT_AWD_HSTS0217COIA173_7013_-NONE-_-NONE-` | 070 | 2024 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $714769.92) | match |
+| R2 award `CONT_AWD_36C10B19F2964_3600_N0024418D0003_9700` | 036 | 2022 | 6 tx, $2,544.61 | 6 tx, $2,544.61 (lifetime $6616006.25) | match |
+| R2 award `CONT_AWD_1331L521F13230297_1323_1331L519A13ES0038_1301` | 013 | 2025 | 1 tx, $-186.89 | 1 tx, $-186.89 (lifetime $70393.07) | match |
+| R2 award `CONT_AWD_28321323FDX030214_2800_NNG15SD70B_8000` | 028 | 2023 | 1 tx, $622,878.70 | 1 tx, $622,878.70 (lifetime $622878.7) | match |
+| R2 award `CONT_AWD_HSCETE11J00299_7012_HSHQDC09A00032_7001` | 070 | 2022 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $60499.2) | match |
+| R2 award `CONT_AWD_70RDA125FR0000027_7001_70RTAC21D00000006_7001` | 070 | 2025 | 2 tx, $1,157,568.53 | 2 tx, $1,157,568.53 (lifetime $3037604.65) | match |
+| R2 award `CONT_AWD_20341424F00028_2036_2032H521A00022_2050` | 020 | 2024 | 1 tx, $61,152.28 | 1 tx, $61,152.28 (lifetime $213792.28) | match |
+| R2 award `CONT_AWD_HHSF223201710217A_7524_-NONE-_-NONE-` | 075 | 2022 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $125099.36) | match |
+| R2 award `CONT_AWD_75H71219P00049_7527_-NONE-_-NONE-` | 075 | 2023 | 1 tx, $5,500.00 | 1 tx, $5,500.00 (lifetime $30500.0) | match |
+| R2 award `CONT_AWD_70US0922F3OTH2217_7009_75N98120D00179_7529` | 070 | 2022 | 2 tx, $712,741.23 | 2 tx, $712,741.23 (lifetime $0.0) | match |
+| R2 award `CONT_AWD_VA11816F1616_3600_GS35F0170K_4730` | 036 | 2022 | 1 tx, $-176,823.95 | 1 tx, $-176,823.95 (lifetime $1014661.55) | match |
+| R2 award `CONT_AWD_75H70420F80004_7527_GS35F0119P_4730` | 075 | 2022 | 3 tx, $427,611.95 | 3 tx, $427,611.95 (lifetime $1838366.23) | match |
+| R2 award `CONT_AWD_70RTAC24FR0000069_7001_70RTAC21D00000006_7001` | 070 | 2024 | 1 tx, $127,380.16 | 1 tx, $127,380.16 (lifetime $127380.16) | match |
+| R2 award `CONT_AWD_70Z03824FM0000035_7008_NNG15SC03B_8000` | 070 | 2024 | 2 tx, $65,168.40 | 2 tx, $65,168.40 (lifetime $65168.4) | match |
+| R2 award `CONT_AWD_20340924P00003_2036_-NONE-_-NONE-` | 020 | 2024 | 1 tx, $40,703.00 | 1 tx, $40,703.00 (lifetime $164267.0) | match |
+| R2 award `CONT_AWD_75F40123F19001_7524_75F40123A00032_7524` | 075 | 2023 | 1 tx, $138,071.76 | 1 tx, $138,071.76 (lifetime $107111.22) | match |
+| R2 award `CONT_AWD_1331L523FNB130020_1341_NNG15SD68B_8000` | 013 | 2025 | 1 tx, $4,037.60 | 1 tx, $4,037.60 (lifetime $19640.24) | match |
+| R2 award `CONT_AWD_36C24821F0038_3600_GS35F0408X_4732` | 036 | 2024 | 2 tx, $74,317.22 | 2 tx, $74,317.22 (lifetime $376764.27) | match |
+| R2 award `CONT_AWD_HSCETE12F00191_7012_HSHQDC09A00032_7001` | 070 | 2022 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $22594.8) | match |
+| R2 award `CONT_AWD_70T01020P7NOTD212_7013_-NONE-_-NONE-` | 070 | 2023 | 1 tx, $0.00 | 1 tx, $0.00 (lifetime $146958.3) | match |
+| R2 award `CONT_AWD_36C24521P0200_3600_-NONE-_-NONE-` | 036 | 2024 | 1 tx, $43,495.00 | 1 tx, $43,495.00 (lifetime $212450.0) | match |
+| R3 agency-year | 013 | 2022 | $1,173,544,861.68 | $1,173,544,861.68 | 0.00 |
+| R3 agency-year | 013 | 2023 | $1,315,663,689.24 | $1,315,663,689.24 | 0.00 |
+| R3 agency-year | 013 | 2024 | $1,387,577,676.82 | $1,387,577,676.82 | 0.00 |
+| R3 agency-year | 013 | 2025 | $1,358,090,856.19 | $1,358,090,856.19 | 0.00 |
 | R3 agency-year | 013 | 2026 | $1,640,191,267.90 | $1,640,191,267.90 | 0.00 |
 | R3 agency-year | 020 | 2022 | $1,819,975,487.12 | $1,819,975,487.12 | 0.00 |
 | R3 agency-year | 020 | 2023 | $2,243,192,310.47 | $2,243,255,482.39 | -63,171.92 (row count short — see R1) |
 | R3 agency-year | 020 | 2024 | $2,675,734,665.92 | $2,675,856,879.12 | -122,213.20 (row count short — see R1) |
 | R3 agency-year | 020 | 2025 | $3,190,617,744.96 | $3,190,699,459.36 | -81,714.40 (row count short — see R1) |
-| R3 agency-year | 020 | 2026 | $2,292,301,605.29 | $2,292,292,060.57 | 9,544.72 (row count short — see R1) |
+| R3 agency-year | 020 | 2026 | $2,297,258,761.96 | $2,298,281,936.04 | -1,023,174.08 (row count short — see R1) |
 | R3 agency-year | 028 | 2022 | $1,004,831,340.74 | $1,004,831,340.74 | 0.00 |
 | R3 agency-year | 028 | 2023 | $1,052,732,490.79 | $1,052,732,490.79 | 0.00 |
 | R3 agency-year | 028 | 2024 | $938,381,084.59 | $938,381,084.59 | 0.00 |
 | R3 agency-year | 028 | 2025 | $781,780,087.36 | $781,780,087.36 | 0.00 |
 | R3 agency-year | 028 | 2026 | $1,057,911,411.10 | $1,057,911,411.10 | 0.00 |
 | R3 agency-year | 036 | 2022 | $6,730,049,177.23 | $6,730,049,177.23 | 0.00 |
-| R3 agency-year | 036 | 2023 | $6,198,672,091.84 | $6,198,672,091.84 | 0.00 |
-| R3 agency-year | 036 | 2024 | $6,872,937,775.67 | $6,872,937,775.67 | 0.00 |
-| R3 agency-year | 036 | 2025 | $7,218,604,432.11 | $7,218,604,432.11 | 0.00 |
-| R3 agency-year | 036 | 2026 | $8,594,020,370.51 | $8,594,020,370.51 | 0.00 |
+| R3 agency-year | 036 | 2023 | $6,198,415,946.61 | $6,198,415,946.61 | 0.00 |
+| R3 agency-year | 036 | 2024 | $6,872,839,324.71 | $6,872,839,324.71 | 0.00 |
+| R3 agency-year | 036 | 2025 | $7,218,405,908.15 | $7,218,405,908.15 | 0.00 |
+| R3 agency-year | 036 | 2026 | $8,593,829,210.84 | $8,593,829,210.84 | 0.00 |
 | R3 agency-year | 070 | 2022 | $3,776,449,747.57 | $3,776,449,747.57 | 0.00 |
 | R3 agency-year | 070 | 2023 | $4,149,874,995.92 | $4,149,874,995.92 | 0.00 |
 | R3 agency-year | 070 | 2024 | $4,580,168,576.98 | $4,580,168,576.98 | 0.00 |
 | R3 agency-year | 070 | 2025 | $4,594,607,687.63 | $4,594,607,687.63 | 0.00 |
-| R3 agency-year | 070 | 2026 | $5,811,659,583.53 | $5,811,659,583.53 | 0.00 |
+| R3 agency-year | 070 | 2026 | $5,816,784,543.82 | $5,816,784,543.82 | 0.00 |
 | R3 agency-year | 075 | 2022 | $5,518,703,581.60 | $5,518,703,581.60 | 0.00 |
 | R3 agency-year | 075 | 2023 | $5,455,504,166.39 | $5,455,504,166.39 | 0.00 |
 | R3 agency-year | 075 | 2024 | $5,513,022,707.43 | $5,513,022,707.43 | 0.00 |
-| R3 agency-year | 075 | 2025 | $5,208,060,799.64 | $5,208,060,799.64 | 0.00 |
+| R3 agency-year | 075 | 2025 | $5,208,060,796.89 | $5,208,060,796.89 | 0.00 |
 | R3 agency-year | 075 | 2026 | $5,697,146,007.06 | $5,697,146,007.06 | 0.00 |
